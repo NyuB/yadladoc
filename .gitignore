@@ -1,0 +1,7 @@
+# vs code config files
+.bloop
+.metals
+.vscode
+
+# mill output files
+out
