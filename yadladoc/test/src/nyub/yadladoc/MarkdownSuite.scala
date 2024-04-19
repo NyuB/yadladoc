@@ -1,9 +1,9 @@
 package nyub.yadladoc
 
-class YadladocSuite extends munit.FunSuite:
+class MarkdownSuite extends munit.FunSuite:
     test("Parses empty lines"):
         val input = List.empty[String]
-        val parsed = Yadladoc.parse(input)
+        val parsed = Markdown.parse(input)
         parsed isEqualTo List.empty
 
     test("Only raw markdown"):
@@ -13,8 +13,8 @@ class YadladocSuite extends munit.FunSuite:
         ## Subtitle
         Text
         """
-        Yadladoc.parse(input) isEqualTo Seq(
-          Yadladoc.Raw(Seq("# Title", "Description", "## Subtitle", "Text"))
+        Markdown.parse(input) isEqualTo Seq(
+          Markdown.Raw(Seq("# Title", "Description", "## Subtitle", "Text"))
         )
 
     test("One snippet"):
@@ -26,10 +26,10 @@ class YadladocSuite extends munit.FunSuite:
         ```
         Awesome isn't it ?
         """
-        Yadladoc.parse(input) isEqualTo Seq(
-          Yadladoc.Raw("# Title", "This is a code snippet"),
-          Yadladoc.Snippet("val i: Int = 0"),
-          Yadladoc.Raw("Awesome isn't it ?")
+        Markdown.parse(input) isEqualTo Seq(
+          Markdown.Raw("# Title", "This is a code snippet"),
+          Markdown.Snippet("val i: Int = 0"),
+          Markdown.Raw("Awesome isn't it ?")
         )
 
     test("Empty snippet"):
@@ -37,8 +37,8 @@ class YadladocSuite extends munit.FunSuite:
         ```scala
         ```
         """
-        Yadladoc.parse(input) isEqualTo Seq(
-          Yadladoc.Snippet()
+        Markdown.parse(input) isEqualTo Seq(
+          Markdown.Snippet()
         )
 
     test("Nested snippets are kept in outer snippet"):
@@ -52,8 +52,8 @@ class YadladocSuite extends munit.FunSuite:
         ````
         ```
         """
-        Yadladoc.parse(input) isEqualTo Seq(
-          Yadladoc.Snippet(
+        Markdown.parse(input) isEqualTo Seq(
+          Markdown.Snippet(
             "You can nest markdown in markdown :O",
             "````java",
             "class Inception {",
@@ -90,3 +90,5 @@ class YadladocSuite extends munit.FunSuite:
 
         override def iterator: Iterator[String] =
             s.linesIterator.map(l => l.substring(commonIndent.length, l.length))
+
+end MarkdownSuite

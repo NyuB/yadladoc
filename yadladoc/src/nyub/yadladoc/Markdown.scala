@@ -2,10 +2,11 @@ package nyub.yadladoc
 
 import scala.annotation.targetName
 
-object Yadladoc:
+object Markdown:
+    private val MARKDOWN_CODE_HEADER_CHAR = '`'
     private val MARKDOWN_CODE_HEADER = "```"
     private def getMarkdownHeader(line: String): String =
-        line.takeWhile(_ == '`')
+        line.takeWhile(_ == MARKDOWN_CODE_HEADER_CHAR)
 
     sealed trait Block
 
@@ -25,11 +26,11 @@ object Yadladoc:
                 (acc, item) => acc.parse(item)
             .get()
 
-    trait BlockParsing:
+    private trait BlockParsing:
         def parse(line: String): BlockParsing
         def get(): Seq[Block]
 
-    object BlockParsing:
+    private object BlockParsing:
         object Init extends BlockParsing:
             override def get(): Seq[Block] = Seq.empty
             override def parse(line: String): BlockParsing =
@@ -83,4 +84,4 @@ object Yadladoc:
                 private def hasSameHeader: Boolean =
                     getMarkdownHeader(s) == header
 
-end Yadladoc
+end Markdown
