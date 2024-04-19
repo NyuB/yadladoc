@@ -3,10 +3,10 @@ package nyub.yadladoc
 import scala.annotation.targetName
 
 object Markdown:
-    private val MARKDOWN_CODE_HEADER_CHAR = '`'
-    private val MARKDOWN_CODE_HEADER = "```"
-    private def getMarkdownHeader(line: String): String =
-        line.takeWhile(_ == MARKDOWN_CODE_HEADER_CHAR)
+    private val MARKDOWN_SNIPPET_PREFIX_CHAR = '`'
+    private val MARKDOWN_SNIPPET_PREFIX = "```"
+    private def snippetPrefix(line: String): String =
+        line.takeWhile(_ == MARKDOWN_SNIPPET_PREFIX_CHAR)
 
     sealed trait Block
 
@@ -15,10 +15,18 @@ object Markdown:
         @targetName("of")
         def apply(lines: String*) = new Raw(lines.toSeq)
 
-    case class Snippet(lines: Seq[String]) extends Block
+    case class Snippet(header: Snippet.Header, lines: Seq[String]) extends Block
     object Snippet:
         @targetName("of")
-        def apply(lines: String*) = new Snippet(lines.toSeq)
+        def apply(header: Header, lines: String*) =
+            new Snippet(header, lines.toSeq)
+
+        case class Header(val prefix: String, val language: Option[String])
+        private[Markdown] def headerOfLine(line: String): Header =
+            val prefix = snippetPrefix(line)
+            val language =
+                line.substring(prefix.length).takeWhile(c => !" \t".contains(c))
+            Header(prefix, if language.length > 0 then Some(language) else None)
 
     def parse(input: Iterable[String]): Seq[Block] =
         input
@@ -34,11 +42,11 @@ object Markdown:
         object Init extends BlockParsing:
             override def get(): Seq[Block] = Seq.empty
             override def parse(line: String): BlockParsing =
-                if line.startsWith(MARKDOWN_CODE_HEADER) then
+                if line.startsWith(MARKDOWN_SNIPPET_PREFIX) then
                     SnippetBLock(
                       List.empty,
                       List.empty,
-                      getMarkdownHeader(line)
+                      Snippet.headerOfLine(line)
                     )
                 else RawBlock(List(line), List.empty)
 
@@ -50,12 +58,12 @@ object Markdown:
                 withNewRawBlockIFNotEmpty.reverse
 
             override def parse(line: String): BlockParsing =
-                if line.startsWith(MARKDOWN_CODE_HEADER) then
+                if line.startsWith(MARKDOWN_SNIPPET_PREFIX) then
                     val raw = Raw(lines.reverse)
                     SnippetBLock(
                       List.empty,
                       withNewRawBlockIFNotEmpty,
-                      getMarkdownHeader(line)
+                      Snippet.headerOfLine(line)
                     )
                 else RawBlock(line :: lines, previousBlocks)
 
@@ -68,7 +76,7 @@ object Markdown:
         class SnippetBLock(
             private val lines: List[String],
             private val previousBlocks: List[Block],
-            private val header: String
+            private val header: Snippet.Header
         ) extends BlockParsing:
             override def get(): Seq[Block] = throw IllegalStateException(
               "Unclosed code snippet parsing"
@@ -76,12 +84,12 @@ object Markdown:
 
             override def parse(line: String): BlockParsing =
                 if line.hasSameHeader then
-                    val snippet = Snippet(lines.reverse)
+                    val snippet = Snippet(header, lines.reverse)
                     RawBlock(List.empty, snippet :: previousBlocks)
                 else SnippetBLock(line :: lines, previousBlocks, header)
 
             extension (s: String)
                 private def hasSameHeader: Boolean =
-                    getMarkdownHeader(s) == header
+                    snippetPrefix(s) == header.prefix
 
 end Markdown

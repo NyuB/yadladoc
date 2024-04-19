@@ -28,17 +28,20 @@ class MarkdownSuite extends munit.FunSuite:
         """
         Markdown.parse(input) isEqualTo Seq(
           Markdown.Raw("# Title", "This is a code snippet"),
-          Markdown.Snippet("val i: Int = 0"),
+          Markdown.Snippet(
+            Markdown.Snippet.Header("```", Some("scala")),
+            "val i: Int = 0"
+          ),
           Markdown.Raw("Awesome isn't it ?")
         )
 
     test("Empty snippet"):
         val input = l"""
-        ```scala
+        ```
         ```
         """
         Markdown.parse(input) isEqualTo Seq(
-          Markdown.Snippet()
+          Markdown.Snippet(Markdown.Snippet.Header("```", None))
         )
 
     test("Nested snippets are kept in outer snippet"):
@@ -54,6 +57,7 @@ class MarkdownSuite extends munit.FunSuite:
         """
         Markdown.parse(input) isEqualTo Seq(
           Markdown.Snippet(
+            Markdown.Snippet.Header("```", Some("markdown")),
             "You can nest markdown in markdown :O",
             "````java",
             "class Inception {",
