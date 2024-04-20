@@ -19,7 +19,7 @@ class YadladocSuite
         Yadladoc(Yadladoc.Settings(outputDir, configDir)).run(markdownFile)
 
         outputDir.resolve("one.java") hasContent l"""
-            package com.example
+            package com.example;
             class HelloYadladoc { }
             """
 
@@ -60,6 +60,34 @@ class YadladocSuite
             }
             """
 
+    testWithinYDocContext("Check ok for no snippet and valid markdown"):
+        (outputDir, configDir, workingDir) =>
+            val markdownFile = makeFile(workingDir, "README.md"):
+                l"""
+            + Juste
+                - A simple
+                    * Markdown
+            """
+            Yadladoc(Yadladoc.Settings(outputDir, configDir))
+                .check(markdownFile) isEqualTo List.empty
+
+    testWithinYDocContext(
+      "Check ok if generated files are already there and matching"
+    ): (outputDir, configDir, workingDir) =>
+        val markdownFile = makeFile(workingDir, "README.md"):
+            l"""
+            ```java ydoc.example.ok
+            println("Hello world");
+            """
+        makeFile(outputDir, "ok.java"):
+            l"""
+            package com.example;
+            println("Hello world");
+            """
+
+        Yadladoc(Yadladoc.Settings(outputDir, configDir))
+            .check(markdownFile) isEqualTo List.empty
+
     def testWithinYDocContext(name: String)(f: (Path, Path, Path) => Any) =
         val withYdocContext =
             FunFixture.map3(withTempDir, withTempDir, withTempDir)
@@ -77,7 +105,7 @@ class YadladocSuite
             """
 
         val javaTemplate = l"""
-            package com.example
+            package com.example;
             $${{ydoc.snippet}}
             """
 

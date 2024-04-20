@@ -28,6 +28,8 @@ class Yadladoc(
                     lines.map(templating.inject(_)).mkString("\n")
             contentAccess.writeContent(merged.filePath, templated)
 
+    def check(markdownFile: Path): List[Errors] = List.empty
+
 object Yadladoc:
     trait Configuration:
         def exampleForSnippet(header: Markdown.Snippet.Header): Examplable
