@@ -19,9 +19,11 @@ class Yadladoc(private val settings: Yadladoc.Settings):
                 lines.map(templating.inject(_))
             .mkString("\n")
         Files.write(
-          settings.outputDir / "yadladoc.txt",
+          settings.outputDir / outputFilename,
           templated.getBytes(UTF_8)
         )
+
+    private val outputFilename = "yadladoc.txt"
 
 object Yadladoc:
     case class Settings(val outputDir: Path, val templateFile: Path)

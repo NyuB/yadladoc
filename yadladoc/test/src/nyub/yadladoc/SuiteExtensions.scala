@@ -8,6 +8,20 @@ trait SuiteExtensions extends munit.FunSuite:
       teardown = dir => rmrf(dir)
     )
 
+    def makeFile(
+        tempDir: Path,
+        filename: String,
+        content: String
+    ): Path =
+        val res = tempDir.resolve(filename)
+        Files.write(res, content.getBytes(), StandardOpenOption.CREATE)
+        res
+
+    def makeFile(tempDir: Path, filename: String)(
+        content: => Iterable[String]
+    ): Path =
+        makeFile(tempDir, filename, content.mkString("\n"))
+
     private def rmrf(p: Path): Unit =
         if p.toFile().isFile() then Files.delete(p)
         else if p.toFile().isDirectory() then
