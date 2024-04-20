@@ -1,13 +1,13 @@
 package nyub.yadladoc
 
 import java.nio.file.Path
-import java.nio.file.Files
-import java.nio.charset.StandardCharsets.UTF_8
-import scala.io.Source
 import nyub.yadladoc.Markdown.Snippet.Header
 import nyub.yadladoc.Yadladoc.Examplable
 
-class Yadladoc(private val config: Yadladoc.Configuration):
+class Yadladoc(
+    private val config: Yadladoc.Configuration,
+    private val contentAccess: ContentAccess = FilesAccess()
+):
     def run(markdownFile: Path): Unit =
         val mergedSnippets = FileIterable(markdownFile)
             .use(Markdown.parse(_))
@@ -22,14 +22,11 @@ class Yadladoc(private val config: Yadladoc.Configuration):
                   Map(config.snippetInjectionKey -> merged.mergedLines)
                 )
             val templated =
-                FileIterable(config.templateFileForSnippet(merged.sharedHeader))
-                    .use: lines =>
-                        lines.map(templating.inject(_))
-                    .mkString("\n")
-            Files.write(
-              merged.filePath,
-              templated.getBytes(UTF_8)
-            )
+                contentAccess.useLines(
+                  config.templateFileForSnippet(merged.sharedHeader)
+                ): lines =>
+                    lines.map(templating.inject(_)).mkString("\n")
+            contentAccess.writeContent(merged.filePath, templated)
 
 object Yadladoc:
     trait Configuration:
