@@ -16,7 +16,7 @@ class Yadladoc(private val settings: Yadladoc.Settings):
         snippets.values.foreach: merged =>
             val snippet = merged.snippets.flatMap(_.lines).mkString("\n")
             val templating =
-                TemplateInjection(Map(snippetInjectionKey -> snippet))
+                TemplateInjection(Map(settings.snippetInjectionKey -> snippet))
             val templated = FileIterable(settings.templateFile)
                 .use: lines =>
                     lines.map(templating.inject(_))
@@ -26,14 +26,13 @@ class Yadladoc(private val settings: Yadladoc.Settings):
               templated.getBytes(UTF_8)
             )
 
-    private val snippetInjectionKey = "ydoc.snippet"
-
 object Yadladoc:
     case class Settings(
         val outputDir: Path,
         val templateFile: Path,
         val examplePropertyPrefix: String = "ydoc.example",
-        val defaultExampleFileExtension: String = "txt"
+        val defaultExampleFileExtension: String = "txt",
+        val snippetInjectionKey: String = "ydoc.snippet"
     ):
         def extensionForLanguage(language: Option[String]): String =
             language.getOrElse(defaultExampleFileExtension)

@@ -65,7 +65,7 @@ class YadladocSuite
             myList[0] // operator alternative to get()
             }
             """
-            
+
             tmpDir.resolve("kotlin-class-example.kotlin") hasContent l"""
             package com.example
             fun main() {
