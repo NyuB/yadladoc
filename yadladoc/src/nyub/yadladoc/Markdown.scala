@@ -21,12 +21,26 @@ object Markdown:
         def apply(header: Header, lines: String*) =
             new Snippet(header, lines.toSeq)
 
-        case class Header(val prefix: String, val language: Option[String])
+        case class Header(
+            val prefix: String,
+            val language: Option[String],
+            val properties: List[String]
+        )
+
         private[Markdown] def headerOfLine(line: String): Header =
             val prefix = snippetPrefix(line)
             val language =
                 line.substring(prefix.length).takeWhile(c => !" \t".contains(c))
-            Header(prefix, if language.length > 0 then Some(language) else None)
+            val properties = line
+                .substring(prefix.length + language.length)
+                .split("\\s")
+                .filterNot(_.isEmpty)
+                .toList
+            Header(
+              prefix,
+              if language.length > 0 then Some(language) else None,
+              properties
+            )
 
     def parse(input: Iterable[String]): Seq[Block] =
         input

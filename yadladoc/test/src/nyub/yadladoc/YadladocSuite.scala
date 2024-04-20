@@ -55,7 +55,7 @@ class YadladocSuite
             $${{ydoc.snippet}}
             }
             """
-        
+
         Yadladoc(Yadladoc.Settings(tmpDir, templateFile)).run(markdownFile)
 
         tmpDir.resolve("yadladoc.txt") hasContent l"""
