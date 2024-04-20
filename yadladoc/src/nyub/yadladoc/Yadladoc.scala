@@ -4,44 +4,66 @@ import java.nio.file.Path
 import java.nio.file.Files
 import java.nio.charset.StandardCharsets.UTF_8
 import scala.io.Source
+import nyub.yadladoc.Markdown.Snippet.Header
+import nyub.yadladoc.Yadladoc.Examplable
 
-class Yadladoc(private val settings: Yadladoc.Settings):
+class Yadladoc(private val config: Yadladoc.Configuration):
     def run(markdownFile: Path): Unit =
         val snippets = FileIterable(markdownFile)
             .use(Markdown.parse(_))
             .collect:
                 case s: Markdown.Snippet => s
-            .foldLeft(SnippetMerger(settings, Map.empty))(_.accumulate(_))
+            .foldLeft(SnippetMerger(config, Map.empty))(_.accumulate(_))
             .snippets
         snippets.values.foreach: merged =>
             val snippet = merged.snippets.flatMap(_.lines).mkString("\n")
             val templating =
-                TemplateInjection(Map(settings.snippetInjectionKey -> snippet))
-            val templated = FileIterable(settings.templateFile)
-                .use: lines =>
-                    lines.map(templating.inject(_))
-                .mkString("\n")
+                TemplateInjection(Map(config.snippetInjectionKey -> snippet))
+            val templated =
+                FileIterable(config.templateFileForSnippet(merged.sharedHeader))
+                    .use: lines =>
+                        lines.map(templating.inject(_))
+                    .mkString("\n")
             Files.write(
               merged.filePath,
               templated.getBytes(UTF_8)
             )
 
 object Yadladoc:
+    trait Configuration:
+        def exampleForSnippet(header: Markdown.Snippet.Header): Examplable
+        def templateFileForSnippet(header: Markdown.Snippet.Header): Path
+        def snippetInjectionKey: String
+
+    enum Examplable:
+        case Example(val path: Path, val name: String)
+        case Ignore
+
     case class Settings(
         val outputDir: Path,
         val templateFile: Path,
         val examplePropertyPrefix: String = "ydoc.example",
         val defaultExampleFileExtension: String = "txt",
-        val snippetInjectionKey: String = "ydoc.snippet"
-    ):
-        def extensionForLanguage(language: Option[String]): String =
-            language.getOrElse(defaultExampleFileExtension)
+        override val snippetInjectionKey: String = "ydoc.snippet"
+    ) extends Configuration:
+        override def exampleForSnippet(header: Header): Examplable =
+            val exampleNameProperty = header.properties.find: s =>
+                if !s.startsWith(examplePropertyPrefix + ".") then false
+                else
+                    val name = s.substring(examplePropertyPrefix.length + 1)
+                    !name.isBlank
+            exampleNameProperty
+                .map: s =>
+                    val name = s.substring(examplePropertyPrefix.length + 1)
+                    Examplable.Example(
+                      outputDir / s"${name}.${extensionForLanguage(header.language)}",
+                      name
+                    )
+                .getOrElse(Examplable.Ignore)
 
-        def filePathForExample(
-            exampleName: String,
-            language: Option[String]
-        ): Path =
-            outputDir / s"${exampleName}.${extensionForLanguage(language)}"
+        override def templateFileForSnippet(header: Header): Path = templateFile
+        private def extensionForLanguage(lang: Option[String]): String =
+            lang.getOrElse(defaultExampleFileExtension)
 
 extension (p: Path)
     private def /(other: Path) = p.resolve(other)
@@ -57,33 +79,38 @@ private class FileIterable(path: Path):
         linesSource.close()
         res
 
-private case class MergedSnippets(
-    filePath: Path,
+private case class MergedSnippets private (
+    val filePath: Path,
+    val sharedHeader: Markdown.Snippet.Header,
     snippets: List[Markdown.Snippet]
-)
+):
+    def merge(snippet: Markdown.Snippet): MergedSnippets =
+        val snippetLanguage = snippet.header.language
+        val sharedLanguage = sharedHeader.language
+        if snippetLanguage != sharedLanguage then
+            throw IllegalArgumentException(
+              s"Error trying to merge snippets with different languages ${sharedLanguage} and ${snippetLanguage}"
+            )
+        else MergedSnippets(filePath, sharedHeader, snippets :+ snippet)
+
+private object MergedSnippets:
+    def init(filePath: Path, snippet: Markdown.Snippet): MergedSnippets =
+        MergedSnippets(filePath, snippet.header, List(snippet))
 
 private class SnippetMerger(
-    val settings: Yadladoc.Settings,
+    val config: Yadladoc.Configuration,
     val snippets: Map[String, MergedSnippets]
 ):
     def accumulate(snippet: Markdown.Snippet): SnippetMerger =
-        val ydocExampleProperty = snippet.header.properties
-            .find: s =>
-                s.startsWith(s"${settings.examplePropertyPrefix}.") &&
-                    !s.substring(settings.examplePropertyPrefix.length + 1)
-                        .isBlank
-            .map(_.substring(settings.examplePropertyPrefix.length + 1))
+        val ydocExample = config.exampleForSnippet(snippet.header)
 
-        ydocExampleProperty match
-            case None => this // no doc should be genrated for this snippet
-            case Some(exampleName) =>
+        ydocExample match
+            case Examplable.Ignore =>
+                this // no doc should be generated for this snippet
+            case Examplable.Example(examplePath, exampleName) =>
                 val updatedSnippets = snippets.updatedWith(exampleName):
                     case None =>
-                        val filePath = settings.filePathForExample(
-                          exampleName,
-                          snippet.header.language
-                        )
-                        Some(MergedSnippets(filePath, List(snippet)))
-                    case Some(MergedSnippets(fp, previous)) =>
-                        Some(MergedSnippets(fp, previous :+ snippet))
-                SnippetMerger(settings, updatedSnippets)
+                        Some(MergedSnippets.init(examplePath, snippet))
+                    case Some(previous) =>
+                        Some(previous.merge(snippet))
+                SnippetMerger(config, updatedSnippets)
