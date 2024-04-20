@@ -11,23 +11,38 @@ class Yadladoc(private val settings: Yadladoc.Settings):
             .use(Markdown.parse(_))
             .collect:
                 case s: Markdown.Snippet => s
-            .flatMap(_.lines)
-            .mkString("\n")
-        val templating = TemplateInjection(Map(snippetInjectionKey -> snippets))
-        val templated = FileIterable(settings.templateFile)
-            .use: lines =>
-                lines.map(templating.inject(_))
-            .mkString("\n")
-        Files.write(
-          settings.outputDir / outputFilename,
-          templated.getBytes(UTF_8)
-        )
+            .foldLeft(SnippetMerger(settings, Map.empty))(_.accumulate(_))
+            .snippets
+        snippets.values.foreach: merged =>
+            val snippet = merged.snippets.flatMap(_.lines).mkString("\n")
+            val templating =
+                TemplateInjection(Map(snippetInjectionKey -> snippet))
+            val templated = FileIterable(settings.templateFile)
+                .use: lines =>
+                    lines.map(templating.inject(_))
+                .mkString("\n")
+            Files.write(
+              merged.filePath,
+              templated.getBytes(UTF_8)
+            )
 
-    private val outputFilename = "yadladoc.txt"
     private val snippetInjectionKey = "ydoc.snippet"
 
 object Yadladoc:
-    case class Settings(val outputDir: Path, val templateFile: Path)
+    case class Settings(
+        val outputDir: Path,
+        val templateFile: Path,
+        val examplePropertyPrefix: String = "ydoc.example",
+        val defaultExampleFileExtension: String = "txt"
+    ):
+        def extensionForLanguage(language: Option[String]): String =
+            language.getOrElse(defaultExampleFileExtension)
+
+        def filePathForExample(
+            exampleName: String,
+            language: Option[String]
+        ): Path =
+            outputDir / s"${exampleName}.${extensionForLanguage(language)}"
 
 extension (p: Path)
     private def /(other: Path) = p.resolve(other)
@@ -42,3 +57,34 @@ private class FileIterable(path: Path):
         val res = f(iterable)
         linesSource.close()
         res
+
+private case class MergedSnippets(
+    filePath: Path,
+    snippets: List[Markdown.Snippet]
+)
+
+private class SnippetMerger(
+    val settings: Yadladoc.Settings,
+    val snippets: Map[String, MergedSnippets]
+):
+    def accumulate(snippet: Markdown.Snippet): SnippetMerger =
+        val ydocExampleProperty = snippet.header.properties
+            .find: s =>
+                s.startsWith(s"${settings.examplePropertyPrefix}.") &&
+                    !s.substring(settings.examplePropertyPrefix.length + 1)
+                        .isBlank
+            .map(_.substring(settings.examplePropertyPrefix.length + 1))
+
+        ydocExampleProperty match
+            case None => this // no doc should be genrated for this snippet
+            case Some(exampleName) =>
+                val updatedSnippets = snippets.updatedWith(exampleName):
+                    case None =>
+                        val filePath = settings.filePathForExample(
+                          exampleName,
+                          snippet.header.language
+                        )
+                        Some(MergedSnippets(filePath, List(snippet)))
+                    case Some(MergedSnippets(fp, previous)) =>
+                        Some(MergedSnippets(fp, previous :+ snippet))
+                SnippetMerger(settings, updatedSnippets)

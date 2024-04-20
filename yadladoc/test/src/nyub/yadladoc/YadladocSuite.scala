@@ -11,7 +11,7 @@ class YadladocSuite
         val markdownFile = makeFile(tmpDir, "README.md"):
             l"""
             # One snippet
-            ```java
+            ```java ydoc.example.one
             class HelloYadladoc { }
             ```
             """
@@ -24,49 +24,52 @@ class YadladocSuite
 
         Yadladoc(Yadladoc.Settings(tmpDir, templateFile)).run(markdownFile)
 
-        tmpDir.resolve("yadladoc.txt") hasContent l"""
+        tmpDir.resolve("one.java") hasContent l"""
             package com.example
             class HelloYadladoc { }
             """
 
-    withTempDir.test("Three snippets concatenated"): (tmpDir: Path) =>
-        val markdownFile = makeFile(tmpDir, "README.md"):
-            l"""
+    withTempDir.test("Three snippets, first two in the same example"):
+        (tmpDir: Path) =>
+            val markdownFile = makeFile(tmpDir, "README.md"):
+                l"""
             Create a list with listOf(...)
-            ```kotlin
+            ```kotlin ydoc.example.kotlin-list-example
             val myList = listOf(1, 2, 3)
             ```
             Retrieve items with get(...)
-            ```kotlin
+            ```kotlin ydoc.example.kotlin-list-example
             myList.get(0) // 1
             myList[0] // operator alternative to get()
             ```
-            Check if an object is in the list with contains(...)
-            ```kotlin
-            myList.contains(2) // true
-            myList.contains(42) // false
-            42 in myList // operator alternative to contains
+            Here is how to define a class:
+            ```kotlin ydoc.example.kotlin-class-example
+            class SoCool(val coolnessLevel: Int)
             ```
             """
-        val templateFile = makeFile(tmpDir, "template.kt"):
-            l"""
+            val templateFile = makeFile(tmpDir, "template.kt"):
+                l"""
             package com.example
             fun main() {
             $${{ydoc.snippet}}
             }
             """
 
-        Yadladoc(Yadladoc.Settings(tmpDir, templateFile)).run(markdownFile)
+            Yadladoc(Yadladoc.Settings(tmpDir, templateFile)).run(markdownFile)
 
-        tmpDir.resolve("yadladoc.txt") hasContent l"""
+            tmpDir.resolve("kotlin-list-example.kotlin") hasContent l"""
             package com.example
             fun main() {
             val myList = listOf(1, 2, 3)
             myList.get(0) // 1
             myList[0] // operator alternative to get()
-            myList.contains(2) // true
-            myList.contains(42) // false
-            42 in myList // operator alternative to contains
+            }
+            """
+            
+            tmpDir.resolve("kotlin-class-example.kotlin") hasContent l"""
+            package com.example
+            fun main() {
+            class SoCool(val coolnessLevel: Int)
             }
             """
 
