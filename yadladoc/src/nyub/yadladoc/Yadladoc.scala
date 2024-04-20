@@ -13,7 +13,7 @@ class Yadladoc(private val settings: Yadladoc.Settings):
                 case s: Markdown.Snippet => s
             .flatMap(_.lines)
             .mkString("\n")
-        val templating = TemplateInjection(Map("ydoc.snippet" -> snippets))
+        val templating = TemplateInjection(Map(snippetInjectionKey -> snippets))
         val templated = FileIterable(settings.templateFile)
             .use: lines =>
                 lines.map(templating.inject(_))
@@ -24,6 +24,7 @@ class Yadladoc(private val settings: Yadladoc.Settings):
         )
 
     private val outputFilename = "yadladoc.txt"
+    private val snippetInjectionKey = "ydoc.snippet"
 
 object Yadladoc:
     case class Settings(val outputDir: Path, val templateFile: Path)
