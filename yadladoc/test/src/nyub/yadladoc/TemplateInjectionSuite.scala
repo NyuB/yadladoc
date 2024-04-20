@@ -1,8 +1,6 @@
 package nyub.yadladoc
 
-class TemplateInjectionInjectionSuite
-    extends munit.FunSuite
-    with AssertExtensions:
+class TemplateInjectionSuite extends munit.FunSuite with AssertExtensions:
     test("Line without marker is returned as is"):
         TemplateInjection(Map.empty).inject(
           "Hello there ;)"
@@ -25,3 +23,5 @@ class TemplateInjectionInjectionSuite
     private val testInjection = TemplateInjection(
       Map("foo" -> "boo", "far.faz" -> "bar.baz", "x23" -> "Two\nLines")
     )
+
+end TemplateInjectionSuite

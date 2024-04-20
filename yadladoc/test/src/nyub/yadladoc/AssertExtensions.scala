@@ -4,3 +4,7 @@ trait AssertExtensions extends munit.Assertions:
     extension [T](t: T)
         infix def isEqualTo(other: T): Unit =
             assertEquals(t, other)
+
+    extension (s: String)
+        infix def isEqualToLines(lines: Iterable[String]) =
+            assertEquals(s, lines.mkString("\n"))

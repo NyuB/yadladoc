@@ -1,6 +1,9 @@
 package nyub.yadladoc
 
-class MarkdownSuite extends munit.FunSuite with AssertExtensions:
+class MarkdownSuite
+    extends munit.FunSuite
+    with AssertExtensions
+    with SuiteExtensions:
     test("Parses empty lines"):
         val input = List.empty[String]
         val parsed = Markdown.parse(input)
@@ -66,29 +69,5 @@ class MarkdownSuite extends munit.FunSuite with AssertExtensions:
             "````"
           )
         )
-
-    extension (sc: StringContext)
-        /** Trim common indent and trailing white spaces Usefull for text block
-          * in raw strings
-          */
-        def l(args: Any*): Iterable[String] =
-            var s = sc.s(args*).stripTrailing()
-            if s.startsWith("\n") then s = s.substring(1, s.length)
-            if s.endsWith("\n") then s = s.substring(0, s.length - 1)
-            LineIterable(s)
-
-    private class LineIterable(s: String) extends Iterable[String]:
-        private def getIndent(str: String): String =
-            var index: Int = 0
-            while index < str.length && (" \t".contains(str(index))) do
-                index += 1
-            str.substring(0, index)
-
-        private val commonIndent = s.linesIterator
-            .foldLeft(getIndent(s)): (i, l) =>
-                if l.startsWith(i) then i else getIndent(l)
-
-        override def iterator: Iterator[String] =
-            s.linesIterator.map(l => l.substring(commonIndent.length, l.length))
 
 end MarkdownSuite
