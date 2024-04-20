@@ -9,16 +9,18 @@ import nyub.yadladoc.Yadladoc.Examplable
 
 class Yadladoc(private val config: Yadladoc.Configuration):
     def run(markdownFile: Path): Unit =
-        val snippets = FileIterable(markdownFile)
+        val mergedSnippets = FileIterable(markdownFile)
             .use(Markdown.parse(_))
             .collect:
                 case s: Markdown.Snippet => s
             .foldLeft(SnippetMerger(config, Map.empty))(_.accumulate(_))
             .snippets
-        snippets.values.foreach: merged =>
-            val snippet = merged.snippets.flatMap(_.lines).mkString("\n")
+
+        mergedSnippets.values.foreach: merged =>
             val templating =
-                TemplateInjection(Map(config.snippetInjectionKey -> snippet))
+                TemplateInjection(
+                  Map(config.snippetInjectionKey -> merged.mergedLines)
+                )
             val templated =
                 FileIterable(config.templateFileForSnippet(merged.sharedHeader))
                     .use: lines =>
@@ -41,7 +43,7 @@ object Yadladoc:
 
     case class Settings(
         val outputDir: Path,
-        val templateFile: Path,
+        val configDir: Path,
         val examplePropertyPrefix: String = "ydoc.example",
         val defaultExampleFileExtension: String = "txt",
         override val snippetInjectionKey: String = "ydoc.snippet"
@@ -61,7 +63,12 @@ object Yadladoc:
                     )
                 .getOrElse(Examplable.Ignore)
 
-        override def templateFileForSnippet(header: Header): Path = templateFile
+        override def templateFileForSnippet(header: Header): Path =
+            header.language
+                .map: lang =>
+                    configDir / s"${lang}.template"
+                .getOrElse(configDir / "default.template")
+
         private def extensionForLanguage(lang: Option[String]): String =
             lang.getOrElse(defaultExampleFileExtension)
 
@@ -92,6 +99,8 @@ private case class MergedSnippets private (
               s"Error trying to merge snippets with different languages ${sharedLanguage} and ${snippetLanguage}"
             )
         else MergedSnippets(filePath, sharedHeader, snippets :+ snippet)
+
+    def mergedLines: String = snippets.flatMap(_.lines).mkString("\n")
 
 private object MergedSnippets:
     def init(filePath: Path, snippet: Markdown.Snippet): MergedSnippets =

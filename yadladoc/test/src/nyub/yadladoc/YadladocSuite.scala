@@ -7,8 +7,8 @@ class YadladocSuite
     with AssertExtensions
     with SuiteExtensions:
 
-    withTempDir.test("One snippet"): tmpDir =>
-        val markdownFile = makeFile(tmpDir, "README.md"):
+    testWithinYDocContext("One snippet"): (outputDir, configDir, workingDir) =>
+        val markdownFile = makeFile(workingDir, "README.md"):
             l"""
             # One snippet
             ```java ydoc.example.one
@@ -16,22 +16,16 @@ class YadladocSuite
             ```
             """
 
-        val templateFile = makeFile(tmpDir, "ydoc.template"):
-            l"""
-            package com.example
-            $${{ydoc.snippet}}
-            """
+        Yadladoc(Yadladoc.Settings(outputDir, configDir)).run(markdownFile)
 
-        Yadladoc(Yadladoc.Settings(tmpDir, templateFile)).run(markdownFile)
-
-        tmpDir.resolve("one.java") hasContent l"""
+        outputDir.resolve("one.java") hasContent l"""
             package com.example
             class HelloYadladoc { }
             """
 
-    withTempDir.test("Three snippets, first two in the same example"):
-        (tmpDir: Path) =>
-            val markdownFile = makeFile(tmpDir, "README.md"):
+    testWithinYDocContext("Three snippets, first two in the same example"):
+        (outputDir: Path, configDir: Path, workingDir) =>
+            val markdownFile = makeFile(workingDir, "README.md"):
                 l"""
             Create a list with listOf(...)
             ```kotlin ydoc.example.kotlin-list-example
@@ -47,17 +41,10 @@ class YadladocSuite
             class SoCool(val coolnessLevel: Int)
             ```
             """
-            val templateFile = makeFile(tmpDir, "template.kt"):
-                l"""
-            package com.example
-            fun main() {
-            $${{ydoc.snippet}}
-            }
-            """
 
-            Yadladoc(Yadladoc.Settings(tmpDir, templateFile)).run(markdownFile)
+            Yadladoc(Yadladoc.Settings(outputDir, configDir)).run(markdownFile)
 
-            tmpDir.resolve("kotlin-list-example.kotlin") hasContent l"""
+            outputDir.resolve("kotlin-list-example.kotlin") hasContent l"""
             package com.example
             fun main() {
             val myList = listOf(1, 2, 3)
@@ -66,11 +53,32 @@ class YadladocSuite
             }
             """
 
-            tmpDir.resolve("kotlin-class-example.kotlin") hasContent l"""
+            outputDir.resolve("kotlin-class-example.kotlin") hasContent l"""
             package com.example
             fun main() {
             class SoCool(val coolnessLevel: Int)
             }
+            """
+
+    def testWithinYDocContext(name: String)(f: (Path, Path, Path) => Any) =
+        val withYdocContext =
+            FunFixture.map3(withTempDir, withTempDir, withTempDir)
+        withYdocContext.test(name): (outputDir, configDir, workingDir) =>
+            makeFile(configDir, "kotlin.template")(TestContext.kotlinTemplate)
+            makeFile(configDir, "java.template")(TestContext.javaTemplate)
+            f(outputDir, configDir, workingDir)
+
+    object TestContext:
+        val kotlinTemplate = l"""
+            package com.example
+            fun main() {
+            $${{ydoc.snippet}}
+            }
+            """
+
+        val javaTemplate = l"""
+            package com.example
+            $${{ydoc.snippet}}
             """
 
 end YadladocSuite
