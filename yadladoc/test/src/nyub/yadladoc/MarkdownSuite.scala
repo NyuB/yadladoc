@@ -1,6 +1,6 @@
 package nyub.yadladoc
 
-class MarkdownSuite extends munit.FunSuite:
+class MarkdownSuite extends munit.FunSuite with AssertExtensions:
     test("Parses empty lines"):
         val input = List.empty[String]
         val parsed = Markdown.parse(input)
@@ -66,10 +66,6 @@ class MarkdownSuite extends munit.FunSuite:
             "````"
           )
         )
-
-    extension [T](t: T)
-        infix def isEqualTo(other: T): Unit =
-            assertEquals(t, other)
 
     extension (sc: StringContext)
         /** Trim common indent and trailing white spaces Usefull for text block
