@@ -17,20 +17,21 @@ class Yadladoc(
             .examples
 
         examples.values.foreach: example =>
-            val templating =
-                TemplateInjection(
-                  Map(config.snippetInjectionKey -> example.body.mkString("\n"))
-                )
-            val templated =
-                storageAccess.useLines(
-                  config.templateFile(
-                    example.language.getOrElse("default")
-                  )
-                ): lines =>
-                    lines.map(templating.inject(_)).mkString("\n")
+            val fullExample = buildExample(
+              example,
+              TemplateInjection(config.properties.all.toMap)
+            ).mkString("\n")
+            val finalTemplating = TemplateInjection(
+              config.properties.all.toMap ++ Map(
+                config.snippetInjectionKey -> fullExample
+              )
+            )
+            val finalTemplate = storageAccess.useLines(
+              config.templateFile(example.language.getOrElse("default"))
+            )(_.map(finalTemplating.inject(_)))
             storageAccess.writeContent(
               outputDir / config.exampleFile(example.name, example.language),
-              templated
+              finalTemplate.mkString("\n")
             )
 
     def check(outputDir: Path, markdownFile: Path): List[Errors] =
@@ -49,6 +50,25 @@ class Yadladoc(
               storageAccess.content(tempDir / f)
             )
         )
+
+    private def buildExample(
+        example: Example,
+        templating: TemplateInjection
+    ): Iterable[String] =
+        example.content.flatMap: c =>
+            val prefixLines = c.prefixTemplateNames
+                .map(config.templateFile(_))
+                .flatMap: templateFile =>
+                    storageAccess.useLines(templateFile)(
+                      _.map(templating.inject(_))
+                    )
+            val suffixLines = c.suffixTemplateNames
+                .map(config.templateFile(_))
+                .flatMap: templateFile =>
+                    storageAccess.useLines(templateFile)(
+                      _.map(templating.inject(_))
+                    )
+            prefixLines ++ c.body ++ suffixLines
 
 object Yadladoc:
     trait Configuration:
@@ -91,6 +111,16 @@ object Yadladoc:
               s"${exampleName}.${extensionForLanguage(exampleLanguage)}"
             )
 
+        def prefixTemplateNames(
+            header: Markdown.Snippet.Header
+        ): Iterable[String] =
+            header.properties.get("ydoc.prefix").toList
+
+        def suffixTemplateNames(
+            header: Markdown.Snippet.Header
+        ): Iterable[String] =
+            header.properties.get("ydoc.suffix").toList
+
     enum Examplable:
         case MakeExample(val name: String)
         case Ignore
@@ -107,41 +137,28 @@ object Yadladoc:
                     lines.foldLeft(Properties.empty): (props, line) =>
                         props.extendedWith(Properties.ofLine(line))
 
-private case class Example private (
+private case class Example(
     val name: String,
     val language: Option[String],
-    prefixTemplates: Iterable[Path],
-    body: Iterable[String],
-    suffixTemplates: Iterable[Path]
+    val content: Iterable[ExampleContent]
 ):
-    def merge(snippet: Markdown.Snippet): Example =
-        val snippetLanguage = snippet.header.language
-        if snippetLanguage != language then
+    def merge(other: Example): Example =
+        if other.language != language then
             throw IllegalArgumentException(
-              s"Error trying to merge snippets with different languages ${language} and ${snippetLanguage}"
+              s"Error trying to merge snippets with different languages ${language} and ${other.language}"
             )
         else
             Example(
               name,
               language,
-              prefixTemplates,
-              body ++ snippet.lines,
-              suffixTemplates
+              content ++ other.content
             )
 
-private object Example:
-    def init(
-        name: String,
-        language: Option[String],
-        lines: Iterable[String]
-    ): Example =
-        Example(
-          name,
-          language,
-          List.empty,
-          lines,
-          List.empty
-        )
+private case class ExampleContent(
+    prefixTemplateNames: Iterable[String],
+    body: Iterable[String],
+    suffixTemplateNames: Iterable[String]
+)
 
 private class SnippetMerger(
     val config: Yadladoc.Configuration,
@@ -157,12 +174,21 @@ private class SnippetMerger(
                 val updatedSnippets = examples.updatedWith(exampleName):
                     case None =>
                         Some(
-                          Example.init(
-                            exampleName,
-                            snippet.header.language,
-                            snippet.lines
-                          )
+                          makeExample(exampleName, snippet)
                         )
                     case Some(previous) =>
-                        Some(previous.merge(snippet))
+                        Some(previous.merge(makeExample(exampleName, snippet)))
                 SnippetMerger(config, updatedSnippets)
+
+    private def makeExample(name: String, snippet: Markdown.Snippet): Example =
+        Example(
+          name,
+          snippet.header.language,
+          List(
+            ExampleContent(
+              config.prefixTemplateNames(snippet.header),
+              snippet.lines,
+              config.suffixTemplateNames(snippet.header)
+            )
+          )
+        )
