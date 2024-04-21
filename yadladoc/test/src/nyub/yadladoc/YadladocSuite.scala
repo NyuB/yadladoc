@@ -16,7 +16,8 @@ class YadladocSuite
             ```
             """
 
-        Yadladoc(Yadladoc.Settings(outputDir, configDir)).run(markdownFile)
+        Yadladoc(Yadladoc.ConfigurationFromFile(outputDir, configDir))
+            .run(markdownFile)
 
         outputDir.resolve("one.java") hasContent l"""
             package com.example;
@@ -42,7 +43,8 @@ class YadladocSuite
             ```
             """
 
-            Yadladoc(Yadladoc.Settings(outputDir, configDir)).run(markdownFile)
+            Yadladoc(Yadladoc.ConfigurationFromFile(outputDir, configDir))
+                .run(markdownFile)
 
             outputDir.resolve("kotlin-list-example.kotlin") hasContent l"""
             package com.example
@@ -68,7 +70,7 @@ class YadladocSuite
                 - A simple
                     * Markdown
             """
-            Yadladoc(Yadladoc.Settings(outputDir, configDir))
+            Yadladoc(Yadladoc.ConfigurationFromFile(outputDir, configDir))
                 .check(markdownFile) isEqualTo List.empty
 
     testWithinYDocContext(
@@ -86,7 +88,7 @@ class YadladocSuite
             println("Hello world");
             """
 
-        Yadladoc(Yadladoc.Settings(outputDir, configDir))
+        Yadladoc(Yadladoc.ConfigurationFromFile(outputDir, configDir))
             .check(markdownFile) isEqualTo List.empty
 
     testWithinYDocContext(
@@ -100,7 +102,7 @@ class YadladocSuite
             """
         makeFile(outputDir, "notTheOneYouExpected.java", "Some content")
 
-        Yadladoc(Yadladoc.Settings(outputDir, configDir))
+        Yadladoc(Yadladoc.ConfigurationFromFile(outputDir, configDir))
             .check(markdownFile) containsExactlyInAnyOrder List(
           CheckErrors.MissingFile(p"ko.java"),
           CheckErrors.UnexpectedFile(p"notTheOneYouExpected.java")

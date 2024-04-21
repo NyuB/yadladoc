@@ -54,24 +54,26 @@ class Yadladoc(
 object Yadladoc:
     trait Configuration:
         def outputDir: Path
-        def exampleForSnippet(header: Markdown.Snippet.Header): Examplable
+        def properties: Properties
         def templateFileForSnippet(header: Markdown.Snippet.Header): Path
-        def snippetInjectionKey: String
+        def snippetInjectionKey: String =
+            properties.getOrDefault("ydoc.snippetInjectionKey")("ydoc.snippet")
 
-    enum Examplable:
-        case Example(val path: Path, val name: String)
-        case Ignore
+        def exampleNamePropertyKey: String = properties.getOrDefault(
+          "ydoc.exampleNamePropertyKey"
+        )("ydoc.example")
 
-    case class Settings(
-        override val outputDir: Path,
-        val configDir: Path,
-        val examplePropertyPrefix: String = "ydoc.example",
-        val defaultExampleFileExtension: String = "txt",
-        override val snippetInjectionKey: String = "ydoc.snippet"
-    ) extends Configuration:
-        override def exampleForSnippet(header: Header): Examplable =
+        def extensionForLanguage(languageOrNone: Option[String]): String =
+            languageOrNone
+                .map: lang =>
+                    properties.getOrDefault(s"ydoc.language.${lang}.extension")(
+                      lang
+                    )
+                .getOrElse(".txt")
+
+        def exampleForSnippet(header: Markdown.Snippet.Header): Examplable =
             header.properties
-                .get(examplePropertyPrefix)
+                .get(exampleNamePropertyKey)
                 .filterNot(_.isBlank)
                 .map: name =>
                     Examplable.Example(
@@ -82,14 +84,28 @@ object Yadladoc:
                     )
                 .getOrElse(Examplable.Ignore)
 
+    enum Examplable:
+        case Example(val path: Path, val name: String)
+        case Ignore
+
+    case class ConfigurationFromFile(
+        override val outputDir: Path,
+        val configDir: Path,
+        private val storage: StorageAccess = FilesAccess()
+    ) extends Configuration:
+        override val properties: Properties =
+            val propertyFile = configDir / "ydoc.properties"
+            if !propertyFile.toFile().isFile() then Properties.empty
+            else
+                storage.useLines(configDir / "ydoc.properties"): lines =>
+                    lines.foldLeft(Properties.empty): (props, line) =>
+                        props.extendedWith(Properties.ofLine(line))
+
         override def templateFileForSnippet(header: Header): Path =
             header.language
                 .map: lang =>
                     configDir / s"${lang}.template"
                 .getOrElse(configDir / "default.template")
-
-        private def extensionForLanguage(lang: Option[String]): String =
-            lang.getOrElse(defaultExampleFileExtension)
 
 private case class MergedSnippets private (
     val filePath: Path,
