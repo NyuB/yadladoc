@@ -41,8 +41,6 @@ class Yadladoc(
             DirectoryDiffer(storageAccess).diff(tempDir, outputDir)
         diff.onlyInA.toList.map(
           CheckErrors.MissingFile(_)
-        ) ++ diff.onlyInB.toList.map(
-          CheckErrors.UnexpectedFile(_)
         ) ++ diff.different.toList.map(f =>
             CheckErrors.MismatchingContent(
               f,

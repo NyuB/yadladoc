@@ -111,7 +111,7 @@ class YadladocSuite
             .check(outputDir, markdownFile) isEqualTo List.empty
 
     testWithinYDocContext(
-      "Report errors if a generated file is missing or an actual file is unexpected"
+      "Report errors if a generated file is missing"
     ): (outputDir, configDir, workingDir) =>
         val markdownFile = makeFile(workingDir, "README.md"):
             l"""
@@ -123,8 +123,7 @@ class YadladocSuite
 
         Yadladoc(Yadladoc.ConfigurationFromFile(configDir))
             .check(outputDir, markdownFile) containsExactlyInAnyOrder List(
-          CheckErrors.MissingFile(p"ko.java"),
-          CheckErrors.UnexpectedFile(p"notTheOneYouExpected.java")
+          CheckErrors.MissingFile(p"ko.java")
         )
 
     def testWithinYDocContext(name: String)(f: (Path, Path, Path) => Any) =
