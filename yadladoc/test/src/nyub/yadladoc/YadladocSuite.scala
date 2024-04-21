@@ -11,7 +11,7 @@ class YadladocSuite
         val markdownFile = makeFile(workingDir, "README.md"):
             l"""
             # One snippet
-            ```java ydoc.example.one
+            ```java ydoc.example=one
             class HelloYadladoc { }
             ```
             """
@@ -28,16 +28,16 @@ class YadladocSuite
             val markdownFile = makeFile(workingDir, "README.md"):
                 l"""
             Create a list with listOf(...)
-            ```kotlin ydoc.example.kotlin-list-example
+            ```kotlin ydoc.example=kotlin-list-example
             val myList = listOf(1, 2, 3)
             ```
             Retrieve items with get(...)
-            ```kotlin ydoc.example.kotlin-list-example
+            ```kotlin ydoc.example=kotlin-list-example
             myList.get(0) // 1
             myList[0] // operator alternative to get()
             ```
             Here is how to define a class:
-            ```kotlin ydoc.example.kotlin-class-example
+            ```kotlin ydoc.example=kotlin-class-example
             class SoCool(val coolnessLevel: Int)
             ```
             """
@@ -76,7 +76,7 @@ class YadladocSuite
     ): (outputDir, configDir, workingDir) =>
         val markdownFile = makeFile(workingDir, "README.md"):
             l"""
-            ```java ydoc.example.ok
+            ```java ydoc.example=ok
             println("Hello world");
             ```
             """
@@ -94,7 +94,7 @@ class YadladocSuite
     ): (outputDir, configDir, workingDir) =>
         val markdownFile = makeFile(workingDir, "README.md"):
             l"""
-            ```java ydoc.example.ko
+            ```java ydoc.example=ko
             System.out.println("Oooops !");
             ```
             """

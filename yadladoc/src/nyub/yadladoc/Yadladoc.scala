@@ -71,7 +71,7 @@ object Yadladoc:
     ) extends Configuration:
         override def exampleForSnippet(header: Header): Examplable =
             val exampleNameProperty = header.properties.find: s =>
-                if !s.startsWith(examplePropertyPrefix + ".") then false
+                if !s.startsWith(examplePropertyPrefix + "=") then false
                 else
                     val name = s.substring(examplePropertyPrefix.length + 1)
                     !name.isBlank
