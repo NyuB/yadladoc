@@ -5,3 +5,6 @@
 
 # mill output files
 out
+
+# build
+ydoc.jar
