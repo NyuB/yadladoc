@@ -24,22 +24,18 @@ object Markdown:
         case class Header(
             val prefix: String,
             val language: Option[String],
-            val properties: List[String]
+            val properties: Properties
         )
 
         private[Markdown] def headerOfLine(line: String): Header =
             val prefix = snippetPrefix(line)
             val language =
                 line.substring(prefix.length).takeWhile(c => !" \t".contains(c))
-            val properties = line
-                .substring(prefix.length + language.length)
-                .split("\\s")
-                .filterNot(_.isEmpty)
-                .toList
+            val properties = line.substring(prefix.length + language.length)
             Header(
               prefix,
               if language.length > 0 then Some(language) else None,
-              properties
+              Properties.ofLine(properties)
             )
 
     def parse(input: Iterable[String]): Seq[Block] =

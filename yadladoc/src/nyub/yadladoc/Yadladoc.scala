@@ -70,14 +70,10 @@ object Yadladoc:
         override val snippetInjectionKey: String = "ydoc.snippet"
     ) extends Configuration:
         override def exampleForSnippet(header: Header): Examplable =
-            val exampleNameProperty = header.properties.find: s =>
-                if !s.startsWith(examplePropertyPrefix + "=") then false
-                else
-                    val name = s.substring(examplePropertyPrefix.length + 1)
-                    !name.isBlank
-            exampleNameProperty
-                .map: s =>
-                    val name = s.substring(examplePropertyPrefix.length + 1)
+            header.properties
+                .get(examplePropertyPrefix)
+                .filterNot(_.isBlank)
+                .map: name =>
                     Examplable.Example(
                       Paths.get(
                         s"${name}.${extensionForLanguage(header.language)}"

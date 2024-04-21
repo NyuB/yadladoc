@@ -34,7 +34,7 @@ class MarkdownSuite
         Markdown.parse(input) isEqualTo Seq(
           Markdown.Raw("# Title", "This is a code snippet"),
           Markdown.Snippet(
-            Markdown.Snippet.Header("```", Some("scala"), List.empty),
+            Markdown.Snippet.Header("```", Some("scala"), Properties.empty),
             "val i: Int = 0"
           ),
           Markdown.Raw("Awesome isn't it ?")
@@ -46,7 +46,9 @@ class MarkdownSuite
         ```
         """
         Markdown.parse(input) isEqualTo Seq(
-          Markdown.Snippet(Markdown.Snippet.Header("```", None, List.empty))
+          Markdown.Snippet(
+            Markdown.Snippet.Header("```", None, Properties.empty)
+          )
         )
 
     test("Nested snippets are kept in outer snippet"):
@@ -62,7 +64,7 @@ class MarkdownSuite
         """
         Markdown.parse(input) isEqualTo Seq(
           Markdown.Snippet(
-            Markdown.Snippet.Header("```", Some("markdown"), List.empty),
+            Markdown.Snippet.Header("```", Some("markdown"), Properties.empty),
             "You can nest markdown in markdown :O",
             "````java",
             "class Inception {",
@@ -73,18 +75,22 @@ class MarkdownSuite
         )
 
     test("Header parsing"):
-        checkHeaderParsing("```java", Some("java"), List.empty)
+        checkHeaderParsing("```java", Some("java"), Properties.empty)
         checkHeaderParsing(
-          "```scala foo bar baz",
+          "```scala foo=bar baz",
           Some("scala"),
-          List("foo", "bar", "baz")
+          Properties("foo" -> "bar")
         )
-        checkHeaderParsing("``` a \tb   c  ", None, List("a", "b", "c"))
+        checkHeaderParsing(
+          "``` a=x \tb=y   c=z  ",
+          None,
+          Properties("a" -> "x", "b" -> "y", "c" -> "z")
+        )
 
     private def checkHeaderParsing(
         headerLine: String,
         expectedLanguage: Option[String],
-        expectedProperties: List[String]
+        expectedProperties: Properties
     ): Unit =
         val input = List(headerLine, "```")
         val parsed = Markdown.parse(input)
