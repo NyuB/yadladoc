@@ -6,7 +6,7 @@ import scala.io.Source
 
 private class FilesAccess(private val charSet: Charset = StandardCharsets.UTF_8)
     extends StorageAccess:
-    override def content[T](path: Path): String =
+    override def content(path: Path): String =
         Files.readString(path, charSet)
 
     override def useLines[T](path: Path)(f: Iterable[String] => T): T =
