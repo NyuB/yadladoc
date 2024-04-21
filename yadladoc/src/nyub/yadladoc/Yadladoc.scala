@@ -1,6 +1,6 @@
 package nyub.yadladoc
 
-import java.nio.file.Path
+import java.nio.file.{Files, Path, Paths}
 import nyub.yadladoc.Markdown.Snippet.Header
 import nyub.yadladoc.Yadladoc.Examplable
 
@@ -8,7 +8,8 @@ class Yadladoc(
     private val config: Yadladoc.Configuration,
     private val contentAccess: ContentAccess = FilesAccess()
 ):
-    def run(markdownFile: Path): Unit =
+    def run(markdownFile: Path): Unit = run(config.outputDir, markdownFile)
+    private def run(outputDir: Path, markdownFile: Path): Unit =
         val mergedSnippets = FileIterable(markdownFile)
             .use(Markdown.parse(_))
             .collect:
@@ -23,15 +24,33 @@ class Yadladoc(
                 )
             val templated =
                 contentAccess.useLines(
-                  config.templateFileForSnippet(merged.sharedHeader)
+                  config.templateFileForSnippet(
+                    merged.sharedHeader
+                  )
                 ): lines =>
                     lines.map(templating.inject(_)).mkString("\n")
-            contentAccess.writeContent(merged.filePath, templated)
+            contentAccess.writeContent(
+              outputDir / merged.filePath,
+              templated
+            )
 
-    def check(markdownFile: Path): List[Errors] = List.empty
+    def check(markdownFile: Path): List[Errors] =
+        val tempDir = Files.createTempDirectory("check")
+        run(tempDir, markdownFile)
+        val diff = directoryDiff(tempDir, config.outputDir)
+        diff.onlyInA.map(CheckErrors.MissingFile(_)) ++ diff.onlyInB.map(
+          CheckErrors.UnexpectedFile(_)
+        ) ++ diff.different.map(f =>
+            CheckErrors.MismatchingContent(
+              f,
+              contentAccess.content(config.outputDir / f),
+              contentAccess.content(tempDir / f)
+            )
+        )
 
 object Yadladoc:
     trait Configuration:
+        def outputDir: Path
         def exampleForSnippet(header: Markdown.Snippet.Header): Examplable
         def templateFileForSnippet(header: Markdown.Snippet.Header): Path
         def snippetInjectionKey: String
@@ -41,7 +60,7 @@ object Yadladoc:
         case Ignore
 
     case class Settings(
-        val outputDir: Path,
+        override val outputDir: Path,
         val configDir: Path,
         val examplePropertyPrefix: String = "ydoc.example",
         val defaultExampleFileExtension: String = "txt",
@@ -57,7 +76,9 @@ object Yadladoc:
                 .map: s =>
                     val name = s.substring(examplePropertyPrefix.length + 1)
                     Examplable.Example(
-                      outputDir / s"${name}.${extensionForLanguage(header.language)}",
+                      Paths.get(
+                        s"${name}.${extensionForLanguage(header.language)}"
+                      ),
                       name
                     )
                 .getOrElse(Examplable.Ignore)
