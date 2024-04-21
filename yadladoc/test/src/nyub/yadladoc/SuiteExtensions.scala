@@ -1,6 +1,7 @@
 package nyub.yadladoc
 
 import java.nio.file.{Files, Path, StandardOpenOption}
+import java.nio.file.Paths
 
 trait SuiteExtensions extends munit.FunSuite:
     val withTempDir = FunFixture[Path](
@@ -14,6 +15,7 @@ trait SuiteExtensions extends munit.FunSuite:
         content: String
     ): Path =
         val res = tempDir.resolve(filename)
+        Files.createDirectories(res.getParent())
         Files.write(res, content.getBytes(), StandardOpenOption.CREATE)
         res
 
@@ -38,6 +40,8 @@ trait SuiteExtensions extends munit.FunSuite:
             if s.startsWith("\n") then s = s.substring(1, s.length)
             if s.endsWith("\n") then s = s.substring(0, s.length - 1)
             LineIterable(s)
+
+        def p(args: Any*): Path = Paths.get(sc.s(args*))
 
     private class LineIterable(s: String) extends Iterable[String]:
         private def getIndent(str: String): String =

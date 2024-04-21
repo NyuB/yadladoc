@@ -89,22 +89,22 @@ class YadladocSuite
         Yadladoc(Yadladoc.Settings(outputDir, configDir))
             .check(markdownFile) isEqualTo List.empty
 
-    // testWithinYDocContext(
-    //   "Report errors if a generated file is missing or an actual file is unexpected"
-    // ): (outputDir, configDir, workingDir) =>
-    //     val markdownFile = makeFile(workingDir, "README.md"):
-    //         l"""
-    //         ```java ydoc.example.ko
-    //         System.out.println("Oooops !");
-    //         ```
-    //         """
-    //     makeFile(outputDir, "notTheOneYouExpected.java")(l""""""")
+    testWithinYDocContext(
+      "Report errors if a generated file is missing or an actual file is unexpected"
+    ): (outputDir, configDir, workingDir) =>
+        val markdownFile = makeFile(workingDir, "README.md"):
+            l"""
+            ```java ydoc.example.ko
+            System.out.println("Oooops !");
+            ```
+            """
+        makeFile(outputDir, "notTheOneYouExpected.java", "Some content")
 
-    //     Yadladoc(Yadladoc.Settings(outputDir, configDir))
-    //         .check(markdownFile) containsExactlyInAnyOrder List(
-    //       CheckErrors.MissingFile(outputDir / "ko.java"),
-    //       CheckErrors.UnexpectedFile(outputDir / "notTheOneYouExpected.java")
-    //     )
+        Yadladoc(Yadladoc.Settings(outputDir, configDir))
+            .check(markdownFile) containsExactlyInAnyOrder List(
+          CheckErrors.MissingFile(p"ko.java"),
+          CheckErrors.UnexpectedFile(p"notTheOneYouExpected.java")
+        )
 
     def testWithinYDocContext(name: String)(f: (Path, Path, Path) => Any) =
         val withYdocContext =

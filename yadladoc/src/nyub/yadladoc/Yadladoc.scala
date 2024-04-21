@@ -38,9 +38,11 @@ class Yadladoc(
         val tempDir = Files.createTempDirectory("check")
         run(tempDir, markdownFile)
         val diff = DirectoryDiff.diff(tempDir, config.outputDir)
-        diff.onlyInA.map(CheckErrors.MissingFile(_)) ++ diff.onlyInB.map(
+        diff.onlyInA.toList.map(
+          CheckErrors.MissingFile(_)
+        ) ++ diff.onlyInB.toList.map(
           CheckErrors.UnexpectedFile(_)
-        ) ++ diff.different.map(f =>
+        ) ++ diff.different.toList.map(f =>
             CheckErrors.MismatchingContent(
               f,
               storageAccess.content(config.outputDir / f),
