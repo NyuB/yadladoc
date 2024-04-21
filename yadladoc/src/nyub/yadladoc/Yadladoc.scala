@@ -19,7 +19,7 @@ class Yadladoc(
         mergedSnippets.values.foreach: merged =>
             val templating =
                 TemplateInjection(
-                  Map(config.snippetInjectionKey -> merged.mergedLines)
+                  Map(config.snippetInjectionKey -> merged.body.mkString("\n"))
                 )
             val templated =
                 storageAccess.useLines(
@@ -107,7 +107,9 @@ object Yadladoc:
 private case class MergedSnippets private (
     val filePath: Path,
     val sharedHeader: Markdown.Snippet.Header,
-    snippets: List[Markdown.Snippet]
+    prefixTemplates: Iterable[Path],
+    body: Iterable[String],
+    suffixTemplates: Iterable[Path]
 ):
     def merge(snippet: Markdown.Snippet): MergedSnippets =
         val snippetLanguage = snippet.header.language
@@ -116,13 +118,24 @@ private case class MergedSnippets private (
             throw IllegalArgumentException(
               s"Error trying to merge snippets with different languages ${sharedLanguage} and ${snippetLanguage}"
             )
-        else MergedSnippets(filePath, sharedHeader, snippets :+ snippet)
-
-    def mergedLines: String = snippets.flatMap(_.lines).mkString("\n")
+        else
+            MergedSnippets(
+              filePath,
+              sharedHeader,
+              prefixTemplates,
+              body ++ snippet.lines,
+              suffixTemplates
+            )
 
 private object MergedSnippets:
     def init(filePath: Path, snippet: Markdown.Snippet): MergedSnippets =
-        MergedSnippets(filePath, snippet.header, List(snippet))
+        MergedSnippets(
+          filePath,
+          snippet.header,
+          List.empty,
+          snippet.lines,
+          List.empty
+        )
 
 private class SnippetMerger(
     val config: Yadladoc.Configuration,
