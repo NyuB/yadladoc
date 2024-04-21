@@ -37,7 +37,8 @@ class Yadladoc(
     def check(markdownFile: Path): List[Errors] =
         val tempDir = Files.createTempDirectory("check")
         run(tempDir, markdownFile)
-        val diff = DirectoryDiff.diff(tempDir, config.outputDir)
+        val diff =
+            DirectoryDiffer(storageAccess).diff(tempDir, config.outputDir)
         diff.onlyInA.toList.map(
           CheckErrors.MissingFile(_)
         ) ++ diff.onlyInB.toList.map(

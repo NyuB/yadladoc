@@ -13,7 +13,7 @@ case class DirectoryDiff(
       different ++ other.different
     )
 
-    private def relativize(rootA: Path, rootB: Path) = DirectoryDiff(
+    def relativize(rootA: Path, rootB: Path) = DirectoryDiff(
       onlyInA.map(rootA.relativize(_)),
       onlyInB.map(rootB.relativize(_)),
       different.map(rootA.relativize(_))
@@ -21,10 +21,15 @@ case class DirectoryDiff(
 
 object DirectoryDiff:
     val SAME = DirectoryDiff(Set.empty, Set.empty, Set.empty)
+
+class DirectoryDiffer(private val storage: StorageAccess):
     def diff(rootA: Path, rootB: Path): DirectoryDiff =
         diffInternal(rootA, rootB).relativize(rootA, rootB)
 
-    private def diffInternal(rootA: Path, rootB: Path): DirectoryDiff =
+    private def diffInternal(
+        rootA: Path,
+        rootB: Path
+    ): DirectoryDiff =
         if rootA.toFile().isFile() && rootB.toFile().isFile()
         then fileDiff(rootA, rootB)
         else if rootA.toFile().isFile() && rootB.toFile().isDirectory() then
@@ -45,8 +50,14 @@ object DirectoryDiff:
                 acc.merge(item)
             )
 
-    private def fileDiff(rootA: Path, rootB: Path): DirectoryDiff =
-        if rootA.getFileName() == rootB.getFileName() then DirectoryDiff.SAME
+    private def fileDiff(
+        rootA: Path,
+        rootB: Path
+    ): DirectoryDiff =
+        if rootA.getFileName() == rootB.getFileName() then
+            if storage.content(rootA) == storage.content(rootB) then
+                DirectoryDiff.SAME
+            else DirectoryDiff(Set.empty, Set.empty, Set(rootA))
         else DirectoryDiff(Set(rootA), Set(rootB), Set.empty)
 
     private def all(root: Path): Set[Path] =
