@@ -16,8 +16,8 @@ class YadladocSuite
             ```
             """
 
-        Yadladoc(Yadladoc.ConfigurationFromFile(outputDir, configDir))
-            .run(markdownFile)
+        Yadladoc(Yadladoc.ConfigurationFromFile(configDir))
+            .run(outputDir, markdownFile)
 
         outputDir.resolve("one.java") hasContent l"""
             package com.example;
@@ -43,8 +43,8 @@ class YadladocSuite
             ```
             """
 
-            Yadladoc(Yadladoc.ConfigurationFromFile(outputDir, configDir))
-                .run(markdownFile)
+            Yadladoc(Yadladoc.ConfigurationFromFile(configDir))
+                .run(outputDir, markdownFile)
 
             outputDir.resolve("kotlin-list-example.kotlin") hasContent l"""
             package com.example
@@ -70,8 +70,8 @@ class YadladocSuite
                 - A simple
                     * Markdown
             """
-            Yadladoc(Yadladoc.ConfigurationFromFile(outputDir, configDir))
-                .check(markdownFile) isEqualTo List.empty
+            Yadladoc(Yadladoc.ConfigurationFromFile(configDir))
+                .check(outputDir, markdownFile) isEqualTo List.empty
 
     testWithinYDocContext(
       "Check ok if generated files are already there and matching"
@@ -88,8 +88,8 @@ class YadladocSuite
             println("Hello world");
             """
 
-        Yadladoc(Yadladoc.ConfigurationFromFile(outputDir, configDir))
-            .check(markdownFile) isEqualTo List.empty
+        Yadladoc(Yadladoc.ConfigurationFromFile(configDir))
+            .check(outputDir, markdownFile) isEqualTo List.empty
 
     testWithinYDocContext(
       "Report errors if a generated file is missing or an actual file is unexpected"
@@ -102,8 +102,8 @@ class YadladocSuite
             """
         makeFile(outputDir, "notTheOneYouExpected.java", "Some content")
 
-        Yadladoc(Yadladoc.ConfigurationFromFile(outputDir, configDir))
-            .check(markdownFile) containsExactlyInAnyOrder List(
+        Yadladoc(Yadladoc.ConfigurationFromFile(configDir))
+            .check(outputDir, markdownFile) containsExactlyInAnyOrder List(
           CheckErrors.MissingFile(p"ko.java"),
           CheckErrors.UnexpectedFile(p"notTheOneYouExpected.java")
         )

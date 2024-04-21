@@ -21,6 +21,9 @@ private class FilesAccess(private val charSet: Charset = StandardCharsets.UTF_8)
     override def writeContent(path: Path, content: String): Unit =
         Files.write(path, content.getBytes(charSet))
 
+    override def createTempDirectory(prefix: String): Path =
+        Files.createTempDirectory(prefix)
+
 extension (p: Path)
     private def /(other: Path) = p.resolve(other)
     private def /(other: String) = p.resolve(other)

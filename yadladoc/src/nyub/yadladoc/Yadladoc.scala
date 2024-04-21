@@ -8,8 +8,7 @@ class Yadladoc(
     private val config: Yadladoc.Configuration,
     private val storageAccess: StorageAccess = FilesAccess()
 ):
-    def run(markdownFile: Path): Unit = run(config.outputDir, markdownFile)
-    private def run(outputDir: Path, markdownFile: Path): Unit =
+    def run(outputDir: Path, markdownFile: Path): Unit =
         val mergedSnippets = FileIterable(markdownFile)
             .use(Markdown.parse(_))
             .collect:
@@ -34,11 +33,11 @@ class Yadladoc(
               templated
             )
 
-    def check(markdownFile: Path): List[Errors] =
-        val tempDir = Files.createTempDirectory("check")
+    def check(outputDir: Path, markdownFile: Path): List[Errors] =
+        val tempDir = storageAccess.createTempDirectory("check")
         run(tempDir, markdownFile)
         val diff =
-            DirectoryDiffer(storageAccess).diff(tempDir, config.outputDir)
+            DirectoryDiffer(storageAccess).diff(tempDir, outputDir)
         diff.onlyInA.toList.map(
           CheckErrors.MissingFile(_)
         ) ++ diff.onlyInB.toList.map(
@@ -46,14 +45,13 @@ class Yadladoc(
         ) ++ diff.different.toList.map(f =>
             CheckErrors.MismatchingContent(
               f,
-              storageAccess.content(config.outputDir / f),
+              storageAccess.content(outputDir / f),
               storageAccess.content(tempDir / f)
             )
         )
 
 object Yadladoc:
     trait Configuration:
-        def outputDir: Path
         def properties: Properties
         def templateFileForSnippet(header: Markdown.Snippet.Header): Path
         def snippetInjectionKey: String =
@@ -89,7 +87,6 @@ object Yadladoc:
         case Ignore
 
     case class ConfigurationFromFile(
-        override val outputDir: Path,
         val configDir: Path,
         private val storage: StorageAccess = FilesAccess()
     ) extends Configuration:
