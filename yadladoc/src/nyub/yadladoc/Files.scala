@@ -5,7 +5,7 @@ import java.nio.charset.{Charset, StandardCharsets}
 import scala.io.Source
 
 private class FilesAccess(private val charSet: Charset = StandardCharsets.UTF_8)
-    extends ContentAccess:
+    extends StorageAccess:
     override def content[T](path: Path): String =
         Files.readString(path, charSet)
 

@@ -6,7 +6,7 @@ import nyub.yadladoc.Yadladoc.Examplable
 
 class Yadladoc(
     private val config: Yadladoc.Configuration,
-    private val contentAccess: ContentAccess = FilesAccess()
+    private val storageAccess: StorageAccess = FilesAccess()
 ):
     def run(markdownFile: Path): Unit = run(config.outputDir, markdownFile)
     private def run(outputDir: Path, markdownFile: Path): Unit =
@@ -23,13 +23,13 @@ class Yadladoc(
                   Map(config.snippetInjectionKey -> merged.mergedLines)
                 )
             val templated =
-                contentAccess.useLines(
+                storageAccess.useLines(
                   config.templateFileForSnippet(
                     merged.sharedHeader
                   )
                 ): lines =>
                     lines.map(templating.inject(_)).mkString("\n")
-            contentAccess.writeContent(
+            storageAccess.writeContent(
               outputDir / merged.filePath,
               templated
             )
@@ -43,8 +43,8 @@ class Yadladoc(
         ) ++ diff.different.map(f =>
             CheckErrors.MismatchingContent(
               f,
-              contentAccess.content(config.outputDir / f),
-              contentAccess.content(tempDir / f)
+              storageAccess.content(config.outputDir / f),
+              storageAccess.content(tempDir / f)
             )
         )
 
