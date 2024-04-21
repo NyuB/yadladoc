@@ -34,14 +34,3 @@ private class FileIterable(path: Path):
         val res = f(iterable)
         linesSource.close()
         res
-
-case class DirectoryDiff(
-    val onlyInA: List[Path],
-    val onlyInB: List[Path],
-    val different: List[Path]
-)
-
-object DirectoryDiff:
-    val SAME = DirectoryDiff(List.empty, List.empty, List.empty)
-
-def directoryDiff(rootA: Path, rootB: Path): DirectoryDiff = DirectoryDiff.SAME
