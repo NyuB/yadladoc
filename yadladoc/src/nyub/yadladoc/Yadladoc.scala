@@ -1,6 +1,6 @@
 package nyub.yadladoc
 
-import java.nio.file.{Files, Path, Paths}
+import java.nio.file.{Path, Paths}
 import nyub.yadladoc.Markdown.Snippet.Header
 import nyub.yadladoc.Yadladoc.Examplable
 
@@ -53,7 +53,17 @@ class Yadladoc(
 object Yadladoc:
     trait Configuration:
         def properties: Properties
-        def templateFileForSnippet(header: Markdown.Snippet.Header): Path
+        def configDir: Path
+        def includesDir: Path = properties.getPathOrDefault("ydoc.includesDir")(
+          configDir / "includes"
+        )
+
+        def templateFile(templateName: String): Path =
+            includesDir / s"${templateName}.template"
+
+        def templateFileForSnippet(header: Markdown.Snippet.Header): Path =
+            templateFile(header.language.getOrElse("default"))
+
         def snippetInjectionKey: String =
             properties.getOrDefault("ydoc.snippetInjectionKey")("ydoc.snippet")
 
@@ -87,7 +97,7 @@ object Yadladoc:
         case Ignore
 
     case class ConfigurationFromFile(
-        val configDir: Path,
+        override val configDir: Path,
         private val storage: StorageAccess = FilesAccess()
     ) extends Configuration:
         override val properties: Properties =
@@ -97,12 +107,6 @@ object Yadladoc:
                 storage.useLines(configDir / "ydoc.properties"): lines =>
                     lines.foldLeft(Properties.empty): (props, line) =>
                         props.extendedWith(Properties.ofLine(line))
-
-        override def templateFileForSnippet(header: Header): Path =
-            header.language
-                .map: lang =>
-                    configDir / s"${lang}.template"
-                .getOrElse(configDir / "default.template")
 
 private case class MergedSnippets private (
     val filePath: Path,

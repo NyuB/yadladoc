@@ -1,8 +1,14 @@
 package nyub.yadladoc
 
+import java.nio.file.{Path, Paths}
+
 trait Properties:
     def get(key: String): Option[String]
+    final def getPath(key: String): Option[Path] = get(key).map(Paths.get(_))
     def getOrDefault(key: String)(default: String): String
+    final def getPathOrDefault(key: String)(default: Path): Path =
+        getPath(key).getOrElse(default)
+
     def all: List[(String, String)]
     final def extendedWith(overridingWith: Properties): Properties =
         val extended = Map(all*) ++ Map(overridingWith.all*)

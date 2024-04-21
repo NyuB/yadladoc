@@ -112,8 +112,12 @@ class YadladocSuite
         val withYdocContext =
             FunFixture.map3(withTempDir, withTempDir, withTempDir)
         withYdocContext.test(name): (outputDir, configDir, workingDir) =>
-            makeFile(configDir, "kotlin.template")(TestContext.kotlinTemplate)
-            makeFile(configDir, "java.template")(TestContext.javaTemplate)
+            makeFile(configDir / "includes", "kotlin.template")(
+              TestContext.kotlinTemplate
+            )
+            makeFile(configDir / "includes", "java.template")(
+              TestContext.javaTemplate
+            )
             f(outputDir, configDir, workingDir)
 
     object TestContext:
