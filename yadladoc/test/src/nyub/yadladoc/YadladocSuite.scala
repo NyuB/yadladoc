@@ -30,16 +30,16 @@ class YadladocSuite
                 l"""
             Create a list with listOf(...)
             ```kotlin ydoc.example=kotlin-list-example
-            val myList = listOf(1, 2, 3)
+                val myList = listOf(1, 2, 3)
             ```
             Retrieve items with get(...)
             ```kotlin ydoc.example=kotlin-list-example
-            myList.get(0) // 1
-            myList[0] // operator alternative to get()
+                myList.get(0) // 1
+                myList[0] // operator alternative to get()
             ```
             Here is how to define a class:
             ```kotlin ydoc.example=kotlin-class-example
-            class SoCool(val coolnessLevel: Int)
+                class SoCool(val coolnessLevel: Int)
             ```
             """
 
@@ -49,18 +49,37 @@ class YadladocSuite
             outputDir.resolve("kotlin-list-example.kotlin") hasContent l"""
             package com.example
             fun main() {
-            val myList = listOf(1, 2, 3)
-            myList.get(0) // 1
-            myList[0] // operator alternative to get()
+                val myList = listOf(1, 2, 3)
+                myList.get(0) // 1
+                myList[0] // operator alternative to get()
             }
             """
 
             outputDir.resolve("kotlin-class-example.kotlin") hasContent l"""
             package com.example
             fun main() {
-            class SoCool(val coolnessLevel: Int)
+                class SoCool(val coolnessLevel: Int)
             }
             """
+
+    testWithinYDocContext("Prefix and suffix inclusion"):
+        (outputDir, configDir, workingDir) =>
+            val markdownFile = makeFile(workingDir, "README.md"):
+                l"""
+            Here is how to use an awesome library:
+            ```java ydoc.example=surround ydoc.prefix=import-prefix ydoc.suffix=footnote-suffix
+            new AwesomeClass().doAmazingStuff(); // Wunderbar !
+            ```
+            """
+            Yadladoc(Yadladoc.ConfigurationFromFile(configDir))
+                .run(outputDir, markdownFile)
+
+            outputDir.resolve("surround.java") hasContent l"""
+        package com.example;
+        import com.awesome.lib.AwesomeClass;
+        new AwesomeClass().doAmazingStuff(); // Wunderbar !
+        // this file was written by some team at some date for a precise purpose
+        """
 
     testWithinYDocContext("Check ok for no snippet and valid markdown"):
         (outputDir, configDir, workingDir) =>
@@ -118,6 +137,12 @@ class YadladocSuite
             makeFile(configDir / "includes", "java.template")(
               TestContext.javaTemplate
             )
+            makeFile(configDir / "includes", "import-prefix.template")(
+              TestContext.importPrefixTemplate
+            )
+            makeFile(configDir / "includes", "footnote-suffix.template")(
+              TestContext.footNoteSuffixTemplate
+            )
             f(outputDir, configDir, workingDir)
 
     object TestContext:
@@ -132,5 +157,13 @@ class YadladocSuite
             package com.example;
             $${{ydoc.snippet}}
             """
+
+        val importPrefixTemplate = l"""
+            import com.awesome.lib.AwesomeClass;
+        """
+
+        val footNoteSuffixTemplate = l"""
+        // this file was written by some team at some date for a precise purpose
+        """
 
 end YadladocSuite
