@@ -1,7 +1,12 @@
+ifeq ($(OS), Windows_NT)
+	MILLW=millw
+else
+	MILLW=./millw
+endif
 dev: fmt test
 
 test:
-	millw yadladoc.test
+	$(MILLW) yadladoc.test
 
 ydoc.jar: out/yadladoc_app/assembly.dest/out.jar
 ifeq ($(OS),Windows_NT)
@@ -16,7 +21,7 @@ doc-gen: ydoc.jar
 	java -jar ydoc.jar run README.md
 
 out/yadladoc_app/assembly.dest/out.jar:
-	millw yadladoc_app.assembly
+	$(MILLW) yadladoc_app.assembly
 
 fmt:
 	scalafmt .
@@ -24,7 +29,7 @@ fmt-check:
 	scalafmt --check .
 
 clean:
-	millw clean
+	$(MILLW) clean
 ifeq (($OS), Windows_NT)
 	del ydoc.jar
 else
