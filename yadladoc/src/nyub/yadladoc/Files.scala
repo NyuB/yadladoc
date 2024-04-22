@@ -3,6 +3,7 @@ package nyub.yadladoc
 import java.nio.file.{Files, Path}
 import java.nio.charset.{Charset, StandardCharsets}
 import scala.io.Source
+import java.nio.file.Paths
 
 class OsFileSystem(private val charSet: Charset = StandardCharsets.UTF_8)
     extends FileSystem:
@@ -24,6 +25,16 @@ class OsFileSystem(private val charSet: Charset = StandardCharsets.UTF_8)
 
     override def createTempDirectory(prefix: String): Path =
         Files.createTempDirectory(prefix)
+
+    extension (p: Path)
+        override def toFileTree: FileTree =
+            if p.toFile().isFile() then FileTree.File(p) else FileTree.Dir(p)
+
+    extension (p: Path)
+        override def children: Set[Path] =
+            Option(p.toFile().list())
+                .map(_.toSet.map(Paths.get(_)))
+                .getOrElse(Set.empty)
 
 extension (p: Path)
     private def /(other: Path) = p.resolve(other)

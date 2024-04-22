@@ -29,41 +29,35 @@ class DirectoryDiffer(private val fs: FileSystem):
     private def diffInternal(
         rootA: Path,
         rootB: Path
-    ): DirectoryDiff =
-        if rootA.toFile().isFile() && rootB.toFile().isFile()
-        then fileDiff(rootA, rootB)
-        else if rootA.toFile().isFile() && rootB.toFile().isDirectory() then
-            DirectoryDiff(Set(rootA), all(rootB), Set.empty)
-        else if rootB.toFile().isFile() && rootA.toFile().isDirectory() then
-            DirectoryDiff(all(rootA), Set(rootB), Set.empty)
-        else
-            val childrenA = rootA.toFile().list().toSet
-            val childrenB = rootB.toFile().list().toSet
+    ): DirectoryDiff = fs.toFileTree(rootA) -> fs.toFileTree(rootB) match
+        case (FileTree.File(fa), FileTree.File(fb)) => fileDiff(fa, fb)
+        case (FileTree.File(fa), FileTree.Dir(db)) =>
+            DirectoryDiff(Set(fa), all(db), Set.empty)
+        case (FileTree.Dir(da), FileTree.File(fb)) =>
+            DirectoryDiff(all(da), Set(fb), Set.empty)
+        case (FileTree.Dir(da), FileTree.Dir(db)) =>
+            val childrenA = fs.children(da)
+            val childrenB = fs.children(db)
             val both = childrenA
                 .intersect(childrenB)
-                .map(p => diffInternal(rootA / p, rootB / p))
+                .map(p => diffInternal(da / p, db / p))
             val onlyA =
-                childrenA.removedAll(childrenB).flatMap(p => all(rootA / p))
+                childrenA.removedAll(childrenB).flatMap(p => all(da / p))
             val onlyB =
-                childrenB.removedAll(childrenA).flatMap(p => all(rootB / p))
+                childrenB.removedAll(childrenA).flatMap(p => all(db / p))
             both.foldLeft(DirectoryDiff(onlyA, onlyB, Set.empty))((acc, item) =>
                 acc.merge(item)
             )
 
     private def fileDiff(
-        rootA: Path,
-        rootB: Path
+        fa: Path,
+        fb: Path
     ): DirectoryDiff =
-        if rootA.getFileName() == rootB.getFileName() then
-            if fs.content(rootA) == fs.content(rootB) then DirectoryDiff.SAME
-            else DirectoryDiff(Set.empty, Set.empty, Set(rootA))
-        else DirectoryDiff(Set(rootA), Set(rootB), Set.empty)
+        if fa.getFileName() == fb.getFileName() then
+            if fs.content(fa) == fs.content(fb) then DirectoryDiff.SAME
+            else DirectoryDiff(Set.empty, Set.empty, Set(fa))
+        else DirectoryDiff(Set(fa), Set(fb), Set.empty)
 
-    private def all(root: Path): Set[Path] =
-        if root.toFile().isFile() then Set(root)
-        else
-            val children = root.toFile().list()
-            if children == null then
-                println(s"$root is not a directory")
-                Set.empty
-            else children.flatMap(child => all(root / child)).toSet
+    private def all(root: Path): Set[Path] = fs.toFileTree(root) match
+        case FileTree.File(f) => Set(f)
+        case FileTree.Dir(d)  => fs.children(d).flatMap(child => all(d / child))
