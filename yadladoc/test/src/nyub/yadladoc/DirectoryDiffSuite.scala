@@ -7,7 +7,7 @@ class DirectoryDiffSuite
     with AssertExtensions
     with SuiteExtensions:
     private val withTwoDir = FunFixture.map2(withTempDir, withTempDir)
-    private val differ = DirectoryDiffer(FilesAccess())
+    private val differ = DirectoryDiffer(OsFileSystem())
 
     withTwoDir.test("Empty folders are the same"): (dirA, dirB) =>
         differ.diff(dirA, dirB) isEqualTo DirectoryDiff.SAME

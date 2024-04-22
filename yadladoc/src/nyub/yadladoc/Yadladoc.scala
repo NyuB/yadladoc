@@ -6,7 +6,7 @@ import nyub.yadladoc.Yadladoc.Examplable
 
 class Yadladoc(
     private val config: Yadladoc.Configuration,
-    private val storageAccess: StorageAccess = FilesAccess()
+    private val fs: FileSystem = OsFileSystem()
 ):
     def run(outputDir: Path, markdownFile: Path): Unit =
         val examples = FileIterable(markdownFile)
@@ -26,26 +26,26 @@ class Yadladoc(
                 config.snippetInjectionKey -> fullExample
               )
             )
-            val finalTemplate = storageAccess.useLines(
+            val finalTemplate = fs.useLines(
               config.templateFile(example.language.getOrElse("default"))
             )(_.map(finalTemplating.inject(_)))
-            storageAccess.writeContent(
+            fs.writeContent(
               outputDir / config.exampleFile(example.name, example.language),
               finalTemplate.mkString("\n")
             )
 
     def check(outputDir: Path, markdownFile: Path): List[Errors] =
-        val tempDir = storageAccess.createTempDirectory("check")
+        val tempDir = fs.createTempDirectory("check")
         run(tempDir, markdownFile)
         val diff =
-            DirectoryDiffer(storageAccess).diff(tempDir, outputDir)
+            DirectoryDiffer(fs).diff(tempDir, outputDir)
         diff.onlyInA.toList.map(
           CheckErrors.MissingFile(_)
         ) ++ diff.different.toList.map(f =>
             CheckErrors.MismatchingContent(
               f,
-              storageAccess.content(outputDir / f),
-              storageAccess.content(tempDir / f)
+              fs.content(outputDir / f),
+              fs.content(tempDir / f)
             )
         )
 
@@ -57,13 +57,13 @@ class Yadladoc(
             val prefixLines = c.prefixTemplateNames
                 .map(config.templateFile(_))
                 .flatMap: templateFile =>
-                    storageAccess.useLines(templateFile)(
+                    fs.useLines(templateFile)(
                       _.map(templating.inject(_))
                     )
             val suffixLines = c.suffixTemplateNames
                 .map(config.templateFile(_))
                 .flatMap: templateFile =>
-                    storageAccess.useLines(templateFile)(
+                    fs.useLines(templateFile)(
                       _.map(templating.inject(_))
                     )
             prefixLines ++ c.body ++ suffixLines
@@ -125,7 +125,7 @@ object Yadladoc:
 
     case class ConfigurationFromFile(
         override val configDir: Path,
-        private val storage: StorageAccess = FilesAccess()
+        private val storage: FileSystem = OsFileSystem()
     ) extends Configuration:
         override val properties: Properties =
             val propertyFile = configDir / "ydoc.properties"

@@ -22,7 +22,7 @@ case class DirectoryDiff(
 object DirectoryDiff:
     val SAME = DirectoryDiff(Set.empty, Set.empty, Set.empty)
 
-class DirectoryDiffer(private val storage: StorageAccess):
+class DirectoryDiffer(private val fs: FileSystem):
     def diff(rootA: Path, rootB: Path): DirectoryDiff =
         diffInternal(rootA, rootB).relativize(rootA, rootB)
 
@@ -55,8 +55,7 @@ class DirectoryDiffer(private val storage: StorageAccess):
         rootB: Path
     ): DirectoryDiff =
         if rootA.getFileName() == rootB.getFileName() then
-            if storage.content(rootA) == storage.content(rootB) then
-                DirectoryDiff.SAME
+            if fs.content(rootA) == fs.content(rootB) then DirectoryDiff.SAME
             else DirectoryDiff(Set.empty, Set.empty, Set(rootA))
         else DirectoryDiff(Set(rootA), Set(rootB), Set.empty)
 
