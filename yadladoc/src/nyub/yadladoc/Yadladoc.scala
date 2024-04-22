@@ -5,12 +5,20 @@ import nyub.yadladoc.Yadladoc.Examplable
 import nyub.yadladoc.filesystem.{/, useLines, FileSystem, OsFileSystem}
 
 import java.nio.file.{Path, Paths}
+import nyub.yadladoc.filesystem.InMemoryFileSystem
 
 class Yadladoc(
     private val config: Yadladoc.Configuration,
-    private val fs: FileSystem = OsFileSystem()
+    private val fileSystem: FileSystem = OsFileSystem()
 ):
     def run(outputDir: Path, markdownFile: Path): Unit =
+        run(outputDir, markdownFile, fileSystem)
+
+    private def run(
+        outputDir: Path,
+        markdownFile: Path,
+        writeFs: FileSystem
+    ): Unit =
         val examples = markdownFile
             .useLines(Markdown.parse(_))
             .collect:
@@ -28,26 +36,28 @@ class Yadladoc(
                 config.snippetInjectionKey -> fullExample
               )
             )
-            val finalTemplate = fs.useLines(
+            val finalTemplate = fileSystem.useLines(
               config.templateFile(example.language.getOrElse("default"))
             )(_.map(finalTemplating.inject(_)))
-            fs.writeContent(
+
+            writeFs.writeContent(
               outputDir / config.exampleFile(example.name, example.language),
               finalTemplate.mkString("\n")
             )
 
     def check(outputDir: Path, markdownFile: Path): List[Errors] =
-        val tempDir = fs.createTempDirectory("check")
-        run(tempDir, markdownFile)
+        val checkFs = InMemoryFileSystem.init()
+        val checkDir = checkFs.createTempDirectory("check")
+        run(checkDir, markdownFile, checkFs)
         val diff =
-            DirectoryDiffer(fs).diff(tempDir, outputDir)
+            DirectoryDiffer(checkFs, fileSystem).diff(checkDir, outputDir)
         diff.onlyInA.toList.map(
           CheckErrors.MissingFile(_)
         ) ++ diff.different.toList.map(f =>
             CheckErrors.MismatchingContent(
               f,
-              fs.content(outputDir / f),
-              fs.content(tempDir / f)
+              fileSystem.content(outputDir / f),
+              checkFs.content(checkDir / f)
             )
         )
 
@@ -59,13 +69,13 @@ class Yadladoc(
             val prefixLines = c.prefixTemplateNames
                 .map(config.templateFile(_))
                 .flatMap: templateFile =>
-                    fs.useLines(templateFile)(
+                    fileSystem.useLines(templateFile)(
                       _.map(templating.inject(_))
                     )
             val suffixLines = c.suffixTemplateNames
                 .map(config.templateFile(_))
                 .flatMap: templateFile =>
-                    fs.useLines(templateFile)(
+                    fileSystem.useLines(templateFile)(
                       _.map(templating.inject(_))
                     )
             prefixLines ++ c.body ++ suffixLines
