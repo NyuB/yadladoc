@@ -1,27 +1,33 @@
 ifeq ($(OS), Windows_NT)
+# Project paths
 	MILLW=millw
+	MILL_APP_ASSEMBLY_JAR=out\yadladoc_app\assembly.dest\out.jar
+# Shell commands
+	CP=copy
+	RM=del
 else
+# Project paths
 	MILLW=./millw
+	MILL_APP_ASSEMBLY_JAR=out/yadladoc_app/assembly.dest/out.jar
+
+# Shell commands
+	CP=cp
+	RM=rm
 endif
+
 dev: fmt test
 
 test:
 	$(MILLW) yadladoc.test
 
-ydoc.jar: out/yadladoc_app/assembly.dest/out.jar
-ifeq ($(OS),Windows_NT)
-	copy out\yadladoc_app\assembly.dest\out.jar ydoc.jar
-else
-	cp out/yadladoc_app/assembly.dest/out.jar ydoc.jar
-endif
+ydoc.jar:
+	$(MILLW) yadladoc_app.assembly
+	$(CP) $(MILL_APP_ASSEMBLY_JAR) ydoc.jar
 
 doc-check: ydoc.jar
 	java -jar ydoc.jar check README.md 
 doc-gen: ydoc.jar
 	java -jar ydoc.jar run README.md
-
-out/yadladoc_app/assembly.dest/out.jar:
-	$(MILLW) yadladoc_app.assembly
 
 fmt:
 	scalafmt .
@@ -30,8 +36,4 @@ fmt-check:
 
 clean:
 	$(MILLW) clean
-ifeq (($OS), Windows_NT)
-	del ydoc.jar
-else
-	rm ydoc.jar
-endif
+	$(DEL) ydoc.jar
