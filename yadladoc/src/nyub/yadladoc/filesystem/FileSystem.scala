@@ -1,4 +1,4 @@
-package nyub.yadladoc
+package nyub.yadladoc.filesystem
 
 import java.nio.file.Path
 

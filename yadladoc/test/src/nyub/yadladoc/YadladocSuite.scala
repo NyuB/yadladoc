@@ -1,6 +1,7 @@
 package nyub.yadladoc
 
 import java.nio.file.{Files, Path, StandardOpenOption}
+import nyub.yadladoc.filesystem./
 
 class YadladocSuite
     extends munit.FunSuite

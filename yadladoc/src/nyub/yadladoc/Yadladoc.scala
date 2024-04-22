@@ -1,16 +1,18 @@
 package nyub.yadladoc
 
-import java.nio.file.{Path, Paths}
 import nyub.yadladoc.Markdown.Snippet.Header
 import nyub.yadladoc.Yadladoc.Examplable
+import nyub.yadladoc.filesystem.{/, useLines, FileSystem, OsFileSystem}
+
+import java.nio.file.{Path, Paths}
 
 class Yadladoc(
     private val config: Yadladoc.Configuration,
     private val fs: FileSystem = OsFileSystem()
 ):
     def run(outputDir: Path, markdownFile: Path): Unit =
-        val examples = FileIterable(markdownFile)
-            .use(Markdown.parse(_))
+        val examples = markdownFile
+            .useLines(Markdown.parse(_))
             .collect:
                 case s: Markdown.Snippet => s
             .foldLeft(SnippetMerger(config, Map.empty))(_.accumulate(_))

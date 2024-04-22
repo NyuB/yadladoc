@@ -1,6 +1,7 @@
 package nyub.yadladoc
 
 import java.nio.file.Path
+import nyub.yadladoc.filesystem.{/, OsFileSystem}
 
 class DirectoryDiffSuite
     extends munit.FunSuite

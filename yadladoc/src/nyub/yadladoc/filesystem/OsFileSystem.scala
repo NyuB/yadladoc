@@ -1,4 +1,4 @@
-package nyub.yadladoc
+package nyub.yadladoc.filesystem
 
 import java.nio.file.{Files, Path}
 import java.nio.charset.{Charset, StandardCharsets}
@@ -35,17 +35,3 @@ class OsFileSystem(private val charSet: Charset = StandardCharsets.UTF_8)
             Option(p.toFile().list())
                 .map(_.toSet.map(Paths.get(_)))
                 .getOrElse(Set.empty)
-
-extension (p: Path)
-    private def /(other: Path) = p.resolve(other)
-    private def /(other: String) = p.resolve(other)
-
-private class FileIterable(path: Path):
-    def use[T](f: Iterable[String] => T): T =
-        val linesSource = Source.fromFile(path.toFile())
-        val iterable: Iterable[String] = new:
-            override def iterator: Iterator[String] = linesSource.getLines()
-
-        val res = f(iterable)
-        linesSource.close()
-        res

@@ -1,5 +1,8 @@
 package nyub.yadladoc
 
+import nyub.yadladoc.filesystem.{/, FileSystem}
+import nyub.yadladoc.filesystem.FileTree.{Dir, File}
+
 import java.nio.file.Path
 
 case class DirectoryDiff(
@@ -30,12 +33,12 @@ class DirectoryDiffer(private val fs: FileSystem):
         rootA: Path,
         rootB: Path
     ): DirectoryDiff = fs.toFileTree(rootA) -> fs.toFileTree(rootB) match
-        case (FileTree.File(fa), FileTree.File(fb)) => fileDiff(fa, fb)
-        case (FileTree.File(fa), FileTree.Dir(db)) =>
+        case (File(fa), File(fb)) => fileDiff(fa, fb)
+        case (File(fa), Dir(db)) =>
             DirectoryDiff(Set(fa), all(db), Set.empty)
-        case (FileTree.Dir(da), FileTree.File(fb)) =>
+        case (Dir(da), File(fb)) =>
             DirectoryDiff(all(da), Set(fb), Set.empty)
-        case (FileTree.Dir(da), FileTree.Dir(db)) =>
+        case (Dir(da), Dir(db)) =>
             val childrenA = fs.children(da)
             val childrenB = fs.children(db)
             val both = childrenA
@@ -59,5 +62,5 @@ class DirectoryDiffer(private val fs: FileSystem):
         else DirectoryDiff(Set(fa), Set(fb), Set.empty)
 
     private def all(root: Path): Set[Path] = fs.toFileTree(root) match
-        case FileTree.File(f) => Set(f)
-        case FileTree.Dir(d)  => fs.children(d).flatMap(child => all(d / child))
+        case File(f) => Set(f)
+        case Dir(d)  => fs.children(d).flatMap(child => all(d / child))
