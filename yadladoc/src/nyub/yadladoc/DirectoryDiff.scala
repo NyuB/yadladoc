@@ -35,24 +35,27 @@ class DirectoryDiffer(private val fsa: FileSystem, private val fsb: FileSystem):
         rootA: Path,
         rootB: Path
     ): DirectoryDiff = fsa.toFileTree(rootA) -> fsb.toFileTree(rootB) match
-        case (File(fa), File(fb)) => fileDiff(fa, fb)
         case (File(fa), Dir(db)) =>
             DirectoryDiff(Set(fa), all(db, fsb), Set.empty)
+
         case (Dir(da), File(fb)) =>
             DirectoryDiff(all(da, fsa), Set(fb), Set.empty)
-        case (Dir(da), Dir(db)) =>
-            val childrenA = fsa.children(da)
-            val childrenB = fsb.children(db)
-            val both = childrenA
-                .intersect(childrenB)
-                .map(p => diffInternal(da / p, db / p))
-            val onlyA =
-                childrenA.removedAll(childrenB).flatMap(p => all(da / p, fsa))
-            val onlyB =
-                childrenB.removedAll(childrenA).flatMap(p => all(db / p, fsb))
-            both.foldLeft(DirectoryDiff(onlyA, onlyB, Set.empty))((acc, item) =>
-                acc.merge(item)
-            )
+
+        case (File(fa), File(fb)) => fileDiff(fa, fb)
+        case (Dir(da), Dir(db))   => dirDiff(da, db)
+
+    private def dirDiff(da: Path, db: Path): DirectoryDiff =
+        val childrenA = fsa.children(da)
+        val childrenB = fsb.children(db)
+        val both = childrenA
+            .intersect(childrenB)
+            .map(p => diffInternal(da / p, db / p))
+        val onlyA =
+            childrenA.removedAll(childrenB).flatMap(p => all(da / p, fsa))
+        val onlyB =
+            childrenB.removedAll(childrenA).flatMap(p => all(db / p, fsb))
+        both.foldLeft(DirectoryDiff(onlyA, onlyB, Set.empty)): (acc, item) =>
+            acc.merge(item)
 
     private def fileDiff(
         fa: Path,
