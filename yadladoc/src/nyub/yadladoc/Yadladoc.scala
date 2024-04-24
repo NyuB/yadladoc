@@ -1,15 +1,20 @@
 package nyub.yadladoc
 
-import nyub.yadladoc.Markdown.Snippet.Header
+import nyub.yadladoc.Markdown.Snippet
 import nyub.yadladoc.Yadladoc.Examplable
-import nyub.yadladoc.filesystem.{/, useLines, FileSystem, OsFileSystem}
-
-import java.nio.file.{Path, Paths}
-import nyub.yadladoc.filesystem.InMemoryFileSystem
+import nyub.yadladoc.filesystem.{
+    /,
+    useLines,
+    FileSystem,
+    InMemoryFileSystem,
+    OsFileSystem
+}
 import nyub.yadladoc.templating.{
     SurroundingTemplateInjection,
     TemplateInjection
 }
+
+import java.nio.file.{Path, Paths}
 
 class Yadladoc(
     private val config: Yadladoc.Configuration,
@@ -31,7 +36,7 @@ class Yadladoc(
         val examples = markdownFile
             .useLines(Markdown.parse(_))
             .collect:
-                case s: Markdown.Snippet => s
+                case s: Snippet => s
             .foldLeft(SnippetMerger(config, Map.empty))(_.accumulate(_))
             .examples
 
@@ -116,7 +121,7 @@ object Yadladoc:
                     )
                 .getOrElse(".txt")
 
-        def exampleForSnippet(header: Markdown.Snippet.Header): Examplable =
+        def exampleForSnippet(header: Snippet.Header): Examplable =
             header.properties
                 .get(exampleNamePropertyKey)
                 .filterNot(_.isBlank)
@@ -132,12 +137,12 @@ object Yadladoc:
             )
 
         def prefixTemplateNames(
-            header: Markdown.Snippet.Header
+            header: Snippet.Header
         ): Iterable[String] =
             header.properties.get("ydoc.prefix").toList
 
         def suffixTemplateNames(
-            header: Markdown.Snippet.Header
+            header: Snippet.Header
         ): Iterable[String] =
             header.properties.get("ydoc.suffix").toList
 
@@ -161,7 +166,7 @@ private class SnippetMerger(
     val config: Yadladoc.Configuration,
     val examples: Map[String, Example]
 ):
-    def accumulate(snippet: Markdown.Snippet): SnippetMerger =
+    def accumulate(snippet: Snippet): SnippetMerger =
         val ydocExample = config.exampleForSnippet(snippet.header)
 
         ydocExample match
@@ -177,7 +182,7 @@ private class SnippetMerger(
                         Some(previous.merge(makeExample(exampleName, snippet)))
                 SnippetMerger(config, updatedSnippets)
 
-    private def makeExample(name: String, snippet: Markdown.Snippet): Example =
+    private def makeExample(name: String, snippet: Snippet): Example =
         Example(
           name,
           snippet.header.language,
