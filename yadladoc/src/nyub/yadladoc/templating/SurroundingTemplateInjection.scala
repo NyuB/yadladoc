@@ -1,6 +1,7 @@
 package nyub.yadladoc.templating
 
-class SurroundingTemplateInjection() extends TemplateInjection:
+class SurroundingTemplateInjection(val prefix: String, val postfix: String)
+    extends TemplateInjection:
     override def inject(line: String, properties: Map[String, String]): String =
         Raw("", properties).replace(line)
 
@@ -38,6 +39,4 @@ class SurroundingTemplateInjection() extends TemplateInjection:
                 Property(previous, propertyName + line(0), properties)
                     .replace(line.substring(1))
 
-    private val prefix = "${{"
-    private val postfix = "}}"
     private val defaultPropertyValue = ""

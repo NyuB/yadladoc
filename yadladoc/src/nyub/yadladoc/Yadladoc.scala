@@ -13,9 +13,13 @@ import nyub.yadladoc.templating.{
 
 class Yadladoc(
     private val config: Yadladoc.Configuration,
-    private val fileSystem: FileSystem = OsFileSystem(),
-    private val templating: TemplateInjection = SurroundingTemplateInjection()
+    private val fileSystem: FileSystem = OsFileSystem()
 ):
+    private val templating: TemplateInjection = SurroundingTemplateInjection(
+      config.templateInjectionPrefix,
+      config.templateInjectionPostfix
+    )
+
     def run(outputDir: Path, markdownFile: Path): Unit =
         run(outputDir, markdownFile, fileSystem)
 
@@ -90,6 +94,12 @@ object Yadladoc:
 
         def templateFile(templateName: String): Path =
             includesDir / s"${templateName}.template"
+
+        def templateInjectionPrefix =
+            properties.getOrDefault("ydoc.templateInjectionPrefix")("${{")
+
+        def templateInjectionPostfix =
+            properties.getOrDefault("ydoc.templateInjectionPostfix")("}}")
 
         def snippetInjectionKey: String =
             properties.getOrDefault("ydoc.snippetInjectionKey")("ydoc.snippet")
