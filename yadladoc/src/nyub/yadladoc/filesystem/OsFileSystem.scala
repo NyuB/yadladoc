@@ -5,6 +5,8 @@ import java.nio.charset.{Charset, StandardCharsets}
 import scala.io.Source
 import java.nio.file.Paths
 
+/** Implements [[FileSystem]] with usual access to disk
+  */
 class OsFileSystem(private val charSet: Charset = StandardCharsets.UTF_8)
     extends FileSystem:
     override def content(path: Path): String =

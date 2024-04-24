@@ -5,29 +5,50 @@ import nyub.yadladoc.filesystem.FileTree.{Dir, File}
 
 import java.nio.file.Path
 
+/** Represents the difference between two directories (denoted `A` & `B`)
+  *
+  * All paths are expressed relative to their respective diff root, so a path
+  * `c/b` in [[#onlyInA]] represents the absolute path `A/b/c`
+  * @param onlyInA
+  *   the file paths present in directory A and not in B
+  * @param onlyInB
+  *   the file paths present in directory B and not in A
+  * @param different
+  *   the files paths presents in both A & B but with different contents
+  */
 case class DirectoryDiff(
     val onlyInA: Set[Path],
     val onlyInB: Set[Path],
     val different: Set[Path]
-):
-    def merge(other: DirectoryDiff) = DirectoryDiff(
-      onlyInA ++ other.onlyInA,
-      onlyInB ++ other.onlyInB,
-      different ++ other.different
-    )
-
-    def relativize(rootA: Path, rootB: Path) = DirectoryDiff(
-      onlyInA.map(rootA.relativize(_)),
-      onlyInB.map(rootB.relativize(_)),
-      different.map(rootA.relativize(_))
-    )
+)
 
 object DirectoryDiff:
+    /** Represents the (absence of) diff between two identical directories
+      */
     val SAME = DirectoryDiff(Set.empty, Set.empty, Set.empty)
 
+/** A diffing method that will compare two paths A & B reading from two
+  * respective [[FileSystem]]s
+  *
+  * @param fsa
+  *   the filesystem to use to read A files
+  * @param fsb
+  *   the filesystem to use to read B files
+  */
 class DirectoryDiffer(private val fsa: FileSystem, private val fsb: FileSystem):
     def this(fs: FileSystem) = this(fs, fs)
 
+    /** Compare structure and file content of two directories and produce the
+      * differing file paths as a [[DirectoryDiff]]
+      *
+      * @param rootA
+      *   the first root directory compared to `rootB`
+      * @param rootB
+      *   the second root directory compared to `rootA`
+      * @return
+      *   a directory diff with paths expressed relatively to `rootA` and
+      *   `rootB`
+      */
     def diff(rootA: Path, rootB: Path): DirectoryDiff =
         diffInternal(rootA, rootB).relativize(rootA, rootB)
 
@@ -70,3 +91,16 @@ class DirectoryDiffer(private val fsa: FileSystem, private val fsb: FileSystem):
         fs.toFileTree(root) match
             case File(f) => Set(f)
             case Dir(d)  => fs.children(d).flatMap(child => all(d / child, fs))
+
+    extension (d: DirectoryDiff)
+        private def merge(other: DirectoryDiff) = DirectoryDiff(
+          d.onlyInA ++ other.onlyInA,
+          d.onlyInB ++ other.onlyInB,
+          d.different ++ other.different
+        )
+
+        private def relativize(rootA: Path, rootB: Path) = DirectoryDiff(
+          d.onlyInA.map(rootA.relativize(_)),
+          d.onlyInB.map(rootB.relativize(_)),
+          d.different.map(rootA.relativize(_))
+        )

@@ -5,16 +5,32 @@ import scala.annotation.targetName
 object Markdown:
     private val MARKDOWN_SNIPPET_PREFIX_CHAR = '`'
     private val MARKDOWN_SNIPPET_PREFIX = "```"
-    private def snippetPrefix(line: String): String =
-        line.takeWhile(_ == MARKDOWN_SNIPPET_PREFIX_CHAR)
 
     sealed trait Block
 
+    /** Represents raw lines without additional semantics
+      */
     case class Raw(lines: Seq[String]) extends Block
     object Raw:
         @targetName("of")
         def apply(lines: String*) = new Raw(lines.toSeq)
 
+    /** Represents a markdown-formatted code snippet
+      *
+      * @example
+      *   ````markdown
+      *   ```scala param1 param2
+      *
+      *   // some code ...
+      *
+      *   ```
+      *   ````
+      * @param header
+      *   metadata about the snippet, deduced from the header line
+      * @param lines
+      *   the actual lines of code in the snippet (not including the \`\`\`
+      *   prefixed lines)
+      */
     case class Snippet(header: Snippet.Header, lines: Seq[String]) extends Block
     object Snippet:
         @targetName("of")
@@ -101,5 +117,8 @@ object Markdown:
             extension (s: String)
                 private def hasSameHeader: Boolean =
                     snippetPrefix(s) == header.prefix
+
+    private def snippetPrefix(line: String): String =
+        line.takeWhile(_ == MARKDOWN_SNIPPET_PREFIX_CHAR)
 
 end Markdown

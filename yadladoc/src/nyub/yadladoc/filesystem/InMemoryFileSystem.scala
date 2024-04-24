@@ -5,6 +5,8 @@ import java.nio.file.Paths
 import nyub.yadladoc.filesystem.Tree.Node
 import nyub.yadladoc.filesystem.Tree.Leaf
 
+/** Simulate a file system without actually reading from or writing to disk
+  */
 class InMemoryFileSystem private (private var root: Node) extends FileSystem:
     override def content(path: Path): String = root.content(path)
 
@@ -37,9 +39,11 @@ class InMemoryFileSystem private (private var root: Node) extends FileSystem:
             case Leaf(_) => FileTree.File(p)
 
 object InMemoryFileSystem:
+    /** Generate an empty file system simulation
+      */
     def init() = InMemoryFileSystem(Node(Map.empty))
 
-sealed trait Tree:
+sealed private trait Tree:
     def content(path: Path): String
     def get(path: Path): Tree
 
