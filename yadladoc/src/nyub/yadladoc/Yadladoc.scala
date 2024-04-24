@@ -9,7 +9,8 @@ import nyub.yadladoc.filesystem.InMemoryFileSystem
 
 class Yadladoc(
     private val config: Yadladoc.Configuration,
-    private val fileSystem: FileSystem = OsFileSystem()
+    private val fileSystem: FileSystem = OsFileSystem(),
+    private val templating: TemplateInjection = SurroundingTemplateInjection()
 ):
     def run(outputDir: Path, markdownFile: Path): Unit =
         run(outputDir, markdownFile, fileSystem)
@@ -27,18 +28,14 @@ class Yadladoc(
             .examples
 
         examples.values.foreach: example =>
-            val fullExample = buildExample(
-              example,
-              TemplateInjection(config.properties.all.toMap)
-            ).mkString("\n")
-            val finalTemplating = TemplateInjection(
-              config.properties.all.toMap ++ Map(
-                config.snippetInjectionKey -> fullExample
-              )
+            val fullExample = buildExample(example).mkString("\n")
+
+            val finalTemplatingProperties = config.properties.all.toMap ++ Map(
+              config.snippetInjectionKey -> fullExample
             )
             val finalTemplate = fileSystem.useLines(
               config.templateFile(example.language.getOrElse("default"))
-            )(_.map(finalTemplating.inject(_)))
+            )(_.map(templating.inject(_, finalTemplatingProperties)))
 
             writeFs.writeContent(
               outputDir / config.exampleFile(example.name, example.language),
@@ -62,21 +59,20 @@ class Yadladoc(
         )
 
     private def buildExample(
-        example: Example,
-        templating: TemplateInjection
+        example: Example
     ): Iterable[String] =
         example.content.flatMap: c =>
             val prefixLines = c.prefixTemplateNames
                 .map(config.templateFile(_))
                 .flatMap: templateFile =>
                     fileSystem.useLines(templateFile)(
-                      _.map(templating.inject(_))
+                      _.map(templating.inject(_, config.properties.toMap))
                     )
             val suffixLines = c.suffixTemplateNames
                 .map(config.templateFile(_))
                 .flatMap: templateFile =>
                     fileSystem.useLines(templateFile)(
-                      _.map(templating.inject(_))
+                      _.map(templating.inject(_, config.properties.toMap))
                     )
             prefixLines ++ c.body ++ suffixLines
 
