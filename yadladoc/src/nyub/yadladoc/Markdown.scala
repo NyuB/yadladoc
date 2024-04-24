@@ -58,18 +58,20 @@ object Markdown:
         input
             .foldLeft(BlockParsing.Init.asInstanceOf[BlockParsing]):
                 (acc, item) => acc.parse(item)
-            .get()
+        match
+            case BlockParsing.Init        => Seq.empty
+            case r: BlockParsing.RawBlock => r.get()
+            case s: BlockParsing.SnippetBlock =>
+                throw IllegalStateException("Unclosed code snippet parsing")
 
     private trait BlockParsing:
         def parse(line: String): BlockParsing
-        def get(): Seq[Block]
 
     private object BlockParsing:
         object Init extends BlockParsing:
-            override def get(): Seq[Block] = Seq.empty
             override def parse(line: String): BlockParsing =
                 if line.startsWith(MARKDOWN_SNIPPET_PREFIX) then
-                    SnippetBLock(
+                    SnippetBlock(
                       List.empty,
                       List.empty,
                       Snippet.headerOfLine(line)
@@ -80,13 +82,13 @@ object Markdown:
             private val lines: List[String],
             private val previousBlocks: List[Block]
         ) extends BlockParsing:
-            override def get(): Seq[Block] =
+            def get(): Seq[Block] =
                 withNewRawBlockIFNotEmpty.reverse
 
             override def parse(line: String): BlockParsing =
                 if line.startsWith(MARKDOWN_SNIPPET_PREFIX) then
                     val raw = Raw(lines.reverse)
-                    SnippetBLock(
+                    SnippetBlock(
                       List.empty,
                       withNewRawBlockIFNotEmpty,
                       Snippet.headerOfLine(line)
@@ -99,20 +101,17 @@ object Markdown:
                     val raw = Raw(lines.reverse)
                     raw :: previousBlocks
 
-        class SnippetBLock(
+        class SnippetBlock(
             private val lines: List[String],
             private val previousBlocks: List[Block],
             private val header: Snippet.Header
         ) extends BlockParsing:
-            override def get(): Seq[Block] = throw IllegalStateException(
-              "Unclosed code snippet parsing"
-            )
 
             override def parse(line: String): BlockParsing =
                 if line.hasSameHeader then
                     val snippet = Snippet(header, lines.reverse)
                     RawBlock(List.empty, snippet :: previousBlocks)
-                else SnippetBLock(line :: lines, previousBlocks, header)
+                else SnippetBlock(line :: lines, previousBlocks, header)
 
             extension (s: String)
                 private def hasSameHeader: Boolean =
