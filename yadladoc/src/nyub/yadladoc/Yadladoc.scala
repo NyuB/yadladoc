@@ -6,6 +6,10 @@ import nyub.yadladoc.filesystem.{/, useLines, FileSystem, OsFileSystem}
 
 import java.nio.file.{Path, Paths}
 import nyub.yadladoc.filesystem.InMemoryFileSystem
+import nyub.yadladoc.templating.{
+    SurroundingTemplateInjection,
+    TemplateInjection
+}
 
 class Yadladoc(
     private val config: Yadladoc.Configuration,

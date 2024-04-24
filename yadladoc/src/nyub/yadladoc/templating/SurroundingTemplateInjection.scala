@@ -1,13 +1,4 @@
-package nyub.yadladoc
-
-import scala.languageFeature.postfixOps
-
-trait TemplateInjection:
-    def inject(line: String, properties: Map[String, String]): String
-    def inject(
-        lines: Iterable[String],
-        properties: Map[String, String]
-    ): Iterable[String] = lines.map(inject(_, properties))
+package nyub.yadladoc.templating
 
 class SurroundingTemplateInjection() extends TemplateInjection:
     override def inject(line: String, properties: Map[String, String]): String =
