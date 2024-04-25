@@ -43,7 +43,7 @@ class Yadladoc(
         examples.values.foreach: example =>
             val fullExample = buildExample(example).mkString("\n")
 
-            val finalTemplatingProperties = config.properties.all.toMap ++ Map(
+            val finalTemplatingProperties = config.properties.toMap ++ Map(
               config.snippetInjectionKey -> fullExample
             )
             val finalTemplate = fileSystem.useLines(
