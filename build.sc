@@ -16,4 +16,7 @@ object yadladoc extends ScalaModule with SharedConfiguration {
 
 object yadladoc_app extends ScalaModule with SharedConfiguration {
     def moduleDeps = Seq(yadladoc)
+    def ydocJar = T {
+        os.copy(assembly().path, millSourcePath / os.up / "ydoc.jar")
+    }
 }

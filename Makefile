@@ -1,28 +1,26 @@
 ifeq ($(OS), Windows_NT)
 # Project paths
 	MILLW=millw
-	MILL_APP_ASSEMBLY_JAR=out\yadladoc_app\assembly.dest\out.jar
 # Shell commands
 	CP=copy
 	RM=del
 else
 # Project paths
 	MILLW=./millw
-	MILL_APP_ASSEMBLY_JAR=out/yadladoc_app/assembly.dest/out.jar
-
 # Shell commands
 	CP=cp
 	RM=rm
 endif
 
+.PHONY: dev test ydoc.jar doc-check doc-gen fmt fmt-check clean
+
 dev: fmt test
 
 test:
-	$(MILLW) yadladoc.test
+	$(MILLW) yadladoc.test + yadladoc_app.compile
 
 ydoc.jar:
-	$(MILLW) yadladoc_app.assembly
-	$(CP) $(MILL_APP_ASSEMBLY_JAR) ydoc.jar
+	$(MILLW) yadladoc_app.ydocJar
 
 doc-check: ydoc.jar
 	java -jar ydoc.jar check README.md 
