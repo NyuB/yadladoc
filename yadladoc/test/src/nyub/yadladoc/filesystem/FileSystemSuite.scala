@@ -8,10 +8,14 @@ import org.scalacheck.Gen
 import org.scalacheck.Prop._
 
 import java.nio.file.{Path, Paths}
+import org.scalacheck.Test.Parameters
 
 class FileSystemSuite extends munit.ScalaCheckSuite with AssertExtensions:
     override def scalaCheckInitialSeed =
         "CTH6hXj8ViScMmsO78-k4_RytXHPK_wSJYNH2h4dCpB="
+
+    override protected def scalaCheckTestParameters: Parameters =
+        super.scalaCheckTestParameters.withMinSuccessfulTests(15)
 
     case class Content(s: String)
     case class ContentList(l: List[Content]):

@@ -24,7 +24,7 @@ trait SuiteExtensions extends munit.FunSuite:
     ): Path =
         makeFile(tempDir, filename, content.mkString("\n"))
 
-    private def rmrf(p: Path): Unit =
+    def rmrf(p: Path): Unit =
         if p.toFile().isFile() then Files.delete(p)
         else if p.toFile().isDirectory() then
             val children = p.toFile().list().map(p.resolve(_))
