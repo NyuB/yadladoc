@@ -1,9 +1,9 @@
 package nyub.yadladoc.example
 
 import nyub.yadladoc.AssertExtensions
+import java.nio.file.Files
 
-class GeneratedExample extends munit.FunSuite with AssertExtensions:
-    test("Example"):
+class ${{ydoc.exampleName}} extends munit.FunSuite with AssertExtensions:
 ${{ydoc.snippet}}
 
-end GeneratedExample
+end ${{ydoc.exampleName}}
