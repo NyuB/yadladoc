@@ -145,6 +145,38 @@ class YadladocSuite
 
             outputDir.resolve("a/b.txt") hasContent "a_b"
 
+    testWithinYDocContext("Indexed example part name available in template"):
+        (outputDir, configDir, workingDir) =>
+            val markdownFile = makeFile(workingDir, "README.md"):
+                l"""
+            ```java ydoc.example=javaExample ydoc.prefix=A
+            class A {}
+            ```
+            ```java ydoc.example=javaExample ydoc.prefix=B
+            class B {}
+            ```
+            """
+            makeFile(
+              configDir / "includes",
+              "A.template",
+              "// ${{ydoc.subExampleName}}"
+            )
+            makeFile(
+              configDir / "includes",
+              "B.template",
+              "// ${{ydoc.subExampleName}}"
+            )
+            Yadladoc(Yadladoc.ConfigurationFromFile(configDir))
+                .run(outputDir, markdownFile)
+
+            outputDir.resolve("javaExample.java") hasContent l"""
+            package com.example;
+            // javaExample_0
+            class A {}
+            // javaExample_1
+            class B {}
+            """
+
     def testWithinYDocContext(name: String)(f: (Path, Path, Path) => Any) =
         val withYdocContext =
             FunFixture.map3(withTempDir, withTempDir, withTempDir)

@@ -41,12 +41,9 @@ class Yadladoc(
             .examples
 
         examples.values.foreach: example =>
-            val fullExample = buildExample(example).mkString("\n")
-
+            val fullExample = buildExample(example)
             val finalTemplatingProperties =
-                templatingProperties(example) ++ Map(
-                  config.snippetInjectionKey -> fullExample
-                )
+                templatingProperties(example, fullExample)
             val finalTemplate = fileSystem.useLines(
               config.templateFile(example.language.getOrElse("default"))
             )(_.map(templating.inject(_, finalTemplatingProperties)))
@@ -75,8 +72,8 @@ class Yadladoc(
     private def buildExample(
         example: Example
     ): Iterable[String] =
-        example.content.flatMap: c =>
-            val injectionProperties = templatingProperties(example)
+        example.content.zipWithIndex.flatMap: (c, i) =>
+            val injectionProperties = templatingProperties(example, i)
             val prefixLines = c.prefixTemplateNames
                 .map(config.templateFile(_))
                 .flatMap: templateFile =>
@@ -96,6 +93,24 @@ class Yadladoc(
           config.exampleNameInjectionKey -> config.exampleSanitizedName(
             example.name
           )
+        )
+
+    private def templatingProperties(
+        example: Example,
+        index: Int
+    ): Map[String, String] =
+        templatingProperties(example) ++ Map(
+          config.subExampleNameInjectionKey -> config.exampleSanitizedName(
+            s"${example.name}_${index}"
+          )
+        )
+
+    private def templatingProperties(
+        example: Example,
+        content: Iterable[String]
+    ): Map[String, String] =
+        templatingProperties(example) ++ Map(
+          config.snippetInjectionKey -> content.mkString("\n")
         )
 
 object Yadladoc:
@@ -126,6 +141,10 @@ object Yadladoc:
         def exampleNamePropertyKey: String = properties.getOrDefault(
           "ydoc.exampleNamePropertyKey"
         )("ydoc.example")
+
+        def subExampleNameInjectionKey: String = properties.getOrDefault(
+          "ydoc.subExampleNamePropertyKey"
+        )("ydoc.subExampleName")
 
         def extensionForLanguage(languageOrNone: Option[String]): String =
             languageOrNone
