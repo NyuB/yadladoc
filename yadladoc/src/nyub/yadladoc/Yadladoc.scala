@@ -43,9 +43,10 @@ class Yadladoc(
         examples.values.foreach: example =>
             val fullExample = buildExample(example).mkString("\n")
 
-            val finalTemplatingProperties = config.properties.toMap ++ Map(
-              config.snippetInjectionKey -> fullExample
-            )
+            val finalTemplatingProperties =
+                templatingProperties(example) ++ Map(
+                  config.snippetInjectionKey -> fullExample
+                )
             val finalTemplate = fileSystem.useLines(
               config.templateFile(example.language.getOrElse("default"))
             )(_.map(templating.inject(_, finalTemplatingProperties)))
@@ -75,19 +76,27 @@ class Yadladoc(
         example: Example
     ): Iterable[String] =
         example.content.flatMap: c =>
+            val injectionProperties = templatingProperties(example)
             val prefixLines = c.prefixTemplateNames
                 .map(config.templateFile(_))
                 .flatMap: templateFile =>
                     fileSystem.useLines(templateFile)(
-                      _.map(templating.inject(_, config.properties.toMap))
+                      _.map(templating.inject(_, injectionProperties))
                     )
             val suffixLines = c.suffixTemplateNames
                 .map(config.templateFile(_))
                 .flatMap: templateFile =>
                     fileSystem.useLines(templateFile)(
-                      _.map(templating.inject(_, config.properties.toMap))
+                      _.map(templating.inject(_, injectionProperties))
                     )
             prefixLines ++ c.body ++ suffixLines
+
+    private def templatingProperties(example: Example): Map[String, String] =
+        config.properties.toMap ++ Map(
+          config.exampleNameInjectionKey -> config.exampleSanitizedName(
+            example.name
+          )
+        )
 
 object Yadladoc:
     trait Configuration:
@@ -108,6 +117,11 @@ object Yadladoc:
 
         def snippetInjectionKey: String =
             properties.getOrDefault("ydoc.snippetInjectionKey")("ydoc.snippet")
+
+        def exampleNameInjectionKey: String =
+            properties.getOrDefault("ydoc.exampleNameInjectionKey")(
+              "ydoc.exampleName"
+            )
 
         def exampleNamePropertyKey: String = properties.getOrDefault(
           "ydoc.exampleNamePropertyKey"
@@ -135,6 +149,9 @@ object Yadladoc:
             Paths.get(
               s"${exampleName}.${extensionForLanguage(exampleLanguage)}"
             )
+
+        def exampleSanitizedName(exampleName: String): String =
+            exampleName.replaceAll("[/\\:]+", "_")
 
         def prefixTemplateNames(
             header: Snippet.Header

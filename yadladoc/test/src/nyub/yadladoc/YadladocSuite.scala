@@ -127,6 +127,24 @@ class YadladocSuite
           CheckErrors.MissingFile(p"ko.java")
         )
 
+    testWithinYDocContext("Sanitized example name available in template"):
+        (outputDir, configDir, workingDir) =>
+            val markdownFile = makeFile(workingDir, "README.md"):
+                l"""
+            ```txt ydoc.example=a/b
+            Test
+            ```
+            """
+            makeFile(
+              configDir / "includes",
+              "txt.template",
+              "${{ydoc.exampleName}}"
+            )
+            Yadladoc(Yadladoc.ConfigurationFromFile(configDir))
+                .run(outputDir, markdownFile)
+
+            outputDir.resolve("a/b.txt") hasContent "a_b"
+
     def testWithinYDocContext(name: String)(f: (Path, Path, Path) => Any) =
         val withYdocContext =
             FunFixture.map3(withTempDir, withTempDir, withTempDir)
