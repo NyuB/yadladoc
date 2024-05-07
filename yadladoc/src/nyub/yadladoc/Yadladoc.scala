@@ -45,7 +45,9 @@ class Yadladoc(
             val finalTemplatingProperties =
                 templatingProperties(example, fullExample)
             val finalTemplate = fileSystem.useLines(
-              config.templateFile(example.language.getOrElse("default"))
+              config.templateFile(
+                example.language.getOrElse(Yadladoc.DEFAULT_LANGUAGE).name
+              )
             )(_.map(templating.inject(_, finalTemplatingProperties)))
 
             writeFs.writeContent(
@@ -114,6 +116,7 @@ class Yadladoc(
         )
 
 object Yadladoc:
+    val DEFAULT_LANGUAGE = Language.named("default")
     trait Configuration:
         def properties: Properties
         def configDir: Path
@@ -146,13 +149,15 @@ object Yadladoc:
           "ydoc.subExampleNamePropertyKey"
         )("ydoc.subExampleName")
 
-        def extensionForLanguage(languageOrNone: Option[String]): String =
+        def extensionForLanguage(languageOrNone: Option[Language]): String =
             languageOrNone
                 .map: lang =>
-                    properties.getOrDefault(s"ydoc.language.${lang}.extension")(
-                      lang
+                    properties.getOrDefault(
+                      s"ydoc.language.${lang.name}.extension"
+                    )(
+                      lang.name
                     )
-                .getOrElse(".txt")
+                .getOrElse("txt")
 
         def exampleForSnippet(header: Snippet.Header): Examplable =
             header.properties
@@ -163,7 +168,7 @@ object Yadladoc:
 
         def exampleFile(
             exampleName: String,
-            exampleLanguage: Option[String]
+            exampleLanguage: Option[Language]
         ): Path =
             Paths.get(
               s"${exampleName}.${extensionForLanguage(exampleLanguage)}"

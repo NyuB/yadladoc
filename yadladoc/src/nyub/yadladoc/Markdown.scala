@@ -39,7 +39,7 @@ object Markdown:
 
         case class Header(
             val prefix: String,
-            val language: Option[String],
+            val language: Option[Language],
             val properties: Properties
         )
 
@@ -50,7 +50,8 @@ object Markdown:
             val properties = line.substring(prefix.length + language.length)
             Header(
               prefix,
-              if language.length > 0 then Some(language) else None,
+              if language.length > 0 then Some(Language.named(language))
+              else None,
               Properties.ofLine(properties)
             )
 

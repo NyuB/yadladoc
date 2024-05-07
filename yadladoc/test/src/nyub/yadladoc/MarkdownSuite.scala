@@ -34,7 +34,8 @@ class MarkdownSuite
         Markdown.parse(input) isEqualTo Seq(
           Markdown.Raw("# Title", "This is a code snippet"),
           Markdown.Snippet(
-            Markdown.Snippet.Header("```", Some("scala"), Properties.empty),
+            Markdown.Snippet
+                .Header("```", Some(Language.SCALA), Properties.empty),
             "val i: Int = 0"
           ),
           Markdown.Raw("Awesome isn't it ?")
@@ -64,7 +65,8 @@ class MarkdownSuite
         """
         Markdown.parse(input) isEqualTo Seq(
           Markdown.Snippet(
-            Markdown.Snippet.Header("```", Some("markdown"), Properties.empty),
+            Markdown.Snippet
+                .Header("```", Some(Language.MARKDOWN), Properties.empty),
             "You can nest markdown in markdown :O",
             "````java",
             "class Inception {",
@@ -75,10 +77,10 @@ class MarkdownSuite
         )
 
     test("Header parsing"):
-        checkHeaderParsing("```java", Some("java"), Properties.empty)
+        checkHeaderParsing("```java", Some(Language.JAVA), Properties.empty)
         checkHeaderParsing(
           "```scala foo=bar baz",
-          Some("scala"),
+          Some(Language.SCALA),
           Properties("foo" -> "bar")
         )
         checkHeaderParsing(
@@ -89,7 +91,7 @@ class MarkdownSuite
 
     private def checkHeaderParsing(
         headerLine: String,
-        expectedLanguage: Option[String],
+        expectedLanguage: Option[Language],
         expectedProperties: Properties
     ): Unit =
         val input = List(headerLine, "```")

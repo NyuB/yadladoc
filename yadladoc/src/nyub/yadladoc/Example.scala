@@ -2,7 +2,7 @@ package nyub.yadladoc
 
 case class Example(
     val name: String,
-    val language: Option[String],
+    val language: Option[Language],
     val content: Iterable[ExampleContent]
 ):
     def merge(other: Example): Example =
