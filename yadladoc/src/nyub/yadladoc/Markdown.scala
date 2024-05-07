@@ -3,9 +3,6 @@ package nyub.yadladoc
 import scala.annotation.targetName
 
 object Markdown:
-    private val MARKDOWN_SNIPPET_PREFIX_CHAR = '`'
-    private val MARKDOWN_SNIPPET_PREFIX = "```"
-
     sealed trait Block
 
     /** Represents raw lines without additional semantics
@@ -33,18 +30,22 @@ object Markdown:
       */
     case class Snippet(header: Snippet.Header, lines: Seq[String]) extends Block
     object Snippet:
-        @targetName("of")
-        def apply(header: Header, lines: String*) =
-            new Snippet(header, lines.toSeq)
-
+        val PREFIX_CHAR = '`'
+        val PREFIX_MIN = "```"
         case class Header(
-            val prefix: String,
+            val prefix: Prefix,
             val language: Option[Language],
             val properties: Properties
         )
 
+        case class Prefix(val length: Int)
+
+        @targetName("of")
+        def apply(header: Header, lines: String*) =
+            new Snippet(header, lines.toSeq)
+
         private[Markdown] def headerOfLine(line: String): Header =
-            val prefix = snippetPrefix(line)
+            val prefix = Snippet.prefix(line)
             val language =
                 line.substring(prefix.length).takeWhile(c => !" \t".contains(c))
             val properties = line.substring(prefix.length + language.length)
@@ -54,6 +55,13 @@ object Markdown:
               else None,
               Properties.ofLine(properties)
             )
+
+        private[Markdown] def isSnippetHeaderLine(line: String): Boolean =
+            line.startsWith(PREFIX_MIN)
+
+        def prefix(line: String): Prefix =
+            val length = line.takeWhile(_ == PREFIX_CHAR).length()
+            Prefix(length)
 
     def parse(input: Iterable[String]): Seq[Block] =
         input
@@ -71,7 +79,7 @@ object Markdown:
     private object BlockParsing:
         object Init extends BlockParsing:
             override def parse(line: String): BlockParsing =
-                if line.startsWith(MARKDOWN_SNIPPET_PREFIX) then
+                if Snippet.isSnippetHeaderLine(line) then
                     SnippetBlock(
                       List.empty,
                       List.empty,
@@ -87,7 +95,7 @@ object Markdown:
                 withNewRawBlockIFNotEmpty.reverse
 
             override def parse(line: String): BlockParsing =
-                if line.startsWith(MARKDOWN_SNIPPET_PREFIX) then
+                if Snippet.isSnippetHeaderLine(line) then
                     val raw = Raw(lines.reverse)
                     SnippetBlock(
                       List.empty,
@@ -116,9 +124,6 @@ object Markdown:
 
             extension (s: String)
                 private def hasSameHeader: Boolean =
-                    snippetPrefix(s) == header.prefix
-
-    private def snippetPrefix(line: String): String =
-        line.takeWhile(_ == MARKDOWN_SNIPPET_PREFIX_CHAR)
+                    Snippet.prefix(s) == header.prefix
 
 end Markdown

@@ -35,7 +35,11 @@ class MarkdownSuite
           Markdown.Raw("# Title", "This is a code snippet"),
           Markdown.Snippet(
             Markdown.Snippet
-                .Header("```", Some(Language.SCALA), Properties.empty),
+                .Header(
+                  prefixOfLength3,
+                  Some(Language.SCALA),
+                  Properties.empty
+                ),
             "val i: Int = 0"
           ),
           Markdown.Raw("Awesome isn't it ?")
@@ -48,7 +52,7 @@ class MarkdownSuite
         """
         Markdown.parse(input) isEqualTo Seq(
           Markdown.Snippet(
-            Markdown.Snippet.Header("```", None, Properties.empty)
+            Markdown.Snippet.Header(prefixOfLength3, None, Properties.empty)
           )
         )
 
@@ -66,7 +70,11 @@ class MarkdownSuite
         Markdown.parse(input) isEqualTo Seq(
           Markdown.Snippet(
             Markdown.Snippet
-                .Header("```", Some(Language.MARKDOWN), Properties.empty),
+                .Header(
+                  prefixOfLength3,
+                  Some(Language.MARKDOWN),
+                  Properties.empty
+                ),
             "You can nest markdown in markdown :O",
             "````java",
             "class Inception {",
@@ -88,6 +96,8 @@ class MarkdownSuite
           None,
           Properties("a" -> "x", "b" -> "y", "c" -> "z")
         )
+
+    private val prefixOfLength3 = Markdown.Snippet.Prefix(3)
 
     private def checkHeaderParsing(
         headerLine: String,
