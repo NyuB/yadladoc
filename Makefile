@@ -1,12 +1,14 @@
 ifeq ($(OS), Windows_NT)
 # Project paths
 	MILLW=millw
+	YDOC_JAR=usage\ydoc.jar
 # Shell commands
 	CP=copy
 	RM=del
 else
 # Project paths
 	MILLW=./millw
+	YDOC_JAR=usage/ydoc.jar
 # Shell commands
 	CP=cp
 	RM=rm
@@ -19,15 +21,15 @@ dev: fmt test
 test:
 	$(MILLW) yadladoc.test + yadladoc_app.compile
 
-usage-test: usage/ydoc.jar
+usage-test: $(YDOC_JAR)
 	$(MAKE) -C usage test
-usage-update: usage/ydoc.jar
+usage-update: $(YDOC_JAR)
 	$(MAKE) -C usage update
 
-usage/ydoc.jar: ydoc.jar
+$(YDOC_JAR):
 	$(MILLW) yadladoc_app.ydocJar
 
-doc-check: usage/ydoc.jar
+doc-check: $(YDOC_JAR)
 	java -jar usage/ydoc.jar check README.md 
 doc-gen: ydoc.jar
 	java -jar usage/ydoc.jar run README.md
@@ -39,4 +41,4 @@ fmt-check:
 
 clean:
 	$(MILLW) clean
-	$(RM) ydoc.jar
+	$(RM) $(YDOC_JAR)
