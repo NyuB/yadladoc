@@ -1,0 +1,6 @@
+Link resources to test execution directory, TESTDIR is provided by cram and points to the directory containing the run.t file
+  $ shopt -s dotglob
+  $ ln -s ${TESTDIR}/../ydoc.jar ydoc.jar
+  $ ln -s ${TESTDIR}/* .
+
+${{ydoc.snippet}}
