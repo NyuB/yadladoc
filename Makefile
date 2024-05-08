@@ -19,13 +19,18 @@ dev: fmt test
 test:
 	$(MILLW) yadladoc.test + yadladoc_app.compile
 
-ydoc.jar:
+usage-test: usage/ydoc.jar
+	$(MAKE) -C usage test
+usage-update: usage/ydoc.jar
+	$(MAKE) -C usage update
+
+usage/ydoc.jar: ydoc.jar
 	$(MILLW) yadladoc_app.ydocJar
 
-doc-check: ydoc.jar
-	java -jar ydoc.jar check README.md 
+doc-check: usage/ydoc.jar
+	java -jar usage/ydoc.jar check README.md 
 doc-gen: ydoc.jar
-	java -jar ydoc.jar run README.md
+	java -jar usage/ydoc.jar run README.md
 
 fmt:
 	scalafmt .
@@ -34,4 +39,4 @@ fmt-check:
 
 clean:
 	$(MILLW) clean
-	$(DEL) ydoc.jar
+	$(RM) ydoc.jar

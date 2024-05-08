@@ -33,7 +33,7 @@ def hey():
 
 ## Install
 ### From source
-Run `make ydoc.jar` to produce the executable jar `ydoc.jar` at the root of the repository
+Run `make usage/ydoc.jar` to produce the executable jar `ydoc.jar` in `usage/`
 
 ### From the release jar
 **COMING SOON**
