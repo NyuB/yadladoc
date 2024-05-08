@@ -11,3 +11,5 @@ object CheckErrors:
         actualContent: String,
         expectedContent: String
     ) extends Errors
+
+case class GeneratedFile(val file: Path, val from: Path)

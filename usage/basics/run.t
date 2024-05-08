@@ -28,6 +28,7 @@ For both modes, the input is a README file containing code snippets marked with 
 
 In 'run' mode, Yadladoc generate actual files based on these code snippets
   $ java -jar ydoc.jar run README.md
+  Generated Test.java from README.md
   $ cat Test.java
   import org.junit.jupiter.api.Test;
   import static org.junit.jupiter.api.Assertions.assertEquals;

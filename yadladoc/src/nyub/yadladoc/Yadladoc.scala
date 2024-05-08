@@ -25,14 +25,14 @@ class Yadladoc(
       config.templateInjectionPostfix
     )
 
-    def run(outputDir: Path, markdownFile: Path): Unit =
+    def run(outputDir: Path, markdownFile: Path): Iterable[GeneratedFile] =
         run(outputDir, markdownFile, fileSystem)
 
     private def run(
         outputDir: Path,
         markdownFile: Path,
         writeFs: FileSystem
-    ): Unit =
+    ): Iterable[GeneratedFile] =
         val examples = markdownFile
             .useLines(Markdown.parse(_))
             .collect:
@@ -40,7 +40,7 @@ class Yadladoc(
             .foldLeft(SnippetMerger(config, Map.empty))(_.accumulate(_))
             .examples
 
-        examples.values.foreach: example =>
+        examples.values.map: example =>
             val fullExample = buildExample(example)
             val finalTemplatingProperties =
                 templatingProperties(example, fullExample)
@@ -50,10 +50,12 @@ class Yadladoc(
               )
             )(_.map(templating.inject(_, finalTemplatingProperties)))
 
+            val exampleFile = config.exampleFile(example.name, example.language)
             writeFs.writeContent(
-              outputDir / config.exampleFile(example.name, example.language),
+              outputDir / exampleFile,
               finalTemplate.mkString("\n")
             )
+            GeneratedFile(exampleFile, markdownFile)
 
     def check(outputDir: Path, markdownFile: Path): List[Errors] =
         val checkFs = InMemoryFileSystem.init()

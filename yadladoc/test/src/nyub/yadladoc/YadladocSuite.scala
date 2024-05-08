@@ -1,6 +1,6 @@
 package nyub.yadladoc
 
-import java.nio.file.{Files, Path, StandardOpenOption}
+import java.nio.file.{Files, Path, Paths, StandardOpenOption}
 import nyub.yadladoc.filesystem./
 
 class YadladocSuite
@@ -44,8 +44,20 @@ class YadladocSuite
             ```
             """
 
-            Yadladoc(Yadladoc.ConfigurationFromFile(configDir))
-                .run(outputDir, markdownFile)
+            val generatedFiles =
+                Yadladoc(Yadladoc.ConfigurationFromFile(configDir))
+                    .run(outputDir, markdownFile)
+
+            generatedFiles.toList isEqualTo List(
+              GeneratedFile(
+                Paths.get("kotlin-list-example.kotlin"),
+                markdownFile
+              ),
+              GeneratedFile(
+                Paths.get("kotlin-class-example.kotlin"),
+                markdownFile
+              )
+            )
 
             outputDir.resolve("kotlin-list-example.kotlin") hasContent l"""
             package com.example
