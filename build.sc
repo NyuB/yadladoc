@@ -13,7 +13,19 @@ object assert_extensions extends ScalaModule with SharedConfiguration {
     object test extends ScalaTests with TestModule.Munit { }
 }
 
+object filesystem extends ScalaModule with SharedConfiguration {
+    object test extends ScalaTests with TestModule.Munit {
+        override def moduleDeps = super.moduleDeps ++ Seq(assert_extensions)
+        def ivyDeps = Agg(
+            ivy"org.scalameta::munit:0.7.29",
+            ivy"org.scalameta::munit-scalacheck:0.7.29",
+        )
+    }
+}
+
 object yadladoc extends ScalaModule with SharedConfiguration {
+    override def moduleDeps = super.moduleDeps ++ Seq(filesystem)
+    
     object test extends ScalaTests with TestModule.Munit {
         override def moduleDeps = super.moduleDeps ++ Seq(assert_extensions)
         override def ivyDeps = Agg(

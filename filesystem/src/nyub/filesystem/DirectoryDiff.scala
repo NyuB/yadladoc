@@ -1,9 +1,7 @@
-package nyub.yadladoc
-
-import nyub.yadladoc.filesystem.{/, FileSystem}
-import nyub.yadladoc.filesystem.FileTree.{Dir, File}
+package nyub.filesystem
 
 import java.nio.file.Path
+import FileTree.{Dir, File}
 
 /** Represents the difference between two directories (denoted `A` & `B`)
   *

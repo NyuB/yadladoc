@@ -2,9 +2,11 @@ package nyub.yadladoc
 
 import nyub.yadladoc.Markdown.Snippet
 import nyub.yadladoc.Yadladoc.Examplable
-import nyub.yadladoc.filesystem.{
+import nyub.filesystem.{
     /,
     useLines,
+    DirectoryDiff,
+    DirectoryDiffer,
     FileSystem,
     InMemoryFileSystem,
     OsFileSystem

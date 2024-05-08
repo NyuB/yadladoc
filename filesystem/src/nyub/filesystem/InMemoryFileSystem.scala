@@ -1,9 +1,9 @@
-package nyub.yadladoc.filesystem
+package nyub.filesystem
 
 import java.nio.file.Path
 import java.nio.file.Paths
-import nyub.yadladoc.filesystem.Tree.Node
-import nyub.yadladoc.filesystem.Tree.Leaf
+import nyub.filesystem.Tree.Node
+import nyub.filesystem.Tree.Leaf
 
 /** Simulate a file system without actually reading from or writing to disk
   */

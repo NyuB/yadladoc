@@ -1,4 +1,4 @@
-package nyub.yadladoc.filesystem
+package nyub.filesystem
 
 import scala.io.Source
 import java.nio.file.Path

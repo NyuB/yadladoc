@@ -1,15 +1,9 @@
-package nyub.yadladoc
+package nyub.filesystem
 
-import java.nio.file.Path
+import java.nio.file.{Path, Paths}
 import nyub.assert.AssertExtensions
-import nyub.yadladoc.filesystem.{/, OsFileSystem}
-import nyub.yadladoc.filesystem.FileSystem
-import nyub.yadladoc.filesystem.InMemoryFileSystem
 
-class DirectoryDiffSuite
-    extends munit.FunSuite
-    with AssertExtensions
-    with SuiteExtensions:
+class DirectoryDiffSuite extends munit.FunSuite with AssertExtensions:
 
     test("Empty folders are the same"):
         given fs: FileSystem = InMemoryFileSystem.init()
@@ -69,5 +63,8 @@ class DirectoryDiffSuite
         fs: FileSystem
     )(dir: Path, filename: String, content: String) =
         fs.writeContent(dir.resolve(filename), content)
+
+    extension (sc: StringContext)
+        private def p(args: Any*): Path = Paths.get(sc.s(args*))
 
 end DirectoryDiffSuite

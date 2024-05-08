@@ -1,7 +1,6 @@
-package nyub.yadladoc.filesystem
+package nyub.filesystem
 
 import nyub.assert.AssertExtensions
-import nyub.yadladoc.{DirectoryDiff, DirectoryDiffer}
 
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen

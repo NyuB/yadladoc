@@ -1,4 +1,4 @@
-package nyub.yadladoc.filesystem
+package nyub.filesystem
 
 import java.nio.file.{Files, Path}
 import java.nio.charset.{Charset, StandardCharsets}
