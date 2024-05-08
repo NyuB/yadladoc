@@ -1,5 +1,5 @@
 # Yadladoc: reliable, tested code snippets in your documentation
-Inspired by [knit](https://github.com/Kotlin/kotlinx-knit), [mdoc](https://github.com/scalameta/mdoc), [mdx](https://github.com/realworldocaml/mdx) 
+Inspired by [cram](https://bitheap.org/cram/), [knit](https://github.com/Kotlin/kotlinx-knit), [mdoc](https://github.com/scalameta/mdoc), [mdx](https://github.com/realworldocaml/mdx) 
 
 ## Usage
 ### Basics

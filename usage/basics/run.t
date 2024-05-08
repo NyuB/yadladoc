@@ -1,4 +1,4 @@
-Move into test directory, TEST_DIR is provided by cram
+Link resources to test execution directory, TESTDIR is provided by cram and points to the directory containing the run.t file
   $ ln -s ${TESTDIR}/../ydoc.jar ydoc.jar
 
 Yadladoc can be run in two modes 'check' and 'run'
