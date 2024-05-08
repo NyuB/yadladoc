@@ -1,5 +1,6 @@
 package nyub.yadladoc
 
+import nyub.assert.AssertExtensions
 import nyub.yadladoc.Markdown.Snippet
 
 class MarkdownSuite

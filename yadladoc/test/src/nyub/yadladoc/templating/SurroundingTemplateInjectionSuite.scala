@@ -1,6 +1,6 @@
 package nyub.yadladoc.templating
 
-import nyub.yadladoc.AssertExtensions
+import nyub.assert.AssertExtensions
 
 class SurroundingTemplateInjectionSuite
     extends munit.FunSuite

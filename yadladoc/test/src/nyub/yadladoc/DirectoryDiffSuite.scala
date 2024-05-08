@@ -1,6 +1,7 @@
 package nyub.yadladoc
 
 import java.nio.file.Path
+import nyub.assert.AssertExtensions
 import nyub.yadladoc.filesystem.{/, OsFileSystem}
 import nyub.yadladoc.filesystem.FileSystem
 import nyub.yadladoc.filesystem.InMemoryFileSystem

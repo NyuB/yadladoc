@@ -1,4 +1,4 @@
-package nyub.yadladoc
+package nyub.assert
 
 import java.nio.file.{Files, Path}
 trait AssertExtensions extends munit.Assertions:

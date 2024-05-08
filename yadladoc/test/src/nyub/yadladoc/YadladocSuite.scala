@@ -1,6 +1,8 @@
 package nyub.yadladoc
 
 import java.nio.file.{Files, Path, Paths, StandardOpenOption}
+import nyub.assert.AssertExtensions
+
 import nyub.yadladoc.filesystem./
 
 class YadladocSuite

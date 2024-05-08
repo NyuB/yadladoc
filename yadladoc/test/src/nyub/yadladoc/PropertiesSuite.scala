@@ -1,5 +1,7 @@
 package nyub.yadladoc
 
+import nyub.assert.AssertExtensions
+
 class PropertiesSuite extends munit.FunSuite with AssertExtensions:
     test("Single property line"):
         Properties.ofLine("foo.bar=baz") isEqualTo Properties(
