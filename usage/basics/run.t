@@ -44,7 +44,10 @@ In 'check' mode, Yadladoc verifies that the files content indeed match what woul
 It will fail on files with mismatching content
   $ sed -i 's/assertEquals/assertNumberEquals/g' Test.java
   $ java -jar ydoc.jar check README.md
-  Error: [MismatchingContent(Test.java,import org.junit.jupiter.api.Test;
+  Error [MismatchingContent]: File 'Test.java' has mismatching content with what would have been generated
+  Expected
+  vvvvvvv
+  import org.junit.jupiter.api.Test;
   import static org.junit.jupiter.api.Assertions.assertNumberEquals;
   class Test {
       @Test
@@ -52,19 +55,25 @@ It will fail on files with mismatching content
           assertNumberEquals(42, 21 * 2);
       }
   }
-  ,import org.junit.jupiter.api.Test;
-  import static org.junit.jupiter.api.Assertions.assertEquals;
+  
+  ^^^^^^^
+  
+  Actual
+  vvvvvvv
+  import org.junit.jupiter.api.Test;
+  import static org.junit.jupiter.api.Assertions.assertNumberEquals;
   class Test {
       @Test
       void test() {
-          assertEquals(42, 21 * 2);
+          assertNumberEquals(42, 21 * 2);
       }
   }
-  )]
+  
+  ^^^^^^^
   [2]
 
 It will fail on missing files
   $ rm Test.java
   $ java -jar ydoc.jar check README.md
-  Error: [MissingFile(Test.java)]
+  Error [MissingFile]: File 'Test.java' is missing
   [2]

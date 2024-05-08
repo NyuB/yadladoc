@@ -32,14 +32,18 @@ import java.nio.file.Paths
 
     val outputDir = Paths.get(".")
     val yadladoc = Yadladoc(Yadladoc.ConfigurationFromFile(configDir))
-    if command == "run" then 
+    if command == "run" then
         val generated = yadladoc.run(outputDir, markdownFile)
         generated.foreach: g =>
             println(s"Generated ${g.file} from ${g.from}")
     else if command == "check" then
         val errors = yadladoc.check(outputDir, markdownFile)
         if !errors.isEmpty then
-            errors.foreach(e => println(s"Error: [$e]"))
+            errors.foreach: e =>
+                println(
+                  s"Error [${e.getClass().getSimpleName()}]: ${e.prettyPrintedMessage}"
+                )
+
             System.exit(2)
         else System.exit(0)
 
