@@ -1,10 +1,12 @@
 package nyub.interpreter
 
-import jdk.jshell.{EvalException, Snippet, SnippetEvent}
+import jdk.jshell.{EvalException, JShell, Snippet, SnippetEvent}
 import jdk.jshell.Snippet.Status.{OVERWRITTEN, REJECTED, VALID}
 
 class JShellInterpreter extends Interpreter:
     private val shell = jdk.jshell.JShell.create()
+    // If not adding the current class path manually, jshell appears to be limited to jdk classes in test suites
+    shell.addToClasspath(System.getProperty("java.class.path"))
 
     override def eval(line: String): Seq[String] =
         shell

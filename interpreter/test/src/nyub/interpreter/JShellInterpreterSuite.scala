@@ -18,5 +18,20 @@ class JShellInterpreterSuite extends munit.FunSuite with AssertExtensions:
           "//> 1"
         )
 
+    test("JShell has access to classpath"):
+        val script = List(
+          "import nyub.interpreter.Exposed;",
+          "new Exposed(42L);"
+        )
+
+        decorator.decorate(script) isEqualTo List(
+          "import nyub.interpreter.Exposed;",
+          "new Exposed(42L);",
+          "//> !! Custom Object [42]"
+        )
+
 private object TestInterpreterFactory extends InterpreterFactory:
     override def create(): Interpreter = JShellInterpreter()
+
+class Exposed(val id: Long):
+    override def toString(): String = s"!! Custom Object [$id]"
