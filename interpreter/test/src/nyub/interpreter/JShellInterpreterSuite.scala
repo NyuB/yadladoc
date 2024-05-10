@@ -30,6 +30,17 @@ class JShellInterpreterSuite extends munit.FunSuite with AssertExtensions:
           "//> !! Custom Object [42]"
         )
 
+    test("Multiple instruction on one line"):
+        val script = List(
+          "var a = 1; var b = 2;"
+        )
+
+        decorator.decorate(script) isEqualTo List(
+          "var a = 1; var b = 2;",
+          "//> 1",
+          "//> 2"
+        )
+
 private object TestInterpreterFactory extends InterpreterFactory:
     override def create(): Interpreter = JShellInterpreter()
 
