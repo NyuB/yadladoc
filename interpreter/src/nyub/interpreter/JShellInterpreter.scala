@@ -21,19 +21,18 @@ class JShellInterpreter extends Interpreter:
         shell
             .eval(line)
             .toList
-            .map: e =>
+            .flatMap: e =>
                 e.status() match
                     case VALID =>
                         val v = e.value()
                         if v == null then
                             val ex = e.exception()
                             if ex == null then
-                                None // Valid snippet but no output, e.g. for an import or a partial snippet
-                            else Some(ex.getCause().toString())
-                        else Some(v)
-                    case REJECTED => Some("Invalid snippet")
-                    case _        => Some("Unknown error")
-            .flatMap(_.toList)
+                                Seq.empty // Valid snippet but no output, e.g. for an import or a partial snippet
+                            else Seq(ex.getCause().toString())
+                        else v.split("(\n)|(\r\n)")
+                    case REJECTED => Seq("Invalid snippet")
+                    case _        => Seq("Unknown error")
 
     private def splitSnippets(line: String): Seq[String] =
         val sourceAnalysis = shell.sourceCodeAnalysis()

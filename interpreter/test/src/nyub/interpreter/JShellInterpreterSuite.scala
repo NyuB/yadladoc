@@ -51,8 +51,23 @@ class JShellInterpreterSuite extends munit.FunSuite with AssertExtensions:
           "a //> 2"
         )
 
+    test("Multi line object representation"):
+        val script = List(
+          "new nyub.interpreter.Multiline();"
+        )
+
+        decorator.decorate(script) isEqualTo List(
+          "new nyub.interpreter.Multiline();",
+          "//> [Multi",
+          "//> Line",
+          "//> Representation]"
+        )
+
 private object TestInterpreterFactory extends InterpreterFactory:
     override def create(): Interpreter = JShellInterpreter()
 
 class Exposed(val id: Long):
     override def toString(): String = s"!! Custom Object [$id]"
+
+class Multiline:
+    override def toString(): String = "[Multi\nLine\nRepresentation]"
