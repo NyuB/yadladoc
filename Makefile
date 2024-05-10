@@ -30,9 +30,9 @@ $(YDOC_JAR):
 	$(MILLW) yadladoc_app.ydocJar
 
 doc-check: $(YDOC_JAR)
-	java -jar usage/ydoc.jar check README.md 
-doc-gen: ydoc.jar
-	java -jar usage/ydoc.jar run README.md
+	java -jar $(YDOC_JAR) check README.md 
+doc-gen: $(YDOC_JAR)
+	java -jar $(YDOC_JAR) run README.md
 
 fmt:
 	scalafmt .
