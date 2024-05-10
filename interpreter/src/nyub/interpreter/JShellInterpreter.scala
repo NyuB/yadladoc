@@ -26,10 +26,12 @@ class JShellInterpreter extends Interpreter:
                     case VALID =>
                         val v = e.value()
                         if v == null then
-                            val ex = e.exception()
-                            if ex == null then
-                                Seq.empty // Valid snippet but no output, e.g. for an import or a partial snippet
-                            else Seq(ex.getCause().toString())
+                            e.exception() match
+                                case null =>
+                                    Seq.empty // Valid snippet but no output, e.g. for an import or a partial snippet
+                                case ex: EvalException =>
+                                    Seq(ex.getExceptionClassName())
+                                case ex => Seq(ex.getMessage())
                         else v.split("(\n)|(\r\n)")
                     case REJECTED => Seq("Invalid snippet")
                     case _        => Seq("Unknown error")

@@ -28,6 +28,13 @@ class JShellInterpreterSuite extends munit.FunSuite with AssertExtensions:
           "Representation"
         )
 
+    test("Exception representation"):
+        val shell = jshell();
+        shell.eval("Object npe = null")
+        shell.eval("npe.toString()") isEqualTo Seq(
+          "java.lang.NullPointerException"
+        )
+
     private def jshell() = JShellInterpreter()
 
 class Exposed:
