@@ -22,21 +22,23 @@ class JShellInterpreter extends Interpreter:
         shell
             .eval(line)
             .toSeq
-            .flatMap: e =>
-                e.status() match
-                    case VALID =>
-                        val v = e.value()
-                        if v == null then
-                            e.exception() match
-                                case null =>
-                                    Seq.empty // Valid snippet but no output, e.g. for an import or a partial snippet
-                                case ex: EvalException =>
-                                    Seq(ex.getExceptionClassName())
-                                case ex => Seq(ex.getMessage())
-                        else v.split("(\n)|(\r\n)")
-                    case REJECTED =>
-                        diagnostics(e.snippet())
-                    case _ => Seq("Unknown error")
+            .flatMap(snippetEventRepresentation)
+
+    private def snippetEventRepresentation(e: SnippetEvent): Seq[String] =
+        e.status() match
+            case VALID =>
+                val v = e.value()
+                if v == null then
+                    e.exception() match
+                        case null =>
+                            Seq.empty // Valid snippet but no output, e.g. for an import or a partial snippet
+                        case ex: EvalException =>
+                            Seq(ex.getExceptionClassName())
+                        case ex => Seq(ex.getMessage())
+                else v.split("(\n)|(\r\n)").toIndexedSeq
+            case REJECTED =>
+                diagnostics(e.snippet())
+            case _ => Seq("Unknown error evaluating snippet")
 
     private def splitSnippets(line: String): Seq[String] =
         val sourceAnalysis = shell.sourceCodeAnalysis()
