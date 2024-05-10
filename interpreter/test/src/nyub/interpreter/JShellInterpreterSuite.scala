@@ -3,71 +3,35 @@ package nyub.interpreter
 import nyub.assert.AssertExtensions
 
 class JShellInterpreterSuite extends munit.FunSuite with AssertExtensions:
-    private val decorator = ScriptDecorator(TestInterpreterFactory, "//> ")
+    test("Variable declaration and reference"):
+        val shell = jshell()
+        shell.eval("var one = 1;") isEqualTo List("1")
+        shell.eval("one") isEqualTo List("1")
 
-    test("Single integer"):
-        val script = List(
-          "var one = 1;",
-          "one"
-        )
-
-        decorator.decorate(script) isEqualTo List(
-          "var one = 1; //> 1",
-          "one //> 1"
-        )
-
-    test("JShell has access to classpath"):
-        val script = List(
-          "import nyub.interpreter.Exposed;",
-          "new Exposed(42L);"
-        )
-
-        decorator.decorate(script) isEqualTo List(
-          "import nyub.interpreter.Exposed;",
-          "new Exposed(42L); //> !! Custom Object [42]"
+    test("Access to classpath"):
+        jshell().eval("new nyub.interpreter.Exposed();") isEqualTo List(
+          "nyub.interpreter.Exposed"
         )
 
     test("Multiple instruction on one line"):
-        val script = List(
-          "var a = 1; var b = 2;"
-        )
-
-        decorator.decorate(script) isEqualTo List(
-          "var a = 1; var b = 2;",
-          "//> 1",
-          "//> 2"
-        )
+        jshell().eval("var a = 1; var b = 2;") isEqualTo List("1", "2")
 
     test("One instruction on multiple lines"):
-        val script = List(
-          "var a =",
-          "2",
-          "a"
-        )
-
-        decorator.decorate(script) isEqualTo List(
-          "var a =",
-          "2 //> 2",
-          "a //> 2"
-        )
+        val shell = jshell()
+        jshell().eval("var a = ") isEqualTo Seq.empty
+        jshell().eval("3") isEqualTo Seq("3")
 
     test("Multi line object representation"):
-        val script = List(
-          "new nyub.interpreter.Multiline();"
+        jshell().eval("new nyub.interpreter.Multiline();") isEqualTo List(
+          "Multi",
+          "Line",
+          "Representation"
         )
 
-        decorator.decorate(script) isEqualTo List(
-          "new nyub.interpreter.Multiline();",
-          "//> [Multi",
-          "//> Line",
-          "//> Representation]"
-        )
+    private def jshell() = JShellInterpreter()
 
-private object TestInterpreterFactory extends InterpreterFactory:
-    override def create(): Interpreter = JShellInterpreter()
-
-class Exposed(val id: Long):
-    override def toString(): String = s"!! Custom Object [$id]"
+class Exposed:
+    override def toString(): String = getClass().getCanonicalName()
 
 class Multiline:
-    override def toString(): String = "[Multi\nLine\nRepresentation]"
+    override def toString(): String = "Multi\nLine\nRepresentation"
