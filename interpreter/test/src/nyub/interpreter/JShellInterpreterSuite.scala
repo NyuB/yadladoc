@@ -12,10 +12,8 @@ class JShellInterpreterSuite extends munit.FunSuite with AssertExtensions:
         )
 
         decorator.decorate(script) isEqualTo List(
-          "var one = 1;",
-          "//> 1",
-          "one",
-          "//> 1"
+          "var one = 1; //> 1",
+          "one //> 1"
         )
 
     test("JShell has access to classpath"):
@@ -26,8 +24,7 @@ class JShellInterpreterSuite extends munit.FunSuite with AssertExtensions:
 
         decorator.decorate(script) isEqualTo List(
           "import nyub.interpreter.Exposed;",
-          "new Exposed(42L);",
-          "//> !! Custom Object [42]"
+          "new Exposed(42L); //> !! Custom Object [42]"
         )
 
     test("Multiple instruction on one line"):
@@ -50,10 +47,8 @@ class JShellInterpreterSuite extends munit.FunSuite with AssertExtensions:
 
         decorator.decorate(script) isEqualTo List(
           "var a =",
-          "2",
-          "//> 2",
-          "a",
-          "//> 2"
+          "2 //> 2",
+          "a //> 2"
         )
 
 private object TestInterpreterFactory extends InterpreterFactory:
