@@ -4,12 +4,18 @@ import jdk.jshell.{EvalException, JShell, Snippet, SnippetEvent}
 import jdk.jshell.Snippet.Status.{OVERWRITTEN, REJECTED, VALID}
 
 class JShellInterpreter extends Interpreter:
-    private val shell = jdk.jshell.JShell.create()
+    private val shell = JShell.create()
     // If not adding the current class path manually, jshell appears to be limited to jdk classes in test suites
     shell.addToClasspath(System.getProperty("java.class.path"))
 
+    /** Part of previous lines that could not be fully evaluated
+      */
+    private var incomplete = ""
+
     override def eval(line: String): Seq[String] =
-        splitSnippets(line).flatMap(evalSingleSnippet)
+        val all = incomplete + line
+        incomplete = ""
+        splitSnippets(all).flatMap(evalSingleSnippet)
 
     private def evalSingleSnippet(line: String): Seq[String] =
         shell
@@ -21,7 +27,8 @@ class JShellInterpreter extends Interpreter:
                         val v = e.value()
                         if v == null then
                             val ex = e.exception()
-                            if ex == null then None
+                            if ex == null then
+                                None // Valid snippet but no output, e.g. for an import or a partial snippet
                             else Some(ex.getCause().toString())
                         else Some(v)
                     case REJECTED => Some("Invalid snippet")
@@ -37,7 +44,9 @@ class JShellInterpreter extends Interpreter:
             if analysis.completeness().isComplete() then
                 res.addOne(analysis.source())
                 remaining = analysis.remaining()
-            else remaining = ""
+            else
+                incomplete = remaining
+                remaining = ""
         res.toList
 
     extension [T](jl: java.util.List[T])
