@@ -35,6 +35,11 @@ class JShellInterpreterSuite extends munit.FunSuite with AssertExtensions:
           "java.lang.NullPointerException"
         )
 
+    test("Invalid snippet representation"):
+        jshell().eval("int a = false") isEqualTo Seq(
+          "incompatible types: boolean cannot be converted to int"
+        )
+
     private def jshell() = JShellInterpreter()
 
 class Exposed:

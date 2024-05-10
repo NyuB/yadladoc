@@ -2,6 +2,7 @@ package nyub.interpreter
 
 import jdk.jshell.{EvalException, JShell, Snippet, SnippetEvent}
 import jdk.jshell.Snippet.Status.{OVERWRITTEN, REJECTED, VALID}
+import java.util.Locale
 
 class JShellInterpreter extends Interpreter:
     private val shell = JShell.create()
@@ -20,7 +21,7 @@ class JShellInterpreter extends Interpreter:
     private def evalSingleSnippet(line: String): Seq[String] =
         shell
             .eval(line)
-            .toList
+            .toSeq
             .flatMap: e =>
                 e.status() match
                     case VALID =>
@@ -33,8 +34,9 @@ class JShellInterpreter extends Interpreter:
                                     Seq(ex.getExceptionClassName())
                                 case ex => Seq(ex.getMessage())
                         else v.split("(\n)|(\r\n)")
-                    case REJECTED => Seq("Invalid snippet")
-                    case _        => Seq("Unknown error")
+                    case REJECTED =>
+                        diagnostics(e.snippet())
+                    case _ => Seq("Unknown error")
 
     private def splitSnippets(line: String): Seq[String] =
         val sourceAnalysis = shell.sourceCodeAnalysis()
@@ -50,8 +52,17 @@ class JShellInterpreter extends Interpreter:
                 remaining = ""
         res.toList
 
+    private def diagnostics(snippet: Snippet): Seq[String] =
+        shell.diagnostics(snippet).map(_.getMessage(Locale.getDefault())).toSeq
+
     extension [T](jl: java.util.List[T])
-        private def toList: List[T] =
+        private def toSeq: Seq[T] =
             val l = scala.collection.mutable.ArrayBuffer[T]()
             jl.forEach(l.addOne)
-            l.toList
+            l.toSeq
+
+    extension [T](jl: java.util.stream.Stream[T])
+        private def toSeq: Seq[T] =
+            val l = scala.collection.mutable.ArrayBuffer[T]()
+            jl.forEach(l.addOne)
+            l.toSeq
