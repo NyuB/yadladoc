@@ -1,48 +1,43 @@
 import mill._, scalalib._
 
+object Versions {
+    val scala = "3.4.1"
+    val munit = "0.7.29"
+}
+
 trait SharedConfiguration extends ScalaModule {
-    override def scalaVersion: T[String] = "3.4.1"
+    override def scalaVersion: T[String] = Versions.scala
     override def scalacOptions: T[Seq[String]] = Seq("-deprecation")
-}
 
-object assert_extensions extends ScalaModule with SharedConfiguration {
-    def ivyDeps = Agg(
-        ivy"org.scalameta::munit:0.7.29",
-        ivy"org.scalameta::munit-scalacheck:0.7.29",
-    )
-    object test extends ScalaTests with TestModule.Munit { }
-}
-
-object filesystem extends ScalaModule with SharedConfiguration {
-    object test extends ScalaTests with TestModule.Munit {
-        override def moduleDeps = super.moduleDeps ++ Seq(assert_extensions)
-        def ivyDeps = Agg(
-            ivy"org.scalameta::munit:0.7.29",
-            ivy"org.scalameta::munit-scalacheck:0.7.29",
+    trait Tests extends ScalaTests with TestModule.Munit {
+        override def ivyDeps = super.ivyDeps() ++ Agg(
+            ivy"org.scalameta::munit:${Versions.munit}",
+            ivy"org.scalameta::munit-scalacheck:${Versions.munit}",
         )
+        override def moduleDeps = super.moduleDeps ++ Seq(assert_extensions)
     }
 }
 
+object assert_extensions extends ScalaModule with SharedConfiguration {
+    override def ivyDeps = super.ivyDeps() ++ Agg(
+        ivy"org.scalameta::munit:${Versions.munit}",
+        ivy"org.scalameta::munit-scalacheck:${Versions.munit}",
+    )
+    object test extends Tests { }
+}
+
+object filesystem extends ScalaModule with SharedConfiguration {
+    object test extends Tests
+}
+
 object interpreter extends ScalaModule with SharedConfiguration {
-    object test extends ScalaTests with TestModule.Munit {
-        override def moduleDeps = super.moduleDeps ++ Seq(assert_extensions)
-        override def ivyDeps = Agg(
-            ivy"org.scalameta::munit:0.7.29",
-            ivy"org.scalameta::munit-scalacheck:0.7.29",
-        )
-    }   
+    object test extends Tests 
 }
 
 object yadladoc extends ScalaModule with SharedConfiguration {
     override def moduleDeps = super.moduleDeps ++ Seq(filesystem)
 
-    object test extends ScalaTests with TestModule.Munit {
-        override def moduleDeps = super.moduleDeps ++ Seq(assert_extensions)
-        override def ivyDeps = Agg(
-            ivy"org.scalameta::munit:0.7.29",
-            ivy"org.scalameta::munit-scalacheck:0.7.29",
-        )
-    }
+    object test extends Tests
 }
 
 object yadladoc_app extends ScalaModule with SharedConfiguration {
