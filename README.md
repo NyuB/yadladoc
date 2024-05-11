@@ -102,7 +102,7 @@ yadladoc will use snippets marked with the property `ydoc.example=<name>` and ig
 # Example
 Here is a snippet that would generate an examples/add.py file
 
-```python ydoc.example=examples/add
+```python ydoc.example=examples/add.py
 def add(a: int, b: int) -> int:
         return a + b
 ```
