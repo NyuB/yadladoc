@@ -1,9 +1,21 @@
 # Yadladoc: reliable, tested code snippets in your documentation
-Inspired by [cram](https://bitheap.org/cram/), [knit](https://github.com/Kotlin/kotlinx-knit), [mdoc](https://github.com/scalameta/mdoc), [mdx](https://github.com/realworldocaml/mdx) 
+Inspired by [cram](https://bitheap.org/cram/), [knit](https://github.com/Kotlin/kotlinx-knit), [mdoc](https://github.com/scalameta/mdoc), [mdx](https://github.com/realworldocaml/mdx)
+
+## Motivation
+Documenting code is a an effort, maintening the documentation can be even harder. This is especially true for code snippets that can 'rot' easily with refactorings, API changes, renaming, removals...
+
+ But code snippets also have considerable values, as a few lines of codes can sometimes illustrate an API usage in a much more consise and expressive way than a higher level description. 
+ 
+ A place where code snippets are guaranteed to be valid is the test suite. Indeed, we can consider the tests as an accurate documentation of our code(assuming they are present) but the suites are often far away from the README, asciidoc folder, or other entrypoint document for a user discovering the code. 
+ To have the best of both world, an idea is to blur the barrier between test and documentation. 
+ 
+ Yadladoc tries to follow this path in a way similar to [knit](https://github.com/Kotlin/kotlinx-knit) by generating files from mardkown code snippets. These file would be placed in your test suite folders and executed during CI, ensuring their validity. From the reader point of view, they are just snippet embedded in the visual markdown documentation, keeping the readibility intact.
+
+![Schema](.ydoc/images/idea.png)
 
 ## Usage
 ### Basics
-! Yadladoc requires a `.ydoc` folder at the place of execution. You can leave it empty for the default configuration
+`/!\` Yadladoc requires a `.ydoc/ydoc.properties` file at the place of execution. You can leave it empty for the default configuration
 
 ````console ydoc.example=usage/basics/run.t
 Yadladoc can be run in two modes 'check' and 'run'
