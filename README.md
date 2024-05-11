@@ -157,6 +157,9 @@ end test_scala
 
 In addition to the main template file that will be injected with the concatenation of all snippets related to a file, each of these snippets can be prefixed/suffixed by a custom template designated with the properties ``ydoc.example.prefix`` and `ydoc.example.suffix`. For example, adding `ydoc.example.prefix=templateId` to a snippet header would cause it's line to be prefixed by the expansion of `.ydoc/includes/templateId.template`. A property `ydoc.subExampleName` is injected in these templates with the identifier for the current snippet.
 
+### In-place snippet decoration
+**COMING SOON**
+
 ## Install
 ### From source
 Run `make usage/ydoc.jar` to produce the executable jar `ydoc.jar` in `usage/`
