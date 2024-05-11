@@ -102,8 +102,48 @@ def hey():
 ```
 ````
 
+#### Concatenate snippets
+
+Consecutive snippets with the same `ydoc.example` value will be concatenated in the same generated file
+
 ### Templates
-**TODO**
+Yadladoc generate files from templates. Once an example is parsed from markdown snippets, it's content is injected in the template defined for the related language in `.ydoc/includes/<language>.template`. Templates can be used to reduce the amount of code in the example, visible to the reader, e.g. by including common imports or setting up the testing skeleton that will made the generated file part of your CI process. 
+
+```template ydoc.example=.ydoc/includes/scala.template
+package nyub.yadladoc.example
+import nyub.assert.AssertExtensions
+import java.nio.file.Files
+
+class ${{ydoc.exampleName}} extends munit.FunSuite with AssertExtensions:
+${{ydoc.snippet}}
+
+end ${{ydoc.exampleName}}
+
+```
+
+Once applied to a code snippet
+````markdown
+```scala ydoc.example=test.scala
+    test("Documented test"):
+        42 isEqualTo 42
+```
+````
+
+would generate
+```scala
+package nyub.yadladoc.example
+import nyub.assert.AssertExtensions
+import java.nio.file.Files
+
+class test_scala extends munit.FunSuite with AssertExtensions:
+    test("Documented test"):
+        42 isEqualTo 42
+end test_scala
+```
+
+#### Prefix and suffix templates
+
+In addition to the main template file that will be injected with the concatenation of all snippets related to a file, each of these snippets can be prefixed/suffixed by a custom template designated with the properties ``ydoc.example.prefix`` and `ydoc.example.suffix`. For example, adding `ydoc.example.prefix=templateId` to a snippet header would cause it's line to be prefixed by the expansion of `.ydoc/includes/templateId.template`. A property `ydoc.subExampleName` is injected in these templates with the identifier for the current snippet.
 
 ## Install
 ### From source
