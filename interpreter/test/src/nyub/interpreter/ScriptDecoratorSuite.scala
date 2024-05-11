@@ -1,35 +1,45 @@
 package nyub.interpreter
 
 import nyub.assert.AssertExtensions
+import ScriptDecorator.Config
 
 class ScriptDecoratorSuite extends munit.FunSuite with AssertExtensions:
-    private val echoDecorator = ScriptDecorator(Echo, "> ", Some(" # "))
+    val alwaysInline = Config.DEFAULT.withInlining(_ => true)
     test("Given and empty seq return an empty seq"):
-        echoDecorator.decorate(Seq.empty) isEqualTo Seq.empty
+        ScriptDecorator(Echo, "> ").decorate(Seq.empty) isEqualTo Seq.empty
 
     test(
-      "Given an inline separator, when eval is a single line, then inline it after the script line"
+      "Given an inlining config, when eval is a single line, then inline it after the script line prefixed with the decoration prefix"
     ):
-        echoDecorator.decorate(Seq("Hello")) isEqualTo Seq("Hello # Hello")
+        ScriptDecorator(Echo, "> ", alwaysInline).decorate(
+          Seq("Hello")
+        ) isEqualTo Seq("Hello > Hello")
 
     test(
-      "Given a prefix and no inline separator, then output eval result on a separate line prefixed with the prefix"
+      "Given a no inlining config, then output eval result on a separate line prefixed with the prefix"
     ):
-        val echoDecoratorNoInline = ScriptDecorator(Echo, "> ", None)
-
-        echoDecoratorNoInline.decorate(Seq("Hello")) isEqualTo Seq(
+        ScriptDecorator(Echo, "> ").decorate(Seq("Hello")) isEqualTo Seq(
           "Hello",
           "> Hello"
         )
 
     test("Mix of single line and multi line output"):
-        val oneTwoDecorator = ScriptDecorator(OneTwo, "> ", Some(" # "))
+        val oneTwoDecorator = ScriptDecorator(OneTwo, "> ", alwaysInline)
 
         oneTwoDecorator.decorate(Seq("Hello", "World")) isEqualTo Seq(
-          "Hello # One",
+          "Hello > One",
           "World",
           "> One",
           "> Two"
+        )
+
+    test("Given an erasing config, do not include erase lines in output"):
+        val eraseComment = Config.DEFAULT.eraseStartingWith("//")
+        ScriptDecorator(Echo, "> ", eraseComment).decorate(
+          Seq("Hey", "//Ignored")
+        ) isEqualTo Seq(
+          "Hey",
+          "> Hey"
         )
 
     private object Echo extends InterpreterFactory:
