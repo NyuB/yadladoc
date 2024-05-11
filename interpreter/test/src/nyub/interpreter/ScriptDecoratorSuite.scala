@@ -33,7 +33,7 @@ class ScriptDecoratorSuite extends munit.FunSuite with AssertExtensions:
           "> Two"
         )
 
-    test("Given an erasing config, do not include erase lines in output"):
+    test("Given an erasing config, do not include erased lines in output"):
         val eraseComment = Config.DEFAULT.eraseStartingWith("//")
         ScriptDecorator(Echo, "> ", eraseComment).decorate(
           Seq("Hey", "//Ignored")
