@@ -34,6 +34,9 @@ doc-check: $(YDOC_JAR)
 doc-gen: $(YDOC_JAR)
 	java -jar $(YDOC_JAR) run README.md
 
+javadoc:
+	millw assert_extensions.docJar + filesystem.docJar + interpreter.docJar + yadladoc.docJar + yadladoc_app.docJar
+
 fmt:
 	scalafmt .
 fmt-check:

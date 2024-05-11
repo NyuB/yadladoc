@@ -14,7 +14,7 @@ trait Properties:
     def all: List[(String, String)]
     def toMap = all.toMap
 
-    /** Merge these properties with [[overridingWith]] properties
+    /** Merge these properties with `overridingWith` properties
       *
       * If a property key is present in both map, the property from the argument
       * overrides the base one.
