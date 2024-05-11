@@ -40,6 +40,11 @@ class JShellInterpreterSuite extends munit.FunSuite with AssertExtensions:
           "incompatible types: boolean cannot be converted to int"
         )
 
+    test("Array representation"):
+        jshell().eval("\"ABC\".split(\"B\")") isEqualTo List(
+          "String[2] { \"A\", \"C\" }"
+        )
+
     private def jshell() = JShellInterpreter()
 
 class Exposed:

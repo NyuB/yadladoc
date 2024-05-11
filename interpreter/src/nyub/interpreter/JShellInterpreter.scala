@@ -4,6 +4,8 @@ import jdk.jshell.{EvalException, JShell, Snippet, SnippetEvent}
 import jdk.jshell.Snippet.Status.{OVERWRITTEN, REJECTED, VALID}
 import java.util.Locale
 
+/** Java interpreter backed by a [[jdk.jshell.JShell]] instance
+  */
 class JShellInterpreter extends Interpreter:
     private val shell = JShell.create()
     // If not adding the current class path manually, jshell appears to be limited to jdk classes in test suites
@@ -68,3 +70,6 @@ class JShellInterpreter extends Interpreter:
             val l = scala.collection.mutable.ArrayBuffer[T]()
             jl.forEach(l.addOne)
             l.toSeq
+
+object JShellInterpreter extends InterpreterFactory:
+    def create(): JShellInterpreter = JShellInterpreter()
