@@ -5,7 +5,7 @@ Inspired by [cram](https://bitheap.org/cram/), [knit](https://github.com/Kotlin/
 ### Basics
 ! Yadladoc requires a `.ydoc` folder at the place of execution. You can leave it empty for the default configuration
 
-````cram ydoc.example=usage/basics/run
+````console ydoc.example=usage/basics/run.t
 Yadladoc can be run in two modes 'check' and 'run'
   $ java -jar ydoc.jar --help
   Usage: yadladoc {run|check} <markdown_file>
@@ -18,7 +18,7 @@ For both modes, the input is a markdown file containing code snippets marked wit
   
   Here is a code snippet that would generate an actual test file:
   
-  ```java ydoc.example=Test
+  ```java ydoc.example=Test.java
   import org.junit.jupiter.api.Test;
   import static org.junit.jupiter.api.Assertions.assertEquals;
   class Test {
@@ -121,22 +121,22 @@ Run `make usage/ydoc.jar` to produce the executable jar `ydoc.jar` in `usage/`
 ### Reading the tests
 Most tests are written with a thin wrapper around munit assertions in a 'state what you expect' style.
 Statements like these:
-```scala ydoc.example=yadladoc/test/src/nyub/yadladoc/examples/assertions ydoc.prefix=test
+```scala ydoc.example=yadladoc/test/src/nyub/yadladoc/examples/assertions.scala ydoc.prefix=test
         42 isEqualTo 42
 ```
 Are equivalent to
-```scala ydoc.example=yadladoc/test/src/nyub/yadladoc/examples/assertions
+```scala ydoc.example=yadladoc/test/src/nyub/yadladoc/examples/assertions.scala
         assertEquals(42, 42)
 ```
 
 Since Yadladoc produces files, tests in YadladocSuite make heavy usage of `hasContent`:
-```scala ydoc.example=yadladoc/test/src/nyub/yadladoc/examples/assertions ydoc.prefix=test
+```scala ydoc.example=yadladoc/test/src/nyub/yadladoc/examples/assertions.scala ydoc.prefix=test
         val file = Files.createTempDirectory("test").resolve("ok.txt")
         Files.writeString(file, "Line1\nLine2")
         file hasContent "Line1\nLine2" // entire content
         file hasContent List("Line1", "Line2") // line by line
 ```
 equivalent to
-```scala ydoc.example=yadladoc/test/src/nyub/yadladoc/examples/assertions
+```scala ydoc.example=yadladoc/test/src/nyub/yadladoc/examples/assertions.scala
         assertEquals(Files.readString(file), "Line1\nLine2")
 ```

@@ -14,7 +14,7 @@ class YadladocSuite
         val markdownFile = makeFile(workingDir, "README.md"):
             l"""
             # One snippet
-            ```java ydoc.example=one
+            ```java ydoc.example=one.java
             class HelloYadladoc { }
             ```
             """
@@ -32,16 +32,16 @@ class YadladocSuite
             val markdownFile = makeFile(workingDir, "README.md"):
                 l"""
             Create a list with listOf(...)
-            ```kotlin ydoc.example=kotlin-list-example
+            ```kotlin ydoc.example=kotlin-list-example.kt
                 val myList = listOf(1, 2, 3)
             ```
             Retrieve items with get(...)
-            ```kotlin ydoc.example=kotlin-list-example
+            ```kotlin ydoc.example=kotlin-list-example.kt
                 myList.get(0) // 1
                 myList[0] // operator alternative to get()
             ```
             Here is how to define a class:
-            ```kotlin ydoc.example=kotlin-class-example
+            ```kotlin ydoc.example=kotlin-class-example.kt
                 class SoCool(val coolnessLevel: Int)
             ```
             """
@@ -52,16 +52,16 @@ class YadladocSuite
 
             generatedFiles.toList isEqualTo List(
               GeneratedFile(
-                Paths.get("kotlin-list-example.kotlin"),
+                Paths.get("kotlin-list-example.kt"),
                 markdownFile
               ),
               GeneratedFile(
-                Paths.get("kotlin-class-example.kotlin"),
+                Paths.get("kotlin-class-example.kt"),
                 markdownFile
               )
             )
 
-            outputDir.resolve("kotlin-list-example.kotlin") hasContent l"""
+            outputDir.resolve("kotlin-list-example.kt") hasContent l"""
             package com.example
             fun main() {
                 val myList = listOf(1, 2, 3)
@@ -70,7 +70,7 @@ class YadladocSuite
             }
             """
 
-            outputDir.resolve("kotlin-class-example.kotlin") hasContent l"""
+            outputDir.resolve("kotlin-class-example.kt") hasContent l"""
             package com.example
             fun main() {
                 class SoCool(val coolnessLevel: Int)
@@ -82,7 +82,7 @@ class YadladocSuite
             val markdownFile = makeFile(workingDir, "README.md"):
                 l"""
             Here is how to use an awesome library:
-            ```java ydoc.example=surround ydoc.prefix=import-prefix ydoc.suffix=footnote-suffix
+            ```java ydoc.example=surround.java ydoc.prefix=import-prefix ydoc.suffix=footnote-suffix
             new AwesomeClass().doAmazingStuff(); // Wunderbar !
             ```
             """
@@ -112,7 +112,7 @@ class YadladocSuite
     ): (outputDir, configDir, workingDir) =>
         val markdownFile = makeFile(workingDir, "README.md"):
             l"""
-            ```java ydoc.example=ok
+            ```java ydoc.example=ok.java
             println("Hello world");
             ```
             """
@@ -130,7 +130,7 @@ class YadladocSuite
     ): (outputDir, configDir, workingDir) =>
         val markdownFile = makeFile(workingDir, "README.md"):
             l"""
-            ```java ydoc.example=ko
+            ```java ydoc.example=ko.java
             System.out.println("Oooops !");
             ```
             """
@@ -145,7 +145,7 @@ class YadladocSuite
         (outputDir, configDir, workingDir) =>
             val markdownFile = makeFile(workingDir, "README.md"):
                 l"""
-            ```txt ydoc.example=a/b
+            ```txt ydoc.example=a/b.txt
             Test
             ```
             """
@@ -157,16 +157,16 @@ class YadladocSuite
             Yadladoc(Yadladoc.ConfigurationFromFile(configDir))
                 .run(outputDir, markdownFile)
 
-            outputDir.resolve("a/b.txt") hasContent "a_b"
+            outputDir.resolve("a/b.txt") hasContent "a_b_txt"
 
     testWithinYDocContext("Indexed example part name available in template"):
         (outputDir, configDir, workingDir) =>
             val markdownFile = makeFile(workingDir, "README.md"):
                 l"""
-            ```java ydoc.example=javaExample ydoc.prefix=A
+            ```java ydoc.example=javaExample.java ydoc.prefix=A
             class A {}
             ```
-            ```java ydoc.example=javaExample ydoc.prefix=B
+            ```java ydoc.example=javaExample.java ydoc.prefix=B
             class B {}
             ```
             """
@@ -185,9 +185,9 @@ class YadladocSuite
 
             outputDir.resolve("javaExample.java") hasContent l"""
             package com.example;
-            // javaExample_0
+            // javaExample_java_0
             class A {}
-            // javaExample_1
+            // javaExample_java_1
             class B {}
             """
 

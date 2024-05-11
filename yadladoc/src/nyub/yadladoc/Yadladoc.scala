@@ -153,16 +153,6 @@ object Yadladoc:
           "ydoc.subExampleNamePropertyKey"
         )("ydoc.subExampleName")
 
-        def extensionForLanguage(languageOrNone: Option[Language]): String =
-            languageOrNone
-                .map: lang =>
-                    properties.getOrDefault(
-                      s"ydoc.language.${lang.name}.extension"
-                    )(
-                      lang.name
-                    )
-                .getOrElse("txt")
-
         def exampleForSnippet(header: Snippet.Header): Examplable =
             header.properties
                 .get(exampleNamePropertyKey)
@@ -175,11 +165,11 @@ object Yadladoc:
             exampleLanguage: Option[Language]
         ): Path =
             Paths.get(
-              s"${exampleName}.${extensionForLanguage(exampleLanguage)}"
+              s"${exampleName}"
             )
 
         def exampleSanitizedName(exampleName: String): String =
-            exampleName.replaceAll("[/\\:]+", "_")
+            exampleName.replaceAll("[/\\:.]+", "_")
 
         def prefixTemplateNames(
             header: Snippet.Header

@@ -15,7 +15,7 @@ For both modes, the input is a markdown file containing code snippets marked wit
   
   Here is a code snippet that would generate an actual test file:
   
-  ```java ydoc.example=Test
+  ```java ydoc.example=Test.java
   import org.junit.jupiter.api.Test;
   import static org.junit.jupiter.api.Assertions.assertEquals;
   class Test {
