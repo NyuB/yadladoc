@@ -160,7 +160,7 @@ end test_scala
 In addition to the main template file that will be injected with the concatenation of all snippets related to a file, each of these snippets can be prefixed/suffixed by a custom template designated with the properties ``ydoc.example.prefix`` and `ydoc.example.suffix`. For example, adding `ydoc.example.prefix=templateId` to a snippet header would cause it's line to be prefixed by the expansion of `.ydoc/includes/templateId.template`. A property `ydoc.subExampleName` is injected in these templates with the identifier for the current snippet.
 
 ### In-place snippet decoration
-**COMING SOON**
+**COMING SOON** interpret snippet and decorate them directly in the markdown instead of generating a file 'à la mdoc/mdx'
 
 ## Install
 ### From source
@@ -171,7 +171,7 @@ Run `make usage/ydoc.jar` to produce the executable jar `ydoc.jar` in `usage/`
 Each [github release](https://github.com/NyuB/yadladoc/releases/) contains an executable jar, which is enough to run all of the examples listed in this document. 
 
 ### From the release binary
-**COMING SOON**
+**COMING SOON** expose a native binary with graalVM
 
 ## Contribute
 ### Test suites
