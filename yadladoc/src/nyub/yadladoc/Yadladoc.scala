@@ -43,19 +43,19 @@ class Yadladoc(
             .examples
 
         examples.values.map: example =>
-            val fullExample = buildExample(example)
-            val finalTemplatingProperties =
-                templatingProperties(example, fullExample)
-            val finalTemplate = fileSystem.useLines(
-              config.templateFile(
-                example.template
-              )
-            )(_.map(templating.inject(_, finalTemplatingProperties)))
+            val fullExample = example.build(
+              templating,
+              id => config.templateFile(id).useLines(_.toList),
+              config.snippetInjectionKey,
+              config.exampleNameInjectionKey,
+              config.subExampleNameInjectionKey,
+              config.properties.toMap
+            )
 
             val exampleFile = config.exampleFile(example.name, example.language)
             writeFs.writeContent(
               outputDir / exampleFile,
-              finalTemplate.mkString("\n")
+              fullExample.mkString("\n")
             )
             GeneratedFile(exampleFile, markdownFile)
 
@@ -73,50 +73,6 @@ class Yadladoc(
               fileSystem.content(outputDir / f),
               checkFs.content(checkDir / f)
             )
-        )
-
-    private def buildExample(
-        example: Example
-    ): Iterable[String] =
-        example.content.zipWithIndex.flatMap: (c, i) =>
-            val injectionProperties = templatingProperties(example, i)
-            val prefixLines = c.prefixTemplateIds
-                .map(config.templateFile(_))
-                .flatMap: templateFile =>
-                    fileSystem.useLines(templateFile)(
-                      _.map(templating.inject(_, injectionProperties))
-                    )
-            val suffixLines = c.suffixTemplateIds
-                .map(config.templateFile(_))
-                .flatMap: templateFile =>
-                    fileSystem.useLines(templateFile)(
-                      _.map(templating.inject(_, injectionProperties))
-                    )
-            prefixLines ++ c.body ++ suffixLines
-
-    private def templatingProperties(example: Example): Map[String, String] =
-        config.properties.toMap ++ Map(
-          config.exampleNameInjectionKey -> config.exampleSanitizedName(
-            example.name
-          )
-        )
-
-    private def templatingProperties(
-        example: Example,
-        index: Int
-    ): Map[String, String] =
-        templatingProperties(example) ++ Map(
-          config.subExampleNameInjectionKey -> config.exampleSanitizedName(
-            s"${example.name}_${index}"
-          )
-        )
-
-    private def templatingProperties(
-        example: Example,
-        content: Iterable[String]
-    ): Map[String, String] =
-        templatingProperties(example) ++ Map(
-          config.snippetInjectionKey -> content.mkString("\n")
         )
 
 object Yadladoc:
@@ -176,9 +132,6 @@ object Yadladoc:
             Paths.get(
               s"${exampleName}"
             )
-
-        def exampleSanitizedName(exampleName: String): String =
-            exampleName.replaceAll("[/\\:.]+", "_")
 
         def prefixTemplateIds(
             header: Snippet.Header
