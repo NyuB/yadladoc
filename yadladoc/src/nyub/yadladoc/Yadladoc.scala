@@ -48,7 +48,7 @@ class Yadladoc(
                 templatingProperties(example, fullExample)
             val finalTemplate = fileSystem.useLines(
               config.templateFile(
-                example.language.getOrElse(Yadladoc.DEFAULT_LANGUAGE).name
+                example.template
               )
             )(_.map(templating.inject(_, finalTemplatingProperties)))
 
@@ -80,13 +80,13 @@ class Yadladoc(
     ): Iterable[String] =
         example.content.zipWithIndex.flatMap: (c, i) =>
             val injectionProperties = templatingProperties(example, i)
-            val prefixLines = c.prefixTemplateNames
+            val prefixLines = c.prefixTemplateIds
                 .map(config.templateFile(_))
                 .flatMap: templateFile =>
                     fileSystem.useLines(templateFile)(
                       _.map(templating.inject(_, injectionProperties))
                     )
-            val suffixLines = c.suffixTemplateNames
+            val suffixLines = c.suffixTemplateIds
                 .map(config.templateFile(_))
                 .flatMap: templateFile =>
                     fileSystem.useLines(templateFile)(
@@ -128,8 +128,17 @@ object Yadladoc:
           configDir / "includes"
         )
 
-        def templateFile(templateName: String): Path =
-            includesDir / s"${templateName}.template"
+        def templateFile(templateId: TemplateId): Path =
+            includesDir / s"${templateId}.template"
+
+        def templateId(
+            language: Option[Language],
+            properties: Properties
+        ): TemplateId =
+            val id = properties.getOrDefault("ydoc.template")(
+              language.getOrElse(DEFAULT_LANGUAGE).name
+            )
+            TemplateId(id)
 
         def templateInjectionPrefix =
             properties.getOrDefault("ydoc.templateInjectionPrefix")("${{")
@@ -171,15 +180,15 @@ object Yadladoc:
         def exampleSanitizedName(exampleName: String): String =
             exampleName.replaceAll("[/\\:.]+", "_")
 
-        def prefixTemplateNames(
+        def prefixTemplateIds(
             header: Snippet.Header
-        ): Iterable[String] =
-            header.properties.get("ydoc.prefix").toList
+        ): Iterable[TemplateId] =
+            header.properties.get("ydoc.prefix").toList.map(TemplateId(_))
 
-        def suffixTemplateNames(
+        def suffixTemplateIds(
             header: Snippet.Header
-        ): Iterable[String] =
-            header.properties.get("ydoc.suffix").toList
+        ): Iterable[TemplateId] =
+            header.properties.get("ydoc.suffix").toList.map(TemplateId(_))
 
     enum Examplable:
         case MakeExample(val name: String)
@@ -220,12 +229,14 @@ private class SnippetMerger(
     private def makeExample(name: String, snippet: Snippet): Example =
         Example(
           name,
+          config
+              .templateId(snippet.header.language, snippet.header.properties),
           snippet.header.language,
           List(
             ExampleContent(
-              config.prefixTemplateNames(snippet.header),
+              config.prefixTemplateIds(snippet.header),
               snippet.lines,
-              config.suffixTemplateNames(snippet.header)
+              config.suffixTemplateIds(snippet.header)
             )
           )
         )
