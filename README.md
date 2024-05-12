@@ -119,7 +119,7 @@ def hey():
 Consecutive snippets with the same `ydoc.example` value will be concatenated in the same generated file
 
 ### Templates
-Yadladoc generate files from templates. Once an example is parsed from markdown snippets, it's content is injected in the template defined for the related language in `.ydoc/includes/<language>.template`. Templates can be used to reduce the amount of code in the example, visible to the reader, e.g. by including common imports or setting up the testing skeleton that will made the generated file part of your CI process. 
+Yadladoc generate files from templates. Once an example is parsed from markdown snippets, it's content is injected in the template defined for the related language in `.ydoc/includes/<language>.template`. A custom template can also be specified via the `ydoc.template=<id>` property, to use `.ydoc/includes/<id>.template` instead. Templates can be used to reduce the amount of code in the example, visible to the reader, e.g. by including common imports or setting up the testing skeleton that will made the generated file part of your CI process. 
 
 ```template ydoc.example=.ydoc/includes/scala.template
 package nyub.yadladoc.example

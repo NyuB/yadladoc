@@ -191,6 +191,26 @@ class YadladocSuite
             class B {}
             """
 
+    testWithinYDocContext("Custom template per example"):
+        (outputDir, configDir, workingDir) =>
+            val markdownFile = makeFile(workingDir, "README.md"):
+                l"""
+            ```java ydoc.example=javaExample.java ydoc.template=custom
+            String s = "Hello";
+            ```
+            """
+            makeFile(
+              configDir / "includes",
+              "custom.template",
+              "class Custom { ${{ydoc.snippet}} }"
+            )
+            Yadladoc(Yadladoc.ConfigurationFromFile(configDir))
+                .run(outputDir, markdownFile)
+
+            outputDir.resolve(
+              "javaExample.java"
+            ) hasContent """class Custom { String s = "Hello"; }"""
+
     def testWithinYDocContext(name: String)(f: (Path, Path, Path) => Any) =
         val withYdocContext =
             FunFixture.map3(withTempDir, withTempDir, withTempDir)
