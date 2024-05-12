@@ -66,7 +66,7 @@ object Properties:
       *   ```
       *
       * @param line
-      *   space separated '=' seprated key value pairs
+      *   space separated '=' separated key value pairs
       */
     def ofLine(line: String): Properties =
         val map = line
