@@ -33,9 +33,49 @@ class Yadladoc(
     def check(outputDir: Path, markdownFile: Path): List[Errors] =
         val checkFs = InMemoryFileSystem.init()
         val checkDir = checkFs.createTempDirectory("check")
+
         run(checkDir, markdownFile, checkFs)
+
+        checkDiffErrors(outputDir, checkFs, checkDir)
+
+    private def run(
+        outputDir: Path,
+        markdownFile: Path,
+        writeFs: FileSystem
+    ): Iterable[GeneratedFile] =
+        val examples = snippets(markdownFile)
+            .foldLeft(SnippetMerger(config, Map.empty))(_.accumulate(_))
+            .examples
+
+        for example <- examples.values yield
+            val fullExample = buildFullExample(example)
+            val exampleFile = config.exampleFile(example.name, example.language)
+
+            writeFs.writeContent(
+              outputDir / exampleFile,
+              fullExample.mkString("\n")
+            )
+
+            GeneratedFile(exampleFile, markdownFile)
+
+    private def buildFullExample(example: Example) =
+        example.build(
+          templating,
+          id => config.templateFile(id).useLines(_.toList),
+          config.snippetInjectionKey,
+          config.exampleNameInjectionKey,
+          config.subExampleNameInjectionKey,
+          config.properties.toMap
+        )
+
+    private def checkDiffErrors(
+        outputDir: Path,
+        checkFs: FileSystem,
+        checkDir: Path
+    ) =
         val diff =
             DirectoryDiffer(checkFs, fileSystem).diff(checkDir, outputDir)
+
         diff.onlyInA.toList.map(
           CheckErrors.MissingFile(_)
         ) ++ diff.different.toList.map(f =>
@@ -46,34 +86,10 @@ class Yadladoc(
             )
         )
 
-    private def run(
-        outputDir: Path,
-        markdownFile: Path,
-        writeFs: FileSystem
-    ): Iterable[GeneratedFile] =
-        val examples = markdownFile
-            .useLines(Markdown.parse(_))
-            .collect:
-                case s: Snippet => s
-            .foldLeft(SnippetMerger(config, Map.empty))(_.accumulate(_))
-            .examples
-
-        for example <- examples.values yield
-            val fullExample = example.build(
-              templating,
-              id => config.templateFile(id).useLines(_.toList),
-              config.snippetInjectionKey,
-              config.exampleNameInjectionKey,
-              config.subExampleNameInjectionKey,
-              config.properties.toMap
-            )
-
-            val exampleFile = config.exampleFile(example.name, example.language)
-            writeFs.writeContent(
-              outputDir / exampleFile,
-              fullExample.mkString("\n")
-            )
-            GeneratedFile(exampleFile, markdownFile)
+    private def snippets(markdownFile: Path) = markdownFile
+        .useLines(Markdown.parse(_))
+        .collect:
+            case s: Snippet => s
 
 object Yadladoc:
     val DEFAULT_LANGUAGE = Language.named("default")
