@@ -1,4 +1,6 @@
 # Yadladoc: reliable, tested code snippets in your documentation
+![ci-status](https://github.com/NyuB/yadladoc/actions/workflows/ci.yml/badge.svg?event=push&branch=main)
+
 Inspired by [cram](https://bitheap.org/cram/), [knit](https://github.com/Kotlin/kotlinx-knit), [mdoc](https://github.com/scalameta/mdoc), [mdx](https://github.com/realworldocaml/mdx)
 
 ## Motivation
@@ -165,7 +167,9 @@ In addition to the main template file that will be injected with the concatenati
 Run `make usage/ydoc.jar` to produce the executable jar `ydoc.jar` in `usage/`
 
 ### From the release jar
-**COMING SOON**
+
+Each [github release](https://github.com/NyuB/yadladoc/releases/) contains an executable jar, which is enough to run all of the examples listed in this document. 
+
 ### From the release binary
 **COMING SOON**
 
