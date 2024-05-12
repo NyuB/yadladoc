@@ -174,8 +174,8 @@ Each [github release](https://github.com/NyuB/yadladoc/releases/) contains an ex
 **COMING SOON** expose a native binary with graalVM
 
 ## Contribute
-### Test suites
-`YadladocSuite` groups the high level 'end to end' tests an should be a good entrypoint to have an overview of the current features. The other suites focus on more technical modules, such as Mardkwown parsing. AssertExtensions and SuiteExtensions are test-only helpers (see section [Notes on the test style])
+
+[YadladocSuite](yadladoc/test/src/nyub/yadladoc/YadladocSuite.scala) groups the high level 'end to end' tests an should be a good entrypoint to have an overview of the current features.
 
 ### Reading the tests
 Most tests are written with a thin wrapper around munit assertions in a 'state what you expect' style.
