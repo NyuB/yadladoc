@@ -1,4 +1,4 @@
-package nyub.yadladoc.example
+package nyub.assert.examples
 import nyub.assert.AssertExtensions
 import java.nio.file.Files
 

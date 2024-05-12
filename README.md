@@ -124,7 +124,7 @@ Consecutive snippets with the same `ydoc.example` value will be concatenated in 
 Yadladoc generate files from templates. Once an example is parsed from markdown snippets, it's content is injected in the template defined for the related language in `.ydoc/includes/<language>.template`. A custom template can also be specified via the `ydoc.template=<id>` property, to use `.ydoc/includes/<id>.template` instead. Templates can be used to reduce the amount of code in the example, visible to the reader, e.g. by including common imports or setting up the testing skeleton that will made the generated file part of your CI process. 
 
 ```template ydoc.example=.ydoc/includes/scala.template
-package nyub.yadladoc.example
+package nyub.assert.examples
 import nyub.assert.AssertExtensions
 import java.nio.file.Files
 
@@ -180,22 +180,22 @@ Each [github release](https://github.com/NyuB/yadladoc/releases/) contains an ex
 ### Reading the tests
 Most tests are written with a thin wrapper around munit assertions in a 'state what you expect' style.
 Statements like these:
-```scala ydoc.example=yadladoc/test/src/nyub/yadladoc/examples/assertions.scala ydoc.prefix=test
+```scala ydoc.example=assert_extensions/test/src/nyub/assert/examples/assertions.scala ydoc.prefix=test
         42 isEqualTo 42
 ```
 Are equivalent to
-```scala ydoc.example=yadladoc/test/src/nyub/yadladoc/examples/assertions.scala
+```scala ydoc.example=assert_extensions/test/src/nyub/assert/examples/assertions.scala
         assertEquals(42, 42)
 ```
 
 Since Yadladoc produces files, tests in YadladocSuite make heavy usage of `hasContent`:
-```scala ydoc.example=yadladoc/test/src/nyub/yadladoc/examples/assertions.scala ydoc.prefix=test
+```scala ydoc.example=assert_extensions/test/src/nyub/assert/examples/assertions.scala ydoc.prefix=test
         val file = Files.createTempDirectory("test").resolve("ok.txt")
         Files.writeString(file, "Line1\nLine2")
         file hasContent "Line1\nLine2" // entire content
         file hasContent List("Line1", "Line2") // line by line
 ```
 equivalent to
-```scala ydoc.example=yadladoc/test/src/nyub/yadladoc/examples/assertions.scala
+```scala ydoc.example=assert_extensions/test/src/nyub/assert/examples/assertions.scala
         assertEquals(Files.readString(file), "Line1\nLine2")
 ```
