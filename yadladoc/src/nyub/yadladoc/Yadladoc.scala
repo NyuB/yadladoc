@@ -30,6 +30,22 @@ class Yadladoc(
     def run(outputDir: Path, markdownFile: Path): Iterable[GeneratedFile] =
         run(outputDir, markdownFile, fileSystem)
 
+    def check(outputDir: Path, markdownFile: Path): List[Errors] =
+        val checkFs = InMemoryFileSystem.init()
+        val checkDir = checkFs.createTempDirectory("check")
+        run(checkDir, markdownFile, checkFs)
+        val diff =
+            DirectoryDiffer(checkFs, fileSystem).diff(checkDir, outputDir)
+        diff.onlyInA.toList.map(
+          CheckErrors.MissingFile(_)
+        ) ++ diff.different.toList.map(f =>
+            CheckErrors.MismatchingContent(
+              f,
+              fileSystem.content(outputDir / f),
+              checkFs.content(checkDir / f)
+            )
+        )
+
     private def run(
         outputDir: Path,
         markdownFile: Path,
@@ -58,22 +74,6 @@ class Yadladoc(
               fullExample.mkString("\n")
             )
             GeneratedFile(exampleFile, markdownFile)
-
-    def check(outputDir: Path, markdownFile: Path): List[Errors] =
-        val checkFs = InMemoryFileSystem.init()
-        val checkDir = checkFs.createTempDirectory("check")
-        run(checkDir, markdownFile, checkFs)
-        val diff =
-            DirectoryDiffer(checkFs, fileSystem).diff(checkDir, outputDir)
-        diff.onlyInA.toList.map(
-          CheckErrors.MissingFile(_)
-        ) ++ diff.different.toList.map(f =>
-            CheckErrors.MismatchingContent(
-              f,
-              fileSystem.content(outputDir / f),
-              checkFs.content(checkDir / f)
-            )
-        )
 
 object Yadladoc:
     val DEFAULT_LANGUAGE = Language.named("default")
