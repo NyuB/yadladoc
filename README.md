@@ -98,7 +98,7 @@ It will fail on missing files
 ````
 
 ### Marking a snippet as an example
-yadladoc will use snippets marked with the property `ydoc.example=<name>` and ignore the other. Snippets sharing the same `<name>` will be grouped in the same example file named after `<name>` and the language of the snippet.
+yadladoc will use snippets marked with the property `ydoc.example=<name>` and ignore the others.
 
 ````markdown
 # Example
@@ -115,8 +115,6 @@ def hey():
         print("Hey")
 ```
 ````
-
-#### Concatenate snippets
 
 Consecutive snippets with the same `ydoc.example` value will be concatenated in the same generated file
 
