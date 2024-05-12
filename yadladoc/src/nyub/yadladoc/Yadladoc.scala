@@ -42,7 +42,7 @@ class Yadladoc(
             .foldLeft(SnippetMerger(config, Map.empty))(_.accumulate(_))
             .examples
 
-        examples.values.map: example =>
+        for example <- examples.values yield
             val fullExample = example.build(
               templating,
               id => config.templateFile(id).useLines(_.toList),
