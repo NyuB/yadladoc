@@ -1,7 +1,7 @@
 package nyub.interpreter
 
 import jdk.jshell.{EvalException, JShell, Snippet, SnippetEvent}
-import jdk.jshell.Snippet.Status.{OVERWRITTEN, REJECTED, VALID}
+import jdk.jshell.Snippet.Status.{REJECTED, VALID}
 import java.util.Locale
 
 /** Java interpreter backed by a [[jdk.jshell.JShell]] instance

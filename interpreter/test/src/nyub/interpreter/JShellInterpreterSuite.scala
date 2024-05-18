@@ -18,8 +18,8 @@ class JShellInterpreterSuite extends munit.FunSuite with AssertExtensions:
 
     test("One instruction on multiple lines"):
         val shell = jshell()
-        jshell().eval("var a = ") isEqualTo Seq.empty
-        jshell().eval("3") isEqualTo Seq("3")
+        shell.eval("var a = ") isEqualTo Seq.empty
+        shell.eval("3") isEqualTo Seq("3")
 
     test("Multi line object representation"):
         jshell().eval("new nyub.interpreter.Multiline();") isEqualTo List(
@@ -30,7 +30,7 @@ class JShellInterpreterSuite extends munit.FunSuite with AssertExtensions:
 
     test("Exception representation"):
         val shell = jshell();
-        shell.eval("Object npe = null")
+        shell.eval("Object npe = null") isEqualTo Seq("null")
         shell.eval("npe.toString()") isEqualTo Seq(
           "java.lang.NullPointerException"
         )

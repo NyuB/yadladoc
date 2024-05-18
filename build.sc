@@ -7,7 +7,17 @@ object Versions {
 
 trait SharedConfiguration extends ScalaModule {
     override def scalaVersion: T[String] = Versions.scala
-    override def scalacOptions: T[Seq[String]] = Seq("-deprecation")
+    override def scalacOptions: T[Seq[String]] =
+        Seq(
+          "-deprecation",
+          "-Werror",
+          "-Wimplausible-patterns",
+          "-Wnonunit-statement",
+          "-WunstableInlineAccessors",
+          "-Wunused:all",
+          "-Wvalue-discard",
+          "-Xlint:all"
+        )
 
     trait Tests extends ScalaTests with TestModule.Munit {
         override def ivyDeps = super.ivyDeps() ++ Agg(

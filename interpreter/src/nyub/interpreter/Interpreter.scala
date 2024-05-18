@@ -1,7 +1,5 @@
 package nyub.interpreter
 
-import java.io.PrintStream
-
 /** Statefull 'REPL like' interpreter
   * @see
   *   InterpreterFactory

@@ -97,7 +97,6 @@ object Markdown:
 
             override def parse(line: String): BlockParsing =
                 if Snippet.isSnippetHeaderLine(line) then
-                    val raw = Raw(lines.reverse)
                     SnippetBlock(
                       List.empty,
                       withNewRawBlockIFNotEmpty,

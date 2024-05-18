@@ -23,7 +23,9 @@ class OsFileSystem(private val charSet: Charset = StandardCharsets.UTF_8)
 
     override def writeContent(path: Path, content: String): Unit =
         Files.createDirectories(path.getParent())
-        Files.write(path, content.getBytes(charSet))
+        Files.write(path, content.getBytes(charSet)): @annotation.nowarn(
+          "msg=discarded non-Unit value"
+        )
 
     override def createTempDirectory(prefix: String): Path =
         Files.createTempDirectory(prefix)

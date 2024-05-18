@@ -1,10 +1,11 @@
 package nyub.yadladoc
 
-import java.nio.file.{Files, Path, Paths, StandardOpenOption}
+import java.nio.file.{Path, Paths}
 import nyub.assert.AssertExtensions
 
 import nyub.filesystem./
 
+@annotation.nowarn("msg=unused value") // ignore generated files' paths
 class YadladocSuite
     extends munit.FunSuite
     with AssertExtensions

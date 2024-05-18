@@ -6,7 +6,6 @@ import nyub.yadladoc.Yadladoc.Examplable
 import nyub.filesystem.{
     /,
     useLines,
-    DirectoryDiff,
     DirectoryDiffer,
     FileSystem,
     InMemoryFileSystem,
@@ -35,7 +34,9 @@ class Yadladoc(
         val checkFs = InMemoryFileSystem.init()
         val checkDir = checkFs.createTempDirectory("check")
 
-        run(checkDir, markdownFile, checkFs)
+        run(checkDir, markdownFile, checkFs): @annotation.nowarn(
+          "msg=unused value"
+        )
 
         checkDiffErrors(outputDir, checkFs, checkDir)
 
