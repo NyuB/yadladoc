@@ -1,7 +1,7 @@
 package nyub.yadladoc.markdown
 
 import nyub.assert.AssertExtensions
-import nyub.yadladoc.{Language, Properties, SuiteExtensions}
+import nyub.yadladoc.{Language, SuiteExtensions}
 
 class MarkdownSuite
     extends munit.FunSuite
@@ -39,7 +39,7 @@ class MarkdownSuite
                 .Header(
                   prefixOfLength3,
                   Some(Language.SCALA),
-                  Properties.empty
+                  ""
                 ),
             "val i: Int = 0"
           ),
@@ -53,7 +53,7 @@ class MarkdownSuite
         """
         Markdown.parse(input) isEqualTo Seq(
           Markdown.Snippet(
-            Markdown.Snippet.Header(prefixOfLength3, None, Properties.empty)
+            Markdown.Snippet.Header(prefixOfLength3, None, "")
           )
         )
 
@@ -74,7 +74,7 @@ class MarkdownSuite
                 .Header(
                   prefixOfLength3,
                   Some(Language.MARKDOWN),
-                  Properties.empty
+                  ""
                 ),
             "You can nest markdown in markdown :O",
             "````java",
@@ -86,16 +86,16 @@ class MarkdownSuite
         )
 
     test("Header parsing"):
-        checkHeaderParsing("```java", Some(Language.JAVA), Properties.empty)
+        checkHeaderParsing("```java", Some(Language.JAVA), "")
         checkHeaderParsing(
           "```scala foo=bar baz",
           Some(Language.SCALA),
-          Properties("foo" -> "bar")
+          " foo=bar baz"
         )
         checkHeaderParsing(
           "``` a=x \tb=y   c=z  ",
           None,
-          Properties("a" -> "x", "b" -> "y", "c" -> "z")
+          " a=x \tb=y   c=z  "
         )
 
     private val prefixOfLength3 = Markdown.Snippet.Prefix(3)
@@ -103,7 +103,7 @@ class MarkdownSuite
     private def checkHeaderParsing(
         headerLine: String,
         expectedLanguage: Option[Language],
-        expectedProperties: Properties
+        expectedAfterLanguage: String
     ): Unit =
         val input = List(headerLine, "```")
         val parsed = Markdown.parse(input)
@@ -115,7 +115,7 @@ class MarkdownSuite
         parsed(0) match
             case Markdown.Snippet(header, _) =>
                 header.language isEqualTo expectedLanguage
-                header.properties isEqualTo expectedProperties
+                header.afterLanguage isEqualTo expectedAfterLanguage
             case e => fail(s"Expected a snippet header to be parsed but got $e")
 
 end MarkdownSuite

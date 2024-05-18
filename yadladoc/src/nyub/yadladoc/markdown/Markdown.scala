@@ -1,6 +1,6 @@
 package nyub.yadladoc.markdown
 
-import nyub.yadladoc.{Language, Properties}
+import nyub.yadladoc.Language
 import scala.annotation.targetName
 
 object Markdown:
@@ -36,7 +36,7 @@ object Markdown:
         case class Header(
             val prefix: Prefix,
             val language: Option[Language],
-            val properties: Properties
+            val afterLanguage: String
         )
 
         case class Prefix(val length: Int)
@@ -49,12 +49,12 @@ object Markdown:
             val prefix = Snippet.prefix(line)
             val language =
                 line.substring(prefix.length).takeWhile(c => !" \t".contains(c))
-            val properties = line.substring(prefix.length + language.length)
+            val afterLanguage = line.substring(prefix.length + language.length)
             Header(
               prefix,
               if language.length > 0 then Some(Language.named(language))
               else None,
-              Properties.ofLine(properties)
+              afterLanguage
             )
 
         private[Markdown] def isSnippetHeaderLine(line: String): Boolean =

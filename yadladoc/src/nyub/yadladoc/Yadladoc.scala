@@ -1,7 +1,6 @@
 package nyub.yadladoc
 
 import nyub.yadladoc.markdown.Markdown
-import nyub.yadladoc.markdown.Markdown.Snippet
 import nyub.yadladoc.Yadladoc.Examplable
 import nyub.filesystem.{
     /,
@@ -88,10 +87,15 @@ class Yadladoc(
             )
         )
 
-    private def snippets(markdownFile: Path) = markdownFile
+    private def snippets(markdownFile: Path): Iterable[Snippet] = markdownFile
         .useLines(Markdown.parse(_))
         .collect:
-            case s: Snippet => s
+            case s: Markdown.Snippet =>
+                Snippet(
+                  s.header.language,
+                  s.lines,
+                  Properties.ofLine(s.header.afterLanguage)
+                )
 
 object Yadladoc:
     val DEFAULT_LANGUAGE = Language.named("default")
@@ -136,8 +140,8 @@ object Yadladoc:
           "ydoc.subExampleNamePropertyKey"
         )("ydoc.subExampleName")
 
-        def exampleForSnippet(header: Snippet.Header): Examplable =
-            header.properties
+        def exampleForSnippet(snippet: Snippet): Examplable =
+            snippet.properties
                 .get(exampleNamePropertyKey)
                 .filterNot(_.isBlank)
                 .map(Examplable.MakeExample(_))
@@ -152,14 +156,14 @@ object Yadladoc:
             )
 
         def prefixTemplateIds(
-            header: Snippet.Header
+            snippet: Snippet
         ): Iterable[TemplateId] =
-            header.properties.get("ydoc.prefix").toList.map(TemplateId(_))
+            snippet.properties.get("ydoc.prefix").toList.map(TemplateId(_))
 
         def suffixTemplateIds(
-            header: Snippet.Header
+            snippet: Snippet
         ): Iterable[TemplateId] =
-            header.properties.get("ydoc.suffix").toList.map(TemplateId(_))
+            snippet.properties.get("ydoc.suffix").toList.map(TemplateId(_))
 
     enum Examplable:
         case MakeExample(val name: String)
@@ -182,7 +186,7 @@ private class SnippetMerger(
     val examples: Map[String, Example]
 ):
     def accumulate(snippet: Snippet): SnippetMerger =
-        val ydocExample = config.exampleForSnippet(snippet.header)
+        val ydocExample = config.exampleForSnippet(snippet)
 
         ydocExample match
             case Examplable.Ignore =>
@@ -201,13 +205,13 @@ private class SnippetMerger(
         Example(
           name,
           config
-              .templateId(snippet.header.language, snippet.header.properties),
-          snippet.header.language,
+              .templateId(snippet.language, snippet.properties),
+          snippet.language,
           List(
             ExampleContent(
-              config.prefixTemplateIds(snippet.header),
+              config.prefixTemplateIds(snippet),
               snippet.lines,
-              config.suffixTemplateIds(snippet.header)
+              config.suffixTemplateIds(snippet)
             )
           )
         )
