@@ -1,7 +1,8 @@
-package nyub.yadladoc
+package nyub.yadladoc.markdown
 
 import nyub.assert.AssertExtensions
-import nyub.yadladoc.Markdown.Snippet
+import nyub.yadladoc.markdown.Markdown
+import nyub.yadladoc.{Language, Properties, SuiteExtensions}
 
 class MarkdownSuite
     extends munit.FunSuite
@@ -113,7 +114,7 @@ class MarkdownSuite
           s"Expected only one snippet to be parsed but got ${parsed.size}"
         )
         parsed(0) match
-            case Snippet(header, _) =>
+            case Markdown.Snippet(header, _) =>
                 header.language isEqualTo expectedLanguage
                 header.properties isEqualTo expectedProperties
             case e => fail(s"Expected a snippet header to be parsed but got $e")

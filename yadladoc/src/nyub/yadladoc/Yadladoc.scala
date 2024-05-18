@@ -1,6 +1,7 @@
 package nyub.yadladoc
 
-import nyub.yadladoc.Markdown.Snippet
+import nyub.yadladoc.markdown.Markdown
+import nyub.yadladoc.markdown.Markdown.Snippet
 import nyub.yadladoc.Yadladoc.Examplable
 import nyub.filesystem.{
     /,
