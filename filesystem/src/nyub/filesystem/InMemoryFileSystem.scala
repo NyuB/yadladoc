@@ -50,7 +50,7 @@ sealed private trait Tree:
 private object Tree:
     case class Node(children: Map[String, Tree]) extends Tree:
         override def content(path: Path): String =
-            if path.getNameCount() == 0 then
+            if path.isEmpty then
                 throw IllegalArgumentException(s"${this} is not a file")
             else
                 val (first, sub) = path.headTail
@@ -63,7 +63,7 @@ private object Tree:
                         tree.content(sub)
 
         override def get(path: Path): Tree =
-            if path.getNameCount() == 0 then this
+            if path.isEmpty then this
             else
                 val (first, sub) = path.headTail
                 children.get(first) match
@@ -74,7 +74,7 @@ private object Tree:
                     case Some(tree) => tree.get(sub)
 
         def insert(path: Path, tree: Tree): Node =
-            if path.getNameCount() == 0 then
+            if path.isEmpty then
                 throw IllegalArgumentException("Cannot insert at root")
             else
                 val (first, sub) = path.headTail
@@ -90,7 +90,7 @@ private object Tree:
     case class Leaf(val content: String) extends Tree:
         override def content(path: Path) = content
         override def get(path: Path): Tree =
-            if path.getNameCount() != 0 then
+            if !path.isEmpty then
                 throw IllegalArgumentException(
                   s"${this} is a file and subpath ${path} does not exist"
                 )
@@ -99,8 +99,10 @@ private object Tree:
     extension (p: Path)
         private def headTail: (String, Path) =
             val sub =
-                if p.getNameCount() == 0 then
+                if p.isEmpty then
                     throw IllegalArgumentException("Empty path has no head")
                 else if p.getNameCount() == 1 then Paths.get("/")
                 else p.subpath(1, p.getNameCount())
             p.getName(0).toString() -> sub
+
+        private def isEmpty: Boolean = p.getNameCount() == 0
