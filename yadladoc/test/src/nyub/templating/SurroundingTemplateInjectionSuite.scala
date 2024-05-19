@@ -1,4 +1,4 @@
-package nyub.yadladoc.templating
+package nyub.templating
 
 import nyub.assert.AssertExtensions
 

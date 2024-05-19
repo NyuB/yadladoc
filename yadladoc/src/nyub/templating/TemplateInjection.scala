@@ -1,4 +1,4 @@
-package nyub.yadladoc.templating
+package nyub.templating
 
 trait TemplateInjection:
     def inject(line: String, properties: Map[String, String]): String

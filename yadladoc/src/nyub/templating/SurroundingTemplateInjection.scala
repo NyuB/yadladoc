@@ -1,4 +1,4 @@
-package nyub.yadladoc.templating
+package nyub.templating
 
 class SurroundingTemplateInjection(val prefix: String, val postfix: String)
     extends TemplateInjection:

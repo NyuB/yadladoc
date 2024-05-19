@@ -1,4 +1,4 @@
-package nyub.yadladoc.markdown
+package nyub.markdown
 
 import nyub.assert.AssertExtensions
 import nyub.yadladoc.{Language, SuiteExtensions}
@@ -9,7 +9,7 @@ class MarkdownSuite
     with SuiteExtensions:
     test("Parses empty lines"):
         val input = List.empty[String]
-        val parsed = Markdown.parse(input)
+        val parsed = nyub.markdown.Markdown.parse(input)
         parsed isEqualTo List.empty
 
     test("Only raw markdown"):
@@ -19,8 +19,10 @@ class MarkdownSuite
         ## Subtitle
         Text
         """
-        Markdown.parse(input) isEqualTo Seq(
-          Markdown.Raw(Seq("# Title", "Description", "## Subtitle", "Text"))
+        nyub.markdown.Markdown.parse(input) isEqualTo Seq(
+          nyub.markdown.Markdown.Raw(
+            Seq("# Title", "Description", "## Subtitle", "Text")
+          )
         )
 
     test("One snippet"):
@@ -32,10 +34,10 @@ class MarkdownSuite
         ```
         Awesome isn't it ?
         """
-        Markdown.parse(input) isEqualTo Seq(
-          Markdown.Raw("# Title", "This is a code snippet"),
-          Markdown.Snippet(
-            Markdown.Snippet
+        nyub.markdown.Markdown.parse(input) isEqualTo Seq(
+          nyub.markdown.Markdown.Raw("# Title", "This is a code snippet"),
+          nyub.markdown.Markdown.Snippet(
+            nyub.markdown.Markdown.Snippet
                 .Header(
                   prefixOfLength3,
                   Some(Language.SCALA),
@@ -43,7 +45,7 @@ class MarkdownSuite
                 ),
             "val i: Int = 0"
           ),
-          Markdown.Raw("Awesome isn't it ?")
+          nyub.markdown.Markdown.Raw("Awesome isn't it ?")
         )
 
     test("Empty snippet"):
@@ -51,9 +53,9 @@ class MarkdownSuite
         ```
         ```
         """
-        Markdown.parse(input) isEqualTo Seq(
-          Markdown.Snippet(
-            Markdown.Snippet.Header(prefixOfLength3, None, "")
+        nyub.markdown.Markdown.parse(input) isEqualTo Seq(
+          nyub.markdown.Markdown.Snippet(
+            nyub.markdown.Markdown.Snippet.Header(prefixOfLength3, None, "")
           )
         )
 
@@ -68,9 +70,9 @@ class MarkdownSuite
         ````
         ```
         """
-        Markdown.parse(input) isEqualTo Seq(
-          Markdown.Snippet(
-            Markdown.Snippet
+        nyub.markdown.Markdown.parse(input) isEqualTo Seq(
+          nyub.markdown.Markdown.Snippet(
+            nyub.markdown.Markdown.Snippet
                 .Header(
                   prefixOfLength3,
                   Some(Language.MARKDOWN),
@@ -98,7 +100,7 @@ class MarkdownSuite
           " a=x \tb=y   c=z  "
         )
 
-    private val prefixOfLength3 = Markdown.Snippet.Prefix(3)
+    private val prefixOfLength3 = nyub.markdown.Markdown.Snippet.Prefix(3)
 
     private def checkHeaderParsing(
         headerLine: String,
@@ -106,14 +108,14 @@ class MarkdownSuite
         expectedAfterLanguage: String
     ): Unit =
         val input = List(headerLine, "```")
-        val parsed = Markdown.parse(input)
+        val parsed = nyub.markdown.Markdown.parse(input)
         assertEquals(
           parsed.size,
           1,
           s"Expected only one snippet to be parsed but got ${parsed.size}"
         )
         parsed(0) match
-            case Markdown.Snippet(header, _) =>
+            case nyub.markdown.Markdown.Snippet(header, _) =>
                 header.language isEqualTo expectedLanguage
                 header.afterLanguage isEqualTo expectedAfterLanguage
             case e => fail(s"Expected a snippet header to be parsed but got $e")

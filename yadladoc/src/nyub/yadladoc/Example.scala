@@ -1,6 +1,6 @@
 package nyub.yadladoc
 
-import nyub.yadladoc.templating.TemplateInjection
+import nyub.templating.TemplateInjection
 
 case class Example(
     val name: String,
