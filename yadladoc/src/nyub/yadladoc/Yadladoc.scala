@@ -45,7 +45,7 @@ class Yadladoc(
         writeFs: FileSystem
     ): Iterable[GeneratedFile] =
         val examples = snippets(markdownFile)
-            .foldLeft(SnippetMerger(config, Map.empty))(_.accumulate(_))
+            .foldLeft(SnippetMerger.empty(config))(_.accumulate(_))
             .examples
 
         for example <- examples.values yield
@@ -215,3 +215,6 @@ private class SnippetMerger(
             )
           )
         )
+
+private object SnippetMerger:
+    def empty(config: Yadladoc.Configuration) = SnippetMerger(config, Map.empty)
