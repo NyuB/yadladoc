@@ -1,6 +1,6 @@
 package nyub.yadladoc
 
-import java.nio.file.{Path, Paths}
+import java.nio.file.Path
 import nyub.assert.AssertExtensions
 
 import nyub.filesystem./
@@ -53,11 +53,11 @@ class YadladocSuite
 
             generatedFiles.toList isEqualTo List(
               GeneratedFile(
-                Paths.get("kotlin-list-example.kt"),
+                p"kotlin-list-example.kt",
                 markdownFile
               ),
               GeneratedFile(
-                Paths.get("kotlin-class-example.kt"),
+                p"kotlin-class-example.kt",
                 markdownFile
               )
             )
