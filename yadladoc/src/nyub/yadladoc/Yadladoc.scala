@@ -5,8 +5,8 @@ import nyub.yadladoc.Yadladoc.Examplable
 import nyub.filesystem.{
     /,
     useLines,
-    DirectoryDiffer,
     FileSystem,
+    FileTree,
     InMemoryFileSystem,
     OsFileSystem
 }
@@ -30,11 +30,40 @@ class Yadladoc(
         val checkFs = InMemoryFileSystem.init()
         val checkDir = checkFs.createTempDirectory("check")
 
-        run(checkDir, markdownFile, checkFs): @annotation.nowarn(
-          "msg=unused value"
-        )
-
-        checkDiffErrors(outputDir, checkFs, checkDir)
+        val generated = run(checkDir, markdownFile, checkFs)
+        generated
+            .flatMap: f =>
+                fileSystem.toFileTree(outputDir / f.file) -> checkFs.toFileTree(
+                  checkDir / f.file
+                ) match
+                    case _ -> None =>
+                        throw IllegalStateException(
+                          "Generated files should exist in check file system"
+                        )
+                    case _ -> Some(FileTree.Dir(_)) =>
+                        throw IllegalStateException(
+                          "Generated files should not be a directory in check file system"
+                        )
+                    case actual -> Some(FileTree.File(expected)) =>
+                        actual match
+                            case None => List(CheckErrors.MissingFile(f.file))
+                            case Some(FileTree.Dir(_)) =>
+                                List(CheckErrors.MissingFile(f.file))
+                            case Some(FileTree.File(af)) =>
+                                val actualContent = fileSystem.content(af)
+                                val expectedContent =
+                                    checkFs.content(expected)
+                                if actualContent == expectedContent then
+                                    List.empty
+                                else
+                                    List(
+                                      CheckErrors.MismatchingContent(
+                                        f.file,
+                                        actualContent,
+                                        expectedContent
+                                      )
+                                    )
+            .toList
 
     private def run(
         outputDir: Path,
@@ -64,24 +93,6 @@ class Yadladoc(
           config.exampleNameInjectionKey,
           config.subExampleNameInjectionKey,
           config.properties.toMap
-        )
-
-    private def checkDiffErrors(
-        outputDir: Path,
-        checkFs: FileSystem,
-        checkDir: Path
-    ) =
-        val diff =
-            DirectoryDiffer(checkFs, fileSystem).diff(checkDir, outputDir)
-
-        diff.onlyInA.toList.map(
-          CheckErrors.MissingFile(_)
-        ) ++ diff.different.toList.map(f =>
-            CheckErrors.MismatchingContent(
-              f,
-              fileSystem.content(outputDir / f),
-              checkFs.content(checkDir / f)
-            )
         )
 
     private def snippets(markdownFile: Path): Iterable[Snippet] = markdownFile
