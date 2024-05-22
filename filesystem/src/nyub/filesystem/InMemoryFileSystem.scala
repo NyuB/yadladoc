@@ -27,18 +27,16 @@ class InMemoryFileSystem private (private var root: Node) extends FileSystem:
     override def writeContent(path: Path, content: String): Unit =
         root = root.insert(path, Tree.Leaf(content))
 
-    extension (p: Path)
-        override def children: Set[Path] = root.get(p) match
-            case Some(Node(children)) => children.keySet.map(Paths.get(_))
-            case _ =>
-                throw IllegalArgumentException(s"${p} is not a directory")
+    override def children(path: Path): Set[Path] = root.get(path) match
+        case Some(Node(children)) => children.keySet.map(Paths.get(_))
+        case _ =>
+            throw IllegalArgumentException(s"${path} is not a directory")
 
-    extension (p: Path)
-        override def toFileTree: Option[FileTree] = root
-            .get(p)
-            .map:
-                case Node(_) => FileTree.Dir(p)
-                case Leaf(_) => FileTree.File(p)
+    override def toFileTree(path: Path): Option[FileTree] = root
+        .get(path)
+        .map:
+            case Node(_) => FileTree.Dir(path)
+            case Leaf(_) => FileTree.File(path)
 
 object InMemoryFileSystem:
     /** Generate an empty file system simulation
