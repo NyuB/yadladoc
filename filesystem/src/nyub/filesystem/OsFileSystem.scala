@@ -31,8 +31,10 @@ class OsFileSystem(private val charSet: Charset = StandardCharsets.UTF_8)
         Files.createTempDirectory(prefix)
 
     extension (p: Path)
-        override def toFileTree: FileTree =
-            if p.toFile().isFile() then FileTree.File(p) else FileTree.Dir(p)
+        override def toFileTree: Option[FileTree] =
+            if p.toFile().isFile() then Some(FileTree.File(p))
+            else if p.toFile().isDirectory() then Some(FileTree.Dir(p))
+            else None
 
     extension (p: Path)
         override def children: Set[Path] =

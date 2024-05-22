@@ -29,14 +29,16 @@ class InMemoryFileSystem private (private var root: Node) extends FileSystem:
 
     extension (p: Path)
         override def children: Set[Path] = root.get(p) match
-            case Node(children) => children.keySet.map(Paths.get(_))
-            case Leaf(content) =>
+            case Some(Node(children)) => children.keySet.map(Paths.get(_))
+            case _ =>
                 throw IllegalArgumentException(s"${p} is not a directory")
 
     extension (p: Path)
-        override def toFileTree: FileTree = root.get(p) match
-            case Node(_) => FileTree.Dir(p)
-            case Leaf(_) => FileTree.File(p)
+        override def toFileTree: Option[FileTree] = root
+            .get(p)
+            .map:
+                case Node(_) => FileTree.Dir(p)
+                case Leaf(_) => FileTree.File(p)
 
 object InMemoryFileSystem:
     /** Generate an empty file system simulation
@@ -45,7 +47,7 @@ object InMemoryFileSystem:
 
 sealed private trait Tree:
     def content(path: Path): String
-    def get(path: Path): Tree
+    def get(path: Path): Option[Tree]
 
 private object Tree:
     case class Node(children: Map[String, Tree]) extends Tree:
@@ -62,16 +64,11 @@ private object Tree:
                     case Some(tree) =>
                         tree.content(sub)
 
-        override def get(path: Path): Tree =
-            if path.isEmpty then this
+        override def get(path: Path): Option[Tree] =
+            if path.isEmpty then Some(this)
             else
                 val (first, sub) = path.headTail
-                children.get(first) match
-                    case None =>
-                        throw java.lang.IllegalArgumentException(
-                          "${sub} is not a child of ${this}"
-                        )
-                    case Some(tree) => tree.get(sub)
+                children.get(first).flatMap(_.get(sub))
 
         def insert(path: Path, tree: Tree): Node =
             if path.isEmpty then
@@ -89,12 +86,9 @@ private object Tree:
 
     case class Leaf(val content: String) extends Tree:
         override def content(path: Path) = content
-        override def get(path: Path): Tree =
-            if !path.isEmpty then
-                throw IllegalArgumentException(
-                  s"${this} is a file and subpath ${path} does not exist"
-                )
-            else this
+        override def get(path: Path): Option[Tree] =
+            if !path.isEmpty then None
+            else Some(this)
 
     extension (p: Path)
         private def headTail: (String, Path) =

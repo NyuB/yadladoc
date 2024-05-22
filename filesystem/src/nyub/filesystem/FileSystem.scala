@@ -9,7 +9,7 @@ trait FileSystem:
     def useLines[T](path: Path)(f: Iterable[String] => T): T
     def writeContent(path: Path, content: String): Unit
     def createTempDirectory(prefix: String): Path
-    extension (p: Path) def toFileTree: FileTree
+    extension (p: Path) def toFileTree: Option[FileTree]
     extension (p: Path) def children: Set[Path]
 
 sealed trait FileTree:

@@ -54,14 +54,25 @@ class DirectoryDiffer(private val fsa: FileSystem, private val fsb: FileSystem):
         rootA: Path,
         rootB: Path
     ): DirectoryDiff = fsa.toFileTree(rootA) -> fsb.toFileTree(rootB) match
-        case (File(fa), Dir(db)) =>
-            DirectoryDiff(Set(fa), all(db, fsb), Set.empty)
+        case (Some(ta), Some(tb)) =>
+            ta -> tb match
+                case (File(fa), Dir(db)) =>
+                    DirectoryDiff(Set(fa), all(db, fsb), Set.empty)
 
-        case (Dir(da), File(fb)) =>
-            DirectoryDiff(all(da, fsa), Set(fb), Set.empty)
+                case (Dir(da), File(fb)) =>
+                    DirectoryDiff(all(da, fsa), Set(fb), Set.empty)
 
-        case (File(fa), File(fb)) => fileDiff(fa, fb)
-        case (Dir(da), Dir(db))   => dirDiff(da, db)
+                case (File(fa), File(fb)) => fileDiff(fa, fb)
+                case (Dir(da), Dir(db))   => dirDiff(da, db)
+        case (None, Some(File(fb))) =>
+            DirectoryDiff(Set.empty, Set(fb), Set.empty)
+        case (Some(File(fa)), None) =>
+            DirectoryDiff(Set(fa), Set.empty, Set.empty)
+        case (None, Some(Dir(db))) =>
+            DirectoryDiff(Set.empty, all(db, fsb), Set.empty)
+        case (Some(Dir(da)), None) =>
+            DirectoryDiff(all(da, fsa), Set.empty, Set.empty)
+        case (None, None) => DirectoryDiff.SAME
 
     private def dirDiff(da: Path, db: Path): DirectoryDiff =
         val childrenA = fsa.children(da)
@@ -87,8 +98,10 @@ class DirectoryDiffer(private val fsa: FileSystem, private val fsb: FileSystem):
 
     private def all(root: Path, fs: FileSystem): Set[Path] =
         fs.toFileTree(root) match
-            case File(f) => Set(f)
-            case Dir(d)  => fs.children(d).flatMap(child => all(d / child, fs))
+            case Some(File(f)) => Set(f)
+            case Some(Dir(d)) =>
+                fs.children(d).flatMap(child => all(d / child, fs))
+            case None => Set.empty
 
     extension (d: DirectoryDiff)
         private def merge(other: DirectoryDiff) = DirectoryDiff(
