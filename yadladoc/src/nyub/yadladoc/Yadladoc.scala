@@ -32,37 +32,8 @@ class Yadladoc(
 
         val generated = run(checkDir, markdownFile, checkFs)
         generated
-            .flatMap: f =>
-                fileSystem.toFileTree(outputDir / f.file) -> checkFs.toFileTree(
-                  checkDir / f.file
-                ) match
-                    case _ -> None =>
-                        throw IllegalStateException(
-                          "Generated files should exist in check file system"
-                        )
-                    case _ -> Some(FileTree.Dir(_)) =>
-                        throw IllegalStateException(
-                          "Generated files should not be a directory in check file system"
-                        )
-                    case actual -> Some(FileTree.File(expected)) =>
-                        actual match
-                            case None => List(CheckErrors.MissingFile(f.file))
-                            case Some(FileTree.Dir(_)) =>
-                                List(CheckErrors.MissingFile(f.file))
-                            case Some(FileTree.File(af)) =>
-                                val actualContent = fileSystem.content(af)
-                                val expectedContent =
-                                    checkFs.content(expected)
-                                if actualContent == expectedContent then
-                                    List.empty
-                                else
-                                    List(
-                                      CheckErrors.MismatchingContent(
-                                        f.file,
-                                        actualContent,
-                                        expectedContent
-                                      )
-                                    )
+            .map(checkGeneratedFile(_, outputDir, checkFs, checkDir))
+            .flatMap(_.toList)
             .toList
 
     private def run(
@@ -104,6 +75,43 @@ class Yadladoc(
                   s.lines,
                   Properties.ofLine(s.header.afterLanguage)
                 )
+
+    private def checkGeneratedFile(
+        generated: GeneratedFile,
+        outputDir: Path,
+        checkFs: FileSystem,
+        checkDir: Path
+    ): Option[Errors] =
+        val actualFile = fileSystem.toFileTree(outputDir / generated.file)
+        val checkFile = checkFs.toFileTree(checkDir / generated.file)
+
+        actualFile -> checkFile match
+            case _ -> None =>
+                throw IllegalStateException(
+                  "Generated files should exist in check file system"
+                )
+            case _ -> Some(FileTree.Dir(_)) =>
+                throw IllegalStateException(
+                  "Generated files should not be a directory in check file system"
+                )
+            case actual -> Some(FileTree.File(expected)) =>
+                actual match
+                    case None => Some(CheckErrors.MissingFile(generated.file))
+                    case Some(FileTree.Dir(_)) =>
+                        Some(CheckErrors.MissingFile(generated.file))
+                    case Some(FileTree.File(af)) =>
+                        val actualContent = fileSystem.content(af)
+                        val expectedContent =
+                            checkFs.content(expected)
+                        if actualContent == expectedContent then None
+                        else
+                            Some(
+                              CheckErrors.MismatchingContent(
+                                generated.file,
+                                actualContent,
+                                expectedContent
+                              )
+                            )
 
 object Yadladoc:
     val DEFAULT_LANGUAGE = Language.named("default")
