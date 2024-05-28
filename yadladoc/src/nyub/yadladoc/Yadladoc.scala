@@ -193,7 +193,7 @@ object Yadladoc:
             val propertyFile = configDir / "ydoc.properties"
             if !propertyFile.toFile().isFile() then Properties.empty
             else
-                storage.useLines(configDir / "ydoc.properties"): lines =>
+                storage.useLines(propertyFile): lines =>
                     lines.foldLeft(Properties.empty): (props, line) =>
                         props.extendedWith(Properties.ofLine(line))
 
