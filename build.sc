@@ -48,7 +48,7 @@ object interpreter extends ScalaModule with SharedConfiguration {
 }
 
 object yadladoc extends ScalaModule with SharedConfiguration {
-    override def moduleDeps = super.moduleDeps ++ Seq(filesystem)
+    override def moduleDeps = super.moduleDeps ++ Seq(filesystem, interpreter)
 
     object test extends Tests
 }

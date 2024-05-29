@@ -12,7 +12,7 @@ object Markdown:
 
     /** Represents raw lines without additional semantics
       */
-    case class Raw(lines: Seq[String]) extends Block:
+    case class Raw(lines: Iterable[String]) extends Block:
         override def toLines = lines
 
     object Raw:
@@ -35,7 +35,7 @@ object Markdown:
       *   the actual lines of code in the snippet (not including the \`\`\`
       *   prefixed lines)
       */
-    case class Snippet(header: Snippet.Header, lines: Seq[String])
+    case class Snippet(header: Snippet.Header, lines: Iterable[String])
         extends Block:
         override def toLines =
             Seq(header.toLine) ++ lines :+ header.prefix.prefixString

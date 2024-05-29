@@ -158,7 +158,38 @@ end test_scala
 In addition to the main template file that will be injected with the concatenation of all snippets related to a file, each of these snippets can be prefixed/suffixed by a custom template designated with the properties ``ydoc.example.prefix`` and `ydoc.example.suffix`. For example, adding `ydoc.example.prefix=templateId` to a snippet header would cause it's line to be prefixed by the expansion of `.ydoc/includes/templateId.template`. A property `ydoc.subExampleName` is injected in these templates with the identifier for the current snippet.
 
 ### In-place snippet decoration
-**COMING SOON** interpret snippet and decorate them directly in the markdown _'à la mdoc/mdx'_ instead of generating a file.
+In addition to generating new files, Yadladoc can alter code snippets in-place, annotating them with execution results. It currently supports the jshell interpreter to annotate java snippets, annotating them with toString() representations of each line.
+
+```java
+var list = java.util.List.of("A", "B", "C");
+list.get(0)
+list.contains("B")
+list.get(-1)
+```
+
+```java ydoc.interpreter=jshell
+var list = java.util.List.of("A", "B", "C");
+//> [A, B, C]
+list.get(0)
+//> "A"
+list.contains("B")
+//> true
+list.get(-1)
+//> java.lang.ArrayIndexOutOfBoundsException
+```
+
+To trigger the in-place decoration of a snippet, add `ydoc.interpreter` property to the snippet header:
+````markdown
+```java ydoc.interpreter=jshell
+var list = java.util.List.of("A", "B", "C");
+list.get(0)
+list.contains("B")
+list.get(-1)
+```
+````
+
+In check mode, decorated markdown files are checked in the same way as other generated files and compared against the actual markdown file.
+
 
 ## Install
 ### From source

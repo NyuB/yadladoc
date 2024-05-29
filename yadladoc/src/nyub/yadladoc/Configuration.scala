@@ -5,6 +5,8 @@ import nyub.filesystem./
 import java.nio.file.Paths
 import nyub.filesystem.FileSystem
 import nyub.filesystem.OsFileSystem
+import nyub.interpreter.ScriptDecorator
+import nyub.interpreter.JShellInterpreter
 
 val DEFAULT_LANGUAGE = Language.named("default")
 trait Configuration:
@@ -50,7 +52,7 @@ trait Configuration:
                 snippet.properties
                     .get(interpreterIdPropertyKey)
                     .filterNot(_.isBlank)
-                    .map(_ => DocumentationKind.InterpretedSnippet(snippet))
+                    .map(DocumentationKind.InterpretedSnippet(_))
                     .getOrElse(DocumentationKind.Raw)
 
     def exampleFile(
@@ -70,6 +72,17 @@ trait Configuration:
         snippet: Snippet
     ): Iterable[TemplateId] =
         snippet.properties.get("ydoc.suffix").toList.map(TemplateId(_))
+
+    def scriptDecorator(interpreterId: String): Option[ScriptDecorator] =
+        if interpreterId == "jshell" then
+            Some(
+              ScriptDecorator(
+                JShellInterpreter,
+                "//> ",
+                ScriptDecorator.Config.DEFAULT.eraseStartingWith("//> ")
+              )
+            )
+        else None
 
 case class ConfigurationFromFile(
     override val configDir: Path,

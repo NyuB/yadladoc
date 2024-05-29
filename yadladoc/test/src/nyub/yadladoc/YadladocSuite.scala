@@ -212,6 +212,41 @@ class YadladocSuite
               "javaExample.java"
             ) hasContent """class Custom { String s = "Hello"; }"""
 
+    testWithinYDocContext("In-place markdown decoration"):
+        (outputDir, configDir, workingDir) =>
+            val markdownFile = makeFile(workingDir, "README.md"):
+                l"""
+                ```java ydoc.interpreter=jshell
+                java.util.List.of(1,2,3)
+                ```
+                """
+            Yadladoc(ConfigurationFromFile(configDir))
+                .run(outputDir, markdownFile)
+            markdownFile hasContent l"""
+            ```java ydoc.interpreter=jshell
+            java.util.List.of(1,2,3)
+            //> [1, 2, 3]
+            ```
+            """
+
+    testWithinYDocContext("Check modified markdown file"):
+        (outputDir, configDir, workingDir) =>
+            val markdownFile = makeFile(workingDir, "README.md"):
+                l"""
+                ```java ydoc.interpreter=jshell
+                java.util.List.of(1,2,3)
+                ```
+                """
+            Yadladoc(ConfigurationFromFile(configDir))
+                .check(outputDir, markdownFile) match
+                case List(CheckErrors.MismatchingContent(f, _, _))
+                    if markdownFile == f =>
+                    ()
+                case _ =>
+                    fail(
+                      "Expected content mismatch error for decorated markdown file"
+                    )
+
     def testWithinYDocContext(name: String)(f: (Path, Path, Path) => Any) =
         val withYdocContext =
             FunFixture.map3(withTempDir, withTempDir, withTempDir)

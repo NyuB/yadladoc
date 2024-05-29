@@ -87,8 +87,18 @@ class Yadladoc(
                     ) match
                         case example: DocumentationKind.ExampleSnippet =>
                             doc.addExampleSnippet(snippet, example)
-                        case DocumentationKind.InterpretedSnippet(_) =>
-                            doc.addRawSnippet(snippet)
+                        case DocumentationKind.InterpretedSnippet(
+                              interpreterId
+                            ) =>
+                            val decorated = config
+                                .scriptDecorator(interpreterId)
+                                .map(
+                                  _.decorate(snippet.lines)
+                                )
+                                .getOrElse(snippet.lines)
+                            doc.addRawSnippet(
+                              Markdown.Snippet(snippet.header, decorated.toSeq)
+                            )
                         case DocumentationKind.Raw =>
                             doc.addRawSnippet(snippet) // no doc to generate
                 case raw: Markdown.Raw =>

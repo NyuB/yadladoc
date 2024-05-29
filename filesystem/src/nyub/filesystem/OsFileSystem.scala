@@ -22,7 +22,7 @@ class OsFileSystem(private val charSet: Charset = StandardCharsets.UTF_8)
         res
 
     override def writeContent(path: Path, content: String): Unit =
-        Files.createDirectories(path.getParent())
+        path.writeParents()
         Files.write(path, content.getBytes(charSet)): @annotation.nowarn(
           "msg=discarded non-Unit value"
         )
@@ -39,3 +39,10 @@ class OsFileSystem(private val charSet: Charset = StandardCharsets.UTF_8)
         Option(path.toFile().list())
             .map(_.toSet.map(Paths.get(_)))
             .getOrElse(Set.empty)
+
+    extension (p: Path)
+        private def writeParents(): Unit =
+            if p.getParent() != null then
+                Files.createDirectories(p.getParent()): @annotation.nowarn(
+                  "msg=discarded non-Unit value"
+                )
