@@ -2,6 +2,7 @@ package nyub.markdown
 
 import nyub.assert.AssertExtensions
 import nyub.yadladoc.{Language, SuiteExtensions}
+import nyub.markdown.Markdown.Snippet
 
 class MarkdownSuite
     extends munit.FunSuite
@@ -98,6 +99,29 @@ class MarkdownSuite
           "``` a=x \tb=y   c=z  ",
           None,
           " a=x \tb=y   c=z  "
+        )
+
+    test("toLines: Snippet without language"):
+        val snippet = Snippet(
+          Snippet.Header(Snippet.Prefix(4), None, " some words"),
+          "One line"
+        )
+        Markdown.toLines(Seq(snippet)) isEqualTo Seq(
+          "```` some words",
+          "One line",
+          "````"
+        )
+
+    test("toLines: Snippet with language"):
+        val snippet = Snippet(
+          Snippet
+              .Header(Snippet.Prefix(3), Some(Language.PYTHON), " some words"),
+          "print('OK')"
+        )
+        Markdown.toLines(Seq(snippet)) isEqualTo Seq(
+          "```python some words",
+          "print('OK')",
+          "```"
         )
 
     private val prefixOfLength3 = nyub.markdown.Markdown.Snippet.Prefix(3)

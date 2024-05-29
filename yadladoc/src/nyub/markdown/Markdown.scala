@@ -4,11 +4,17 @@ import nyub.yadladoc.Language
 import scala.annotation.targetName
 
 object Markdown:
-    sealed trait Block
+    def toLines(blocks: Seq[Block]): Iterable[String] =
+        blocks.flatMap(_.toLines)
+
+    sealed trait Block:
+        private[Markdown] def toLines: Iterable[String]
 
     /** Represents raw lines without additional semantics
       */
-    case class Raw(lines: Seq[String]) extends Block
+    case class Raw(lines: Seq[String]) extends Block:
+        override def toLines = lines
+
     object Raw:
         @targetName("of")
         def apply(lines: String*) = new Raw(lines.toSeq)
@@ -29,7 +35,11 @@ object Markdown:
       *   the actual lines of code in the snippet (not including the \`\`\`
       *   prefixed lines)
       */
-    case class Snippet(header: Snippet.Header, lines: Seq[String]) extends Block
+    case class Snippet(header: Snippet.Header, lines: Seq[String])
+        extends Block:
+        override def toLines =
+            Seq(header.toLine) ++ lines :+ header.prefix.prefixString
+
     object Snippet:
         val PREFIX_CHAR = '`'
         val PREFIX_MIN = "```"
@@ -37,9 +47,15 @@ object Markdown:
             val prefix: Prefix,
             val language: Option[Language],
             val afterLanguage: String
-        )
+        ):
+            def toLine =
+                val afterPrefix = language
+                    .map(l => s"${l.name}${afterLanguage}")
+                    .getOrElse(afterLanguage)
+                s"${prefix.prefixString}${afterPrefix}"
 
-        case class Prefix(val length: Int)
+        case class Prefix(val length: Int):
+            def prefixString: String = String(Array.fill(length)(PREFIX_CHAR))
 
         @targetName("of")
         def apply(header: Header, lines: String*) =
