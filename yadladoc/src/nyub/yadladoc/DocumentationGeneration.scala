@@ -6,7 +6,7 @@ private class DocumentationGeneration(
     val markdownDecoration: MarkdownDecoration,
     val exampleSnippets: ExampleSnippetMerger
 ):
-    def accumulate(
+    def addExampleSnippet(
         markdownSnippet: Markdown.Snippet,
         exampleSnippet: DocumentationKind.ExampleSnippet
     ): DocumentationGeneration =
@@ -15,13 +15,15 @@ private class DocumentationGeneration(
           exampleSnippets.accumulate(exampleSnippet)
         )
 
-    def accumulate(markdownSnippet: Markdown.Snippet): DocumentationGeneration =
+    def addRawSnippet(
+        markdownSnippet: Markdown.Snippet
+    ): DocumentationGeneration =
         DocumentationGeneration(
           markdownDecoration.accumulate(markdownSnippet),
           exampleSnippets
         )
 
-    def accumulate(markdownRaw: Markdown.Raw): DocumentationGeneration =
+    def addRawBlock(markdownRaw: Markdown.Raw): DocumentationGeneration =
         DocumentationGeneration(
           markdownDecoration.accumulate(markdownRaw),
           exampleSnippets

@@ -74,13 +74,13 @@ class Yadladoc(
                 case snippet: Markdown.Snippet =>
                     config.exampleForSnippet(snippet.toDocSnippet) match
                         case example: DocumentationKind.ExampleSnippet =>
-                            doc.accumulate(snippet, example)
+                            doc.addExampleSnippet(snippet, example)
                         case DocumentationKind.InterpretedSnippet(_) =>
-                            doc.accumulate(snippet)
+                            doc.addRawSnippet(snippet)
                         case DocumentationKind.Raw =>
-                            doc.accumulate(snippet) // no doc to generate
+                            doc.addRawSnippet(snippet) // no doc to generate
                 case raw: Markdown.Raw =>
-                    doc.accumulate(raw) // no doc to generate
+                    doc.addRawBlock(raw) // no doc to generate
 
     extension (s: Markdown.Snippet)
         private def toDocSnippet: Snippet =
