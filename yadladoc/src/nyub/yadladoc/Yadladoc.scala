@@ -13,6 +13,7 @@ import nyub.filesystem.{
 import nyub.templating.{SurroundingTemplateInjection, TemplateInjection}
 
 import java.nio.file.{Path, Paths}
+import nyub.yadladoc.Yadladoc.Configuration
 
 class Yadladoc(
     private val config: Yadladoc.Configuration,
@@ -43,17 +44,19 @@ class Yadladoc(
     ): Iterable[GeneratedFile] =
         val examples = markdownFile
             .useLines(Markdown.parse(_))
-            .foldLeft(ExampleSnippetMerger.empty(config)): (examples, block) =>
+            .foldLeft(DocumentationGeneration.init(config)): (doc, block) =>
                 block match
                     case snippet: Markdown.Snippet =>
                         config.exampleForSnippet(snippet.toDocSnippet) match
                             case example: DocumentationKind.ExampleSnippet =>
-                                examples.accumulate(example)
+                                doc.accumulate(snippet, example)
                             case DocumentationKind.InterpretedSnippet(_) =>
-                                examples
+                                doc.accumulate(snippet)
                             case DocumentationKind.Raw =>
-                                examples // no doc to generate
-                    case block: Markdown.Raw => examples // no doc to generate
+                                doc.accumulate(snippet) // no doc to generate
+                    case raw: Markdown.Raw =>
+                        doc.accumulate(raw) // no doc to generate
+            .exampleSnippets
             .examples
 
         for example <- examples.values yield
@@ -207,8 +210,47 @@ object Yadladoc:
                     lines.foldLeft(Properties.empty): (props, line) =>
                         props.extendedWith(Properties.ofLine(line))
 
+private class DocumentationGeneration(
+    val markdownDecoration: MarkdownDecoration,
+    val exampleSnippets: ExampleSnippetMerger
+):
+    def accumulate(
+        markdownSnippet: Markdown.Snippet,
+        exampleSnippet: DocumentationKind.ExampleSnippet
+    ): DocumentationGeneration =
+        DocumentationGeneration(
+          markdownDecoration.accumulate(markdownSnippet),
+          exampleSnippets.accumulate(exampleSnippet)
+        )
+
+    def accumulate(markdownSnippet: Markdown.Snippet): DocumentationGeneration =
+        DocumentationGeneration(
+          markdownDecoration.accumulate(markdownSnippet),
+          exampleSnippets
+        )
+
+    def accumulate(markdownRaw: Markdown.Raw): DocumentationGeneration =
+        DocumentationGeneration(
+          markdownDecoration.accumulate(markdownRaw),
+          exampleSnippets
+        )
+
+private object DocumentationGeneration:
+    def init(config: Configuration): DocumentationGeneration =
+        DocumentationGeneration(
+          MarkdownDecoration.init,
+          ExampleSnippetMerger.init(config)
+        )
+
+private class MarkdownDecoration(private val blocks: Seq[Markdown.Block]):
+    def accumulate(block: Markdown.Block): MarkdownDecoration =
+        MarkdownDecoration(blocks :+ block)
+
+private object MarkdownDecoration:
+    def init = MarkdownDecoration(Seq.empty)
+
 private class ExampleSnippetMerger(
-    val config: Yadladoc.Configuration,
+    private val config: Yadladoc.Configuration,
     val examples: Map[String, Example]
 ):
     def accumulate(
@@ -242,5 +284,5 @@ private class ExampleSnippetMerger(
         )
 
 private object ExampleSnippetMerger:
-    def empty(config: Yadladoc.Configuration) =
+    def init(config: Yadladoc.Configuration) =
         ExampleSnippetMerger(config, Map.empty)
