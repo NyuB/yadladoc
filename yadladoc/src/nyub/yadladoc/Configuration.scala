@@ -10,9 +10,16 @@ val DEFAULT_LANGUAGE = Language.named("default")
 trait Configuration:
     def properties: Properties
     def configDir: Path
-    def includesDir: Path = properties.getPathOrDefault("ydoc.includesDir")(
-      configDir / "includes"
-    )
+    def includesDir: Path =
+        properties.getPathOrDefault("ydoc.includesDir")(configDir / "includes")
+
+    def snippetInjectionKey: String = "ydoc.snippet"
+
+    def exampleNameInjectionKey: String = "ydoc.exampleName"
+
+    def subExampleNameInjectionKey: String = "ydoc.subExampleName"
+
+    def exampleNamePropertyKey: String = "ydoc.example"
 
     def templateFile(templateId: TemplateId): Path =
         includesDir / s"${templateId}.template"
@@ -31,22 +38,6 @@ trait Configuration:
 
     def templateInjectionPostfix =
         properties.getOrDefault("ydoc.templateInjectionPostfix")("}}")
-
-    def snippetInjectionKey: String =
-        properties.getOrDefault("ydoc.snippetInjectionKey")("ydoc.snippet")
-
-    def exampleNameInjectionKey: String =
-        properties.getOrDefault("ydoc.exampleNameInjectionKey")(
-          "ydoc.exampleName"
-        )
-
-    def exampleNamePropertyKey: String = properties.getOrDefault(
-      "ydoc.exampleNamePropertyKey"
-    )("ydoc.example")
-
-    def subExampleNameInjectionKey: String = properties.getOrDefault(
-      "ydoc.subExampleNamePropertyKey"
-    )("ydoc.subExampleName")
 
     def documentationKindForSnippet(snippet: Snippet): DocumentationKind =
         snippet.properties
