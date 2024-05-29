@@ -1,6 +1,7 @@
 package nyub.yadladoc.app
 
 import nyub.yadladoc.Yadladoc
+import nyub.yadladoc.ConfigurationFromFile
 import java.nio.file.Paths
 
 @main def main(args: String*) =
@@ -31,7 +32,7 @@ import java.nio.file.Paths
         System.exit(1)
 
     val outputDir = Paths.get(".")
-    val yadladoc = Yadladoc(Yadladoc.ConfigurationFromFile(configDir))
+    val yadladoc = Yadladoc(ConfigurationFromFile(configDir))
     if command == "run" then
         val generated = yadladoc.run(outputDir, markdownFile)
         generated.foreach: g =>

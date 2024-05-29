@@ -20,7 +20,7 @@ class YadladocSuite
             ```
             """
 
-        Yadladoc(Yadladoc.ConfigurationFromFile(configDir))
+        Yadladoc(ConfigurationFromFile(configDir))
             .run(outputDir, markdownFile)
 
         outputDir.resolve("one.java") hasContent l"""
@@ -48,7 +48,7 @@ class YadladocSuite
             """
 
             val generatedFiles =
-                Yadladoc(Yadladoc.ConfigurationFromFile(configDir))
+                Yadladoc(ConfigurationFromFile(configDir))
                     .run(outputDir, markdownFile)
 
             generatedFiles.toList isEqualTo List(
@@ -87,7 +87,7 @@ class YadladocSuite
             new AwesomeClass().doAmazingStuff(); // Wunderbar !
             ```
             """
-            Yadladoc(Yadladoc.ConfigurationFromFile(configDir))
+            Yadladoc(ConfigurationFromFile(configDir))
                 .run(outputDir, markdownFile)
 
             outputDir.resolve("surround.java") hasContent l"""
@@ -105,7 +105,7 @@ class YadladocSuite
                 - A simple
                     * Markdown
             """
-            Yadladoc(Yadladoc.ConfigurationFromFile(configDir))
+            Yadladoc(ConfigurationFromFile(configDir))
                 .check(outputDir, markdownFile) isEqualTo List.empty
 
     testWithinYDocContext(
@@ -123,7 +123,7 @@ class YadladocSuite
             println("Hello world");
             """
 
-        Yadladoc(Yadladoc.ConfigurationFromFile(configDir))
+        Yadladoc(ConfigurationFromFile(configDir))
             .check(outputDir, markdownFile) isEqualTo List.empty
 
     testWithinYDocContext(
@@ -137,7 +137,7 @@ class YadladocSuite
             """
         makeFile(outputDir, "notTheOneYouExpected.java", "Some content")
 
-        Yadladoc(Yadladoc.ConfigurationFromFile(configDir))
+        Yadladoc(ConfigurationFromFile(configDir))
             .check(outputDir, markdownFile) containsExactlyInAnyOrder List(
           CheckErrors.MissingFile(p"ko.java")
         )
@@ -155,7 +155,7 @@ class YadladocSuite
               "txt.template",
               "${{ydoc.exampleName}}"
             )
-            Yadladoc(Yadladoc.ConfigurationFromFile(configDir))
+            Yadladoc(ConfigurationFromFile(configDir))
                 .run(outputDir, markdownFile)
 
             outputDir.resolve("a/b.txt") hasContent "a_b_txt"
@@ -181,7 +181,7 @@ class YadladocSuite
               "B.template",
               "// ${{ydoc.subExampleName}}"
             )
-            Yadladoc(Yadladoc.ConfigurationFromFile(configDir))
+            Yadladoc(ConfigurationFromFile(configDir))
                 .run(outputDir, markdownFile)
 
             outputDir.resolve("javaExample.java") hasContent l"""
@@ -205,7 +205,7 @@ class YadladocSuite
               "custom.template",
               "class Custom { ${{ydoc.snippet}} }"
             )
-            Yadladoc(Yadladoc.ConfigurationFromFile(configDir))
+            Yadladoc(ConfigurationFromFile(configDir))
                 .run(outputDir, markdownFile)
 
             outputDir.resolve(

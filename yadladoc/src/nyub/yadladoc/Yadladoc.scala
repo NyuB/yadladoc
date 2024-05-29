@@ -1,7 +1,6 @@
 package nyub.yadladoc
 
 import nyub.markdown.Markdown
-import nyub.yadladoc.Yadladoc.DocumentationKind
 import nyub.filesystem.{
     /,
     useLines,
@@ -12,11 +11,10 @@ import nyub.filesystem.{
 }
 import nyub.templating.{SurroundingTemplateInjection, TemplateInjection}
 
-import java.nio.file.{Path, Paths}
-import nyub.yadladoc.Yadladoc.Configuration
+import java.nio.file.Path
 
 class Yadladoc(
-    private val config: Yadladoc.Configuration,
+    private val config: Configuration,
     private val fileSystem: FileSystem = OsFileSystem()
 ):
     private val templating: TemplateInjection = SurroundingTemplateInjection(
@@ -124,165 +122,3 @@ class Yadladoc(
                                 expectedContent
                               )
                             )
-
-object Yadladoc:
-    val DEFAULT_LANGUAGE = Language.named("default")
-    trait Configuration:
-        def properties: Properties
-        def configDir: Path
-        def includesDir: Path = properties.getPathOrDefault("ydoc.includesDir")(
-          configDir / "includes"
-        )
-
-        def templateFile(templateId: TemplateId): Path =
-            includesDir / s"${templateId}.template"
-
-        def templateId(
-            language: Option[Language],
-            properties: Properties
-        ): TemplateId =
-            val id = properties.getOrDefault("ydoc.template")(
-              language.getOrElse(DEFAULT_LANGUAGE).name
-            )
-            TemplateId(id)
-
-        def templateInjectionPrefix =
-            properties.getOrDefault("ydoc.templateInjectionPrefix")("${{")
-
-        def templateInjectionPostfix =
-            properties.getOrDefault("ydoc.templateInjectionPostfix")("}}")
-
-        def snippetInjectionKey: String =
-            properties.getOrDefault("ydoc.snippetInjectionKey")("ydoc.snippet")
-
-        def exampleNameInjectionKey: String =
-            properties.getOrDefault("ydoc.exampleNameInjectionKey")(
-              "ydoc.exampleName"
-            )
-
-        def exampleNamePropertyKey: String = properties.getOrDefault(
-          "ydoc.exampleNamePropertyKey"
-        )("ydoc.example")
-
-        def subExampleNameInjectionKey: String = properties.getOrDefault(
-          "ydoc.subExampleNamePropertyKey"
-        )("ydoc.subExampleName")
-
-        def exampleForSnippet(snippet: Snippet): DocumentationKind =
-            snippet.properties
-                .get(exampleNamePropertyKey)
-                .filterNot(_.isBlank)
-                .map(DocumentationKind.ExampleSnippet(_, snippet))
-                .getOrElse(DocumentationKind.Raw)
-
-        def exampleFile(
-            exampleName: String,
-            exampleLanguage: Option[Language]
-        ): Path =
-            Paths.get(
-              s"${exampleName}"
-            )
-
-        def prefixTemplateIds(
-            snippet: Snippet
-        ): Iterable[TemplateId] =
-            snippet.properties.get("ydoc.prefix").toList.map(TemplateId(_))
-
-        def suffixTemplateIds(
-            snippet: Snippet
-        ): Iterable[TemplateId] =
-            snippet.properties.get("ydoc.suffix").toList.map(TemplateId(_))
-
-    enum DocumentationKind:
-        case ExampleSnippet(val name: String, val snippet: Snippet)
-        case InterpretedSnippet(val snippet: Snippet)
-        case Raw
-
-    case class ConfigurationFromFile(
-        override val configDir: Path,
-        private val storage: FileSystem = OsFileSystem()
-    ) extends Configuration:
-        override val properties: Properties =
-            val propertyFile = configDir / "ydoc.properties"
-            if !propertyFile.toFile().isFile() then Properties.empty
-            else
-                storage.useLines(propertyFile): lines =>
-                    lines.foldLeft(Properties.empty): (props, line) =>
-                        props.extendedWith(Properties.ofLine(line))
-
-private class DocumentationGeneration(
-    val markdownDecoration: MarkdownDecoration,
-    val exampleSnippets: ExampleSnippetMerger
-):
-    def accumulate(
-        markdownSnippet: Markdown.Snippet,
-        exampleSnippet: DocumentationKind.ExampleSnippet
-    ): DocumentationGeneration =
-        DocumentationGeneration(
-          markdownDecoration.accumulate(markdownSnippet),
-          exampleSnippets.accumulate(exampleSnippet)
-        )
-
-    def accumulate(markdownSnippet: Markdown.Snippet): DocumentationGeneration =
-        DocumentationGeneration(
-          markdownDecoration.accumulate(markdownSnippet),
-          exampleSnippets
-        )
-
-    def accumulate(markdownRaw: Markdown.Raw): DocumentationGeneration =
-        DocumentationGeneration(
-          markdownDecoration.accumulate(markdownRaw),
-          exampleSnippets
-        )
-
-private object DocumentationGeneration:
-    def init(config: Configuration): DocumentationGeneration =
-        DocumentationGeneration(
-          MarkdownDecoration.init,
-          ExampleSnippetMerger.init(config)
-        )
-
-private class MarkdownDecoration(private val blocks: Seq[Markdown.Block]):
-    def accumulate(block: Markdown.Block): MarkdownDecoration =
-        MarkdownDecoration(blocks :+ block)
-
-private object MarkdownDecoration:
-    def init = MarkdownDecoration(Seq.empty)
-
-private class ExampleSnippetMerger(
-    private val config: Yadladoc.Configuration,
-    val examples: Map[String, Example]
-):
-    def accumulate(
-        exampleSnippet: DocumentationKind.ExampleSnippet
-    ): ExampleSnippetMerger =
-        val updatedExamples = examples.updatedWith(exampleSnippet.name):
-            case None =>
-                Some(
-                  makeExample(exampleSnippet)
-                )
-            case Some(previous) =>
-                Some(previous.merge(makeExample(exampleSnippet)))
-        ExampleSnippetMerger(config, updatedExamples)
-
-    private def makeExample(
-        exampleSnippet: DocumentationKind.ExampleSnippet
-    ): Example =
-        val snippet = exampleSnippet.snippet
-        Example(
-          exampleSnippet.name,
-          config
-              .templateId(snippet.language, snippet.properties),
-          snippet.language,
-          List(
-            ExampleContent(
-              config.prefixTemplateIds(snippet),
-              snippet.lines,
-              config.suffixTemplateIds(snippet)
-            )
-          )
-        )
-
-private object ExampleSnippetMerger:
-    def init(config: Yadladoc.Configuration) =
-        ExampleSnippetMerger(config, Map.empty)
