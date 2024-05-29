@@ -41,16 +41,19 @@ class Yadladoc(
         markdownFile: Path,
         writeFs: FileSystem
     ): Iterable[GeneratedFile] =
-        val examples = snippets(markdownFile)
-            .foldLeft(ExampleSnippetMerger.empty(config)):
-                (examples, snippet) =>
-                    config.exampleForSnippet(snippet) match
-                        case example: DocumentationKind.ExampleSnippet =>
-                            examples.accumulate(example)
-                        case DocumentationKind.InterpretedSnippet(_) =>
-                            examples
-                        case DocumentationKind.Raw =>
-                            examples // no doc to generate
+        val examples = markdownFile
+            .useLines(Markdown.parse(_))
+            .foldLeft(ExampleSnippetMerger.empty(config)): (examples, block) =>
+                block match
+                    case snippet: Markdown.Snippet =>
+                        config.exampleForSnippet(snippet.toDocSnippet) match
+                            case example: DocumentationKind.ExampleSnippet =>
+                                examples.accumulate(example)
+                            case DocumentationKind.InterpretedSnippet(_) =>
+                                examples
+                            case DocumentationKind.Raw =>
+                                examples // no doc to generate
+                    case block: Markdown.Raw => examples // no doc to generate
             .examples
 
         for example <- examples.values yield
@@ -74,15 +77,13 @@ class Yadladoc(
           config.properties.toMap
         )
 
-    private def snippets(markdownFile: Path): Iterable[Snippet] = markdownFile
-        .useLines(Markdown.parse(_))
-        .collect:
-            case s: Markdown.Snippet =>
-                Snippet(
-                  s.header.language,
-                  s.lines,
-                  Properties.ofLine(s.header.afterLanguage)
-                )
+    extension (s: Markdown.Snippet)
+        private def toDocSnippet: Snippet =
+            Snippet(
+              s.header.language,
+              s.lines,
+              Properties.ofLine(s.header.afterLanguage)
+            )
 
     private def checkGeneratedFile(
         generated: GeneratedFile,
