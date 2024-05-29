@@ -208,14 +208,14 @@ private class ExampleSnippetMerger(
             case SnippetDocumentationKind.Ignore =>
                 this // no doc should be generated for this snippet
             case SnippetDocumentationKind.Example(exampleName) =>
-                val updatedSnippets = examples.updatedWith(exampleName):
+                val updatedExamples = examples.updatedWith(exampleName):
                     case None =>
                         Some(
                           makeExample(exampleName, snippet)
                         )
                     case Some(previous) =>
                         Some(previous.merge(makeExample(exampleName, snippet)))
-                ExampleSnippetMerger(config, updatedSnippets)
+                ExampleSnippetMerger(config, updatedExamples)
 
     private def makeExample(name: String, snippet: Snippet): Example =
         Example(
