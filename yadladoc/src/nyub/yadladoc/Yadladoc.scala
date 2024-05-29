@@ -1,7 +1,7 @@
 package nyub.yadladoc
 
 import nyub.markdown.Markdown
-import nyub.yadladoc.Yadladoc.SnippetDocumentationKind
+import nyub.yadladoc.Yadladoc.DocumentationKind
 import nyub.filesystem.{
     /,
     useLines,
@@ -42,7 +42,13 @@ class Yadladoc(
         writeFs: FileSystem
     ): Iterable[GeneratedFile] =
         val examples = snippets(markdownFile)
-            .foldLeft(ExampleSnippetMerger.empty(config))(_.accumulate(_))
+            .foldLeft(ExampleSnippetMerger.empty(config)):
+                (examples, snippet) =>
+                    config.exampleForSnippet(snippet) match
+                        case example: DocumentationKind.ExampleSnippet =>
+                            examples.accumulate(example)
+                        case DocumentationKind.Ignore =>
+                            examples // no doc to generate
             .examples
 
         for example <- examples.values yield
@@ -156,12 +162,12 @@ object Yadladoc:
           "ydoc.subExampleNamePropertyKey"
         )("ydoc.subExampleName")
 
-        def exampleForSnippet(snippet: Snippet): SnippetDocumentationKind =
+        def exampleForSnippet(snippet: Snippet): DocumentationKind =
             snippet.properties
                 .get(exampleNamePropertyKey)
                 .filterNot(_.isBlank)
-                .map(SnippetDocumentationKind.Example(_))
-                .getOrElse(SnippetDocumentationKind.Ignore)
+                .map(DocumentationKind.ExampleSnippet(_, snippet))
+                .getOrElse(DocumentationKind.Ignore)
 
         def exampleFile(
             exampleName: String,
@@ -181,8 +187,8 @@ object Yadladoc:
         ): Iterable[TemplateId] =
             snippet.properties.get("ydoc.suffix").toList.map(TemplateId(_))
 
-    enum SnippetDocumentationKind:
-        case Example(val name: String)
+    enum DocumentationKind:
+        case ExampleSnippet(val name: String, val snippet: Snippet)
         case Ignore
 
     case class ConfigurationFromFile(
@@ -201,25 +207,24 @@ private class ExampleSnippetMerger(
     val config: Yadladoc.Configuration,
     val examples: Map[String, Example]
 ):
-    def accumulate(snippet: Snippet): ExampleSnippetMerger =
-        val ydocExample = config.exampleForSnippet(snippet)
+    def accumulate(
+        exampleSnippet: DocumentationKind.ExampleSnippet
+    ): ExampleSnippetMerger =
+        val updatedExamples = examples.updatedWith(exampleSnippet.name):
+            case None =>
+                Some(
+                  makeExample(exampleSnippet)
+                )
+            case Some(previous) =>
+                Some(previous.merge(makeExample(exampleSnippet)))
+        ExampleSnippetMerger(config, updatedExamples)
 
-        ydocExample match
-            case SnippetDocumentationKind.Ignore =>
-                this // no doc should be generated for this snippet
-            case SnippetDocumentationKind.Example(exampleName) =>
-                val updatedExamples = examples.updatedWith(exampleName):
-                    case None =>
-                        Some(
-                          makeExample(exampleName, snippet)
-                        )
-                    case Some(previous) =>
-                        Some(previous.merge(makeExample(exampleName, snippet)))
-                ExampleSnippetMerger(config, updatedExamples)
-
-    private def makeExample(name: String, snippet: Snippet): Example =
+    private def makeExample(
+        exampleSnippet: DocumentationKind.ExampleSnippet
+    ): Example =
+        val snippet = exampleSnippet.snippet
         Example(
-          name,
+          exampleSnippet.name,
           config
               .templateId(snippet.language, snippet.properties),
           snippet.language,
