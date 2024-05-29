@@ -47,7 +47,9 @@ class Yadladoc(
                     config.exampleForSnippet(snippet) match
                         case example: DocumentationKind.ExampleSnippet =>
                             examples.accumulate(example)
-                        case DocumentationKind.Ignore =>
+                        case DocumentationKind.InterpretedSnippet(_) =>
+                            examples
+                        case DocumentationKind.Raw =>
                             examples // no doc to generate
             .examples
 
@@ -167,7 +169,7 @@ object Yadladoc:
                 .get(exampleNamePropertyKey)
                 .filterNot(_.isBlank)
                 .map(DocumentationKind.ExampleSnippet(_, snippet))
-                .getOrElse(DocumentationKind.Ignore)
+                .getOrElse(DocumentationKind.Raw)
 
         def exampleFile(
             exampleName: String,
@@ -189,7 +191,8 @@ object Yadladoc:
 
     enum DocumentationKind:
         case ExampleSnippet(val name: String, val snippet: Snippet)
-        case Ignore
+        case InterpretedSnippet(val snippet: Snippet)
+        case Raw
 
     case class ConfigurationFromFile(
         override val configDir: Path,
