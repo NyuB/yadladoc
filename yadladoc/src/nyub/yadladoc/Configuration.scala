@@ -21,6 +21,8 @@ trait Configuration:
 
     def exampleNamePropertyKey: String = "ydoc.example"
 
+    def interpreterIdPropertyKey: String = "ydoc.interpreter"
+
     def templateFile(templateId: TemplateId): Path =
         includesDir / s"${templateId}.template"
 
@@ -44,7 +46,12 @@ trait Configuration:
             .get(exampleNamePropertyKey)
             .filterNot(_.isBlank)
             .map(DocumentationKind.ExampleSnippet(_, snippet))
-            .getOrElse(DocumentationKind.Raw)
+            .getOrElse:
+                snippet.properties
+                    .get(interpreterIdPropertyKey)
+                    .filterNot(_.isBlank)
+                    .map(_ => DocumentationKind.InterpretedSnippet(snippet))
+                    .getOrElse(DocumentationKind.Raw)
 
     def exampleFile(
         exampleName: String,
