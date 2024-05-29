@@ -72,7 +72,9 @@ class Yadladoc(
         markdown.foldLeft(DocumentationGeneration.init(config)): (doc, block) =>
             block match
                 case snippet: Markdown.Snippet =>
-                    config.exampleForSnippet(snippet.toDocSnippet) match
+                    config.documentationKindForSnippet(
+                      snippet.toDocSnippet
+                    ) match
                         case example: DocumentationKind.ExampleSnippet =>
                             doc.addExampleSnippet(snippet, example)
                         case DocumentationKind.InterpretedSnippet(_) =>

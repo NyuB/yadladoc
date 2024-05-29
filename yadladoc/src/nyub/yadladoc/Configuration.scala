@@ -48,7 +48,7 @@ trait Configuration:
       "ydoc.subExampleNamePropertyKey"
     )("ydoc.subExampleName")
 
-    def exampleForSnippet(snippet: Snippet): DocumentationKind =
+    def documentationKindForSnippet(snippet: Snippet): DocumentationKind =
         snippet.properties
             .get(exampleNamePropertyKey)
             .filterNot(_.isBlank)
