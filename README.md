@@ -204,27 +204,7 @@ Each [github release](https://github.com/NyuB/yadladoc/releases/) contains an ex
 
 ## Contribute
 
+Pull requests and issues welcome !
+
+### Entry points
 [YadladocSuite](yadladoc/test/src/nyub/yadladoc/YadladocSuite.scala) groups the high level 'end to end' tests an should be a good entrypoint to have an overview of the current features.
-
-### Reading the tests
-Most tests are written with a thin wrapper around munit assertions in a 'state what you expect' style.
-Statements like these:
-```scala ydoc.example=assert_extensions/test/src/nyub/assert/examples/assertions.scala ydoc.prefix=test
-        42 isEqualTo 42
-```
-Are equivalent to
-```scala ydoc.example=assert_extensions/test/src/nyub/assert/examples/assertions.scala
-        assertEquals(42, 42)
-```
-
-Since Yadladoc produces files, tests in YadladocSuite make heavy usage of `hasContent`:
-```scala ydoc.example=assert_extensions/test/src/nyub/assert/examples/assertions.scala ydoc.prefix=test
-        val file = Files.createTempDirectory("test").resolve("ok.txt")
-        Files.writeString(file, "Line1\nLine2")
-        file hasContent "Line1\nLine2" // entire content
-        file hasContent List("Line1", "Line2") // line by line
-```
-equivalent to
-```scala ydoc.example=assert_extensions/test/src/nyub/assert/examples/assertions.scala
-        assertEquals(Files.readString(file), "Line1\nLine2")
-```
