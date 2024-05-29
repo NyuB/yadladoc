@@ -41,19 +41,7 @@ class Yadladoc(
         writeFs: FileSystem
     ): Iterable[GeneratedFile] =
         val examples = markdownFile
-            .useLines(Markdown.parse(_))
-            .foldLeft(DocumentationGeneration.init(config)): (doc, block) =>
-                block match
-                    case snippet: Markdown.Snippet =>
-                        config.exampleForSnippet(snippet.toDocSnippet) match
-                            case example: DocumentationKind.ExampleSnippet =>
-                                doc.accumulate(snippet, example)
-                            case DocumentationKind.InterpretedSnippet(_) =>
-                                doc.accumulate(snippet)
-                            case DocumentationKind.Raw =>
-                                doc.accumulate(snippet) // no doc to generate
-                    case raw: Markdown.Raw =>
-                        doc.accumulate(raw) // no doc to generate
+            .useLines(lines => dogGenFromMarkdown(Markdown.parse(lines)))
             .exampleSnippets
             .examples
 
@@ -77,6 +65,22 @@ class Yadladoc(
           config.subExampleNameInjectionKey,
           config.properties.toMap
         )
+
+    private def dogGenFromMarkdown(
+        markdown: Iterable[Markdown.Block]
+    ): DocumentationGeneration =
+        markdown.foldLeft(DocumentationGeneration.init(config)): (doc, block) =>
+            block match
+                case snippet: Markdown.Snippet =>
+                    config.exampleForSnippet(snippet.toDocSnippet) match
+                        case example: DocumentationKind.ExampleSnippet =>
+                            doc.accumulate(snippet, example)
+                        case DocumentationKind.InterpretedSnippet(_) =>
+                            doc.accumulate(snippet)
+                        case DocumentationKind.Raw =>
+                            doc.accumulate(snippet) // no doc to generate
+                case raw: Markdown.Raw =>
+                    doc.accumulate(raw) // no doc to generate
 
     extension (s: Markdown.Snippet)
         private def toDocSnippet: Snippet =
