@@ -40,21 +40,31 @@ class Yadladoc(
         markdownFile: Path,
         writeFs: FileSystem
     ): Iterable[GeneratedFile] =
-        val examples = markdownFile
-            .useLines(lines => dogGenFromMarkdown(Markdown.parse(lines)))
-            .exampleSnippets
-            .examples
+        val markdownLines = markdownFile.useLines(_.toSeq)
+        val docGen = dogGenFromMarkdown(Markdown.parse(markdownLines))
 
-        for example <- examples.values yield
-            val fullExample = buildFullExample(example)
-            val exampleFile = config.exampleFile(example.name, example.language)
+        val generatedExamples =
+            for example <- docGen.exampleSnippets.examples.values yield
+                val fullExample = buildFullExample(example)
+                val exampleFile =
+                    config.exampleFile(example.name, example.language)
 
-            writeFs.writeContent(
-              outputDir / exampleFile,
-              fullExample.mkString("\n")
-            )
+                writeFs.writeContent(
+                  outputDir / exampleFile,
+                  fullExample.mkString("\n")
+                )
 
-            GeneratedFile(exampleFile, markdownFile)
+                GeneratedFile(exampleFile, markdownFile)
+        val decoratedMarkdownLines = docGen.markdownDecoration.decoratedLines
+        if decoratedMarkdownLines == markdownLines then generatedExamples
+        else
+            generatedExamples.toSeq :+ {
+                writeFs.writeContent(
+                  markdownFile,
+                  decoratedMarkdownLines.mkString("\n")
+                )
+                GeneratedFile(markdownFile, markdownFile)
+            }
 
     private def buildFullExample(example: Example) =
         example.build(

@@ -40,6 +40,8 @@ private class MarkdownDecoration(private val blocks: Seq[Markdown.Block]):
     def accumulate(block: Markdown.Block): MarkdownDecoration =
         MarkdownDecoration(blocks :+ block)
 
+    def decoratedLines = Markdown.toLines(blocks)
+
 private object MarkdownDecoration:
     def init = MarkdownDecoration(Seq.empty)
 
