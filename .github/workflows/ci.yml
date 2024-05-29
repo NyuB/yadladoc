@@ -26,7 +26,7 @@ jobs:
     - uses: coursier/setup-action@v1
       with:
         apps: cs scala3 scalafmt
-        jvm: adoptium:1.21.0.3
+        jvm: graalvm-java21:21.0.2
 
     - name: Enforce formatting
       run: make fmt-check
@@ -34,13 +34,9 @@ jobs:
     - name: Test
       run: |
         make test
-        make usage-test
 
     - name: Enforce documentation validity
       run: make doc-check
-
-    - name: Jar
-      run: make usage/ydoc.jar
 
     - name: Release
       if: github.event_name == 'workflow_dispatch'

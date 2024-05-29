@@ -3,11 +3,12 @@ package nyub.interpreter
 import jdk.jshell.{EvalException, JShell, Snippet, SnippetEvent}
 import jdk.jshell.Snippet.Status.{REJECTED, VALID}
 import java.util.Locale
+import java.lang.ref.Cleaner
 
 /** Java interpreter backed by a [[jdk.jshell.JShell]] instance
   */
-class JShellInterpreter extends Interpreter:
-    private val shell = JShell.create()
+class JShellInterpreter extends Interpreter with AutoCloseable:
+    private val shell = JShell.builder().executionEngine("local").build()
     // If not adding the current class path manually, jshell appears to be limited to jdk classes in test suites
     shell.addToClasspath(System.getProperty("java.class.path"))
 
@@ -59,6 +60,11 @@ class JShellInterpreter extends Interpreter:
     private def diagnostics(snippet: Snippet): Seq[String] =
         shell.diagnostics(snippet).map(_.getMessage(Locale.getDefault())).toSeq
 
+    private val clean: Cleaner.Cleanable =
+        JShellInterpreter.cleaner.register(this, () => this.shell.close())
+
+    override def close(): Unit = clean.clean()
+
     extension [T](jl: java.util.List[T])
         private def toSeq: Seq[T] =
             val l = scala.collection.mutable.ArrayBuffer[T]()
@@ -73,3 +79,5 @@ class JShellInterpreter extends Interpreter:
 
 object JShellInterpreter extends InterpreterFactory:
     def create(): JShellInterpreter = JShellInterpreter()
+
+    private val cleaner = Cleaner.create()
