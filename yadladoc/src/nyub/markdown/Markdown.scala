@@ -4,8 +4,28 @@ import nyub.yadladoc.Language
 import scala.annotation.targetName
 
 object Markdown:
+    /** @param blocks
+      *   markdown elements' representation
+      * @return
+      *   the `blocks` as raw lines, one string per line
+      */
     def toLines(blocks: Seq[Block]): Iterable[String] =
         blocks.flatMap(_.toLines)
+
+    /** @param input
+      *   markdown lines
+      * @return
+      *   `input` parsed as markdown elements
+      */
+    def parse(input: Iterable[String]): Seq[Block] =
+        input
+            .foldLeft(BlockParsing.Init.asInstanceOf[BlockParsing]):
+                (acc, item) => acc.parse(item)
+        match
+            case BlockParsing.Init        => Seq.empty
+            case r: BlockParsing.RawBlock => r.get()
+            case s: BlockParsing.SnippetBlock =>
+                throw IllegalStateException("Unclosed code snippet parsing")
 
     sealed trait Block:
         private[Markdown] def toLines: Iterable[String]
@@ -79,16 +99,6 @@ object Markdown:
         def prefix(line: String): Prefix =
             val length = line.takeWhile(_ == PREFIX_CHAR).length()
             Prefix(length)
-
-    def parse(input: Iterable[String]): Seq[Block] =
-        input
-            .foldLeft(BlockParsing.Init.asInstanceOf[BlockParsing]):
-                (acc, item) => acc.parse(item)
-        match
-            case BlockParsing.Init        => Seq.empty
-            case r: BlockParsing.RawBlock => r.get()
-            case s: BlockParsing.SnippetBlock =>
-                throw IllegalStateException("Unclosed code snippet parsing")
 
     private trait BlockParsing:
         def parse(line: String): BlockParsing
