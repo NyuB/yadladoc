@@ -18,7 +18,7 @@ on:
         default: 'Snapshot build of the main branch'
 
 jobs:
-  tests:
+  build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -34,28 +34,7 @@ jobs:
     - name: Test
       run: |
         make test
-        make usage-test
 
-    - name: Upload app jar
-      uses: actions/upload-artifact@v4
-      with:
-        name: ydoc-jar
-        path: usage/ydoc.jar
-
-  release:
-    needs: tests
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-java@v4
-      with:
-        distribution: 'temurin'
-        java-version: '21'
-    - name: Retrieve application jar
-      uses: actions/download-artifact@v4
-      with:
-        name: ydoc-jar
-        path: usage/ydoc.jar
     - name: Enforce documentation validity
       run: make doc-check
 

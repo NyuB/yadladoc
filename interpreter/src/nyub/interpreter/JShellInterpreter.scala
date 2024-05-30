@@ -7,7 +7,7 @@ import java.util.Locale
 /** Java interpreter backed by a [[jdk.jshell.JShell]] instance
   */
 class JShellInterpreter extends Interpreter:
-    private val shell = JShell.create()
+    private val shell = JShell.builder().executionEngine("local").build()
     // If not adding the current class path manually, jshell appears to be limited to jdk classes in test suites
     shell.addToClasspath(System.getProperty("java.class.path"))
 

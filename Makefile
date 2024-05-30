@@ -30,7 +30,7 @@ $(YDOC_JAR):
 	$(MILLW) yadladoc_app.ydocJar
 
 doc-check: $(YDOC_JAR)
-	java -cp $(YDOC_JAR) nyub.yadladoc.app.main check README.md 
+	java -jar $(YDOC_JAR) check README.md 
 doc-gen: $(YDOC_JAR)
 	java -jar $(YDOC_JAR) run README.md
 
