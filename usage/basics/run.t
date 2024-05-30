@@ -49,11 +49,11 @@ It will fail on files with mismatching content
   Expected
   vvvvvvv
   import org.junit.jupiter.api.Test;
-  import static org.junit.jupiter.api.Assertions.assertNumberEquals;
+  import static org.junit.jupiter.api.Assertions.assertEquals;
   class Test {
       @Test
       void test() {
-          assertNumberEquals(42, 21 * 2);
+          assertEquals(42, 21 * 2);
       }
   }
   

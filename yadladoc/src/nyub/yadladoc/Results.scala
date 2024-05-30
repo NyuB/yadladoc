@@ -40,7 +40,7 @@ object CheckErrors:
             s"""File '${fileName}' has mismatching content with what would have been generated
 Expected
 vvvvvvv
-${actualContent}
+${expectedContent}
 ^^^^^^^
 
 Actual
