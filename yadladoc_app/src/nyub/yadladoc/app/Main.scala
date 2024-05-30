@@ -36,7 +36,7 @@ import java.nio.file.Paths
     if command == "run" then
         val generated = yadladoc.run(outputDir, markdownFile)
         generated.foreach: g =>
-            println(s"Generated ${g.file} from ${g.from}")
+            println(s"Generated ${g.short} from ${g.from}")
     else if command == "check" then
         val errors = yadladoc.check(outputDir, markdownFile)
         if !errors.isEmpty then

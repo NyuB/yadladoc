@@ -31,7 +31,7 @@ class Yadladoc(
 
         val generated = run(checkDir, markdownFile, checkFs)
         generated
-            .map(checkGeneratedFile(_, outputDir, checkFs, checkDir))
+            .map(checkGeneratedFile(_, outputDir, checkFs))
             .flatMap(_.toList)
             .toList
 
@@ -54,7 +54,7 @@ class Yadladoc(
                   fullExample.mkString("\n")
                 )
 
-                GeneratedFile(exampleFile, markdownFile)
+                GeneratedFile(Some(outputDir), exampleFile, markdownFile)
         val decoratedMarkdownLines = docGen.markdownDecoration.decoratedLines
         if decoratedMarkdownLines == markdownLines then generatedExamples
         else
@@ -63,7 +63,7 @@ class Yadladoc(
                   markdownFile,
                   decoratedMarkdownLines.mkString("\n")
                 )
-                GeneratedFile(markdownFile, markdownFile)
+                GeneratedFile(None, markdownFile, markdownFile)
             }
 
     private def buildFullExample(example: Example) =
@@ -115,11 +115,10 @@ class Yadladoc(
     private def checkGeneratedFile(
         generated: GeneratedFile,
         outputDir: Path,
-        checkFs: FileSystem,
-        checkDir: Path
+        checkFs: FileSystem
     ): Option[Errors] =
-        val actualFile = fileSystem.toFileTree(outputDir / generated.file)
-        val checkFile = checkFs.toFileTree(checkDir / generated.file)
+        val actualFile = fileSystem.toFileTree(outputDir / generated.short)
+        val checkFile = checkFs.toFileTree(generated.full)
 
         actualFile -> checkFile match
             case _ -> None =>
@@ -132,9 +131,9 @@ class Yadladoc(
                 )
             case actual -> Some(FileTree.File(expected)) =>
                 actual match
-                    case None => Some(CheckErrors.MissingFile(generated.file))
+                    case None => Some(CheckErrors.MissingFile(generated.short))
                     case Some(FileTree.Dir(_)) =>
-                        Some(CheckErrors.MissingFile(generated.file))
+                        Some(CheckErrors.MissingFile(generated.short))
                     case Some(FileTree.File(af)) =>
                         val actualContent = fileSystem.content(af)
                         val expectedContent =
@@ -143,7 +142,7 @@ class Yadladoc(
                         else
                             Some(
                               CheckErrors.MismatchingContent(
-                                generated.file,
+                                generated.short,
                                 actualContent,
                                 expectedContent
                               )

@@ -53,10 +53,12 @@ class YadladocSuite
 
             generatedFiles.toList isEqualTo List(
               GeneratedFile(
+                Some(outputDir),
                 p"kotlin-list-example.kt",
                 markdownFile
               ),
               GeneratedFile(
+                Some(outputDir),
                 p"kotlin-class-example.kt",
                 markdownFile
               )
