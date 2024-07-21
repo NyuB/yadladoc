@@ -34,37 +34,41 @@ jobs:
     - name: Test
       run: make test
 
-  doc-check:
-    # doc-check tasks on linux github runners encountered the following error with JShell:
+  package:
+    # ydoc.jar built on linux github runners encountered the following error with JShell:
     # "java.lang.NullPointerException: Cannot invoke "com.sun.tools.javac.code.Scope$StarImportScope.isFilled()" because "tree.starImportScope" is null"
-    # therefore, we use a windows runner for this specific task
+    # therefore, we use a windows runner to build the jar and execute doc check tasks
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v4
-    - uses: coursier/cache-action@v6
-    - uses: coursier/setup-action@v1
-      with:
-        apps: cs scala3 scalafmt
-        jvm: graalvm-java21:21.0.2
+      - uses: actions/checkout@v4
+      - uses: coursier/cache-action@v6
+      - uses: coursier/setup-action@v1
+        with:
+          apps: cs scala3 scalafmt
+          jvm: graalvm-java21:21.0.2
 
-    - name: Enforce documentation validity
-      run: make doc-check
+      - name: Package
+        run: make usage/ydoc.jar
+  
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ydoc.jar
+          path: usage/ydoc.jar
+          if-no-files-found: error
+          retention-days: 1
+    
+      - name: Enforce documentation validity
+        run: make doc-check
   
   release:
     runs-on: ubuntu-latest
-    needs: [test, doc-check]
+    needs: [test, package]
     if: github.event_name == 'workflow_dispatch'
     steps:
-    - uses: actions/checkout@v4
-    - uses: coursier/cache-action@v6
-    - uses: coursier/setup-action@v1
+    - uses: actions/download-artifact@v4
       with:
-        apps: cs scala3 scalafmt
-        jvm: graalvm-java21:21.0.2
-
-    - name: Package
-      # TODO could be retrieved from and earlier job
-      run: make usage/ydoc.jar
+        name: ydoc.jar
+        path: usage/
 
     - name: Release
       uses: softprops/action-gh-release@v2
