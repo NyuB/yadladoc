@@ -18,7 +18,7 @@ on:
         default: 'Snapshot build of the main branch'
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -32,14 +32,41 @@ jobs:
       run: make fmt-check
 
     - name: Test
-      run: |
-        make test
+      run: make test
+
+  doc-check:
+    # doc-check tasks on linux github runners encountered the following error with JShell:
+    # "java.lang.NullPointerException: Cannot invoke "com.sun.tools.javac.code.Scope$StarImportScope.isFilled()" because "tree.starImportScope" is null"
+    # therefore, we use a windows runner for this specific task
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: coursier/cache-action@v6
+    - uses: coursier/setup-action@v1
+      with:
+        apps: cs scala3 scalafmt
+        jvm: graalvm-java21:21.0.2
 
     - name: Enforce documentation validity
-      run: make doc-check IN_DOCKER=true
+      run: make doc-check
+  
+  release:
+    runs-on: ubuntu-latest
+    needs: [test, doc-check]
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+    - uses: actions/checkout@v4
+    - uses: coursier/cache-action@v6
+    - uses: coursier/setup-action@v1
+      with:
+        apps: cs scala3 scalafmt
+        jvm: graalvm-java21:21.0.2
+
+    - name: Package
+      # TODO could be retrieved from and earlier job
+      run: make usage/ydoc.jar
 
     - name: Release
-      if: github.event_name == 'workflow_dispatch'
       uses: softprops/action-gh-release@v2
       with:
         name: ${{ github.event.inputs.name }}
