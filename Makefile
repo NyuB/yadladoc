@@ -1,18 +1,18 @@
 ifeq ($(OS), Windows_NT)
 # Project paths
 	MILLW=millw
-	YDOC_JAR=usage\ydoc.jar
 # Shell commands
 	CP=copy
 	RM=del
 else
 # Project paths
 	MILLW=./millw
-	YDOC_JAR=usage/ydoc.jar
 # Shell commands
 	CP=cp
 	RM=rm
 endif
+YDOC_JAR=usage/ydoc.jar
+
 
 .PHONY: dev test ydoc.jar doc-check doc-gen fmt fmt-check clean
 
@@ -29,10 +29,16 @@ usage-update: $(YDOC_JAR)
 $(YDOC_JAR):
 	$(MILLW) yadladoc_app.ydocJar
 
+DOCKER_WRAPPER=docker run -v $(CURDIR):/workspace -w /workspace eclipse-temurin:21
+ifeq ($(IN_DOCKER), true)
+	DOC_JAVA_JAR=$(DOCKER_WRAPPER) java -jar $(YDOC_JAR)
+else
+	DOC_JAVA_JAR=java -jar $(YDOC_JAR)
+endif
 doc-check: $(YDOC_JAR)
-	java -jar $(YDOC_JAR) check README.md 
+	$(DOC_JAVA_JAR) check README.md
 doc-gen: $(YDOC_JAR)
-	java -jar $(YDOC_JAR) run README.md
+	$(DOC_JAVA_JAR) run README.md
 
 javadoc:
 	millw assert_extensions.docJar + filesystem.docJar + interpreter.docJar + yadladoc.docJar + yadladoc_app.docJar

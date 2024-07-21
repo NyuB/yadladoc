@@ -36,7 +36,7 @@ jobs:
         make test
 
     - name: Enforce documentation validity
-      run: make doc-check
+      run: make doc-check IN_DOCKER=true
 
     - name: Release
       if: github.event_name == 'workflow_dispatch'
