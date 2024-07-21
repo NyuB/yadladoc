@@ -65,6 +65,6 @@ then they are the same"""):
                 os.writeContent(osPath, content.s)
                 ram.writeContent(ramPath, content.s)
             val diff = DirectoryDiffer(os, ram).diff(temp, Paths.get("/"))
-            diff isEqualTo DirectoryDiff.SAME
+            diff `is equal to` DirectoryDiff.SAME
 
 end FileSystemSuite

@@ -3,11 +3,11 @@ package nyub.assert
 import java.nio.file.{Files, Path}
 trait AssertExtensions extends munit.Assertions:
     extension [T](t: T)
-        infix def isEqualTo(other: T): Unit =
+        infix def `is equal to`(other: T): Unit =
             assertEquals(t, other)
 
     extension [T](l: Iterable[T])
-        infix def containsExactlyInAnyOrder(expected: Iterable[T]): Unit =
+        infix def `contains exactly in any order`(expected: Iterable[T]): Unit =
             assertEquals(
               l.size,
               expected.size,
@@ -22,13 +22,13 @@ trait AssertExtensions extends munit.Assertions:
             )
 
     extension (s: String)
-        infix def isEqualToLines(lines: Iterable[String]): Unit =
+        infix def `is equal to lines`(lines: Iterable[String]): Unit =
             assertEquals(s, lines.mkString("\n"))
 
     extension (p: Path)
-        infix def hasContent(content: String): Unit =
+        infix def `has content`(content: String): Unit =
             assertEquals(p.toFile().isFile(), true, s"$p is not a file")
-            Files.readString(p) isEqualTo content
+            Files.readString(p) `is equal to` content
 
-        infix def hasContent(content: Iterable[String]): Unit =
-            p hasContent content.mkString("\n")
+        infix def `has content`(content: Iterable[String]): Unit =
+            p `has content` content.mkString("\n")

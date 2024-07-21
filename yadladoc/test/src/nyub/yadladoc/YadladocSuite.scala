@@ -23,7 +23,7 @@ class YadladocSuite
         Yadladoc(ConfigurationFromFile(configDir))
             .run(outputDir, markdownFile)
 
-        outputDir.resolve("one.java") hasContent l"""
+        outputDir.resolve("one.java") `has content` l"""
             package com.example;
             class HelloYadladoc { }
             """
@@ -51,7 +51,7 @@ class YadladocSuite
                 Yadladoc(ConfigurationFromFile(configDir))
                     .run(outputDir, markdownFile)
 
-            generatedFiles.toList isEqualTo List(
+            generatedFiles.toList `is equal to` List(
               GeneratedFile(
                 Some(outputDir),
                 p"kotlin-list-example.kt",
@@ -64,7 +64,7 @@ class YadladocSuite
               )
             )
 
-            outputDir.resolve("kotlin-list-example.kt") hasContent l"""
+            outputDir.resolve("kotlin-list-example.kt") `has content` l"""
             package com.example
             fun main() {
                 val myList = listOf(1, 2, 3)
@@ -73,7 +73,7 @@ class YadladocSuite
             }
             """
 
-            outputDir.resolve("kotlin-class-example.kt") hasContent l"""
+            outputDir.resolve("kotlin-class-example.kt") `has content` l"""
             package com.example
             fun main() {
                 class SoCool(val coolnessLevel: Int)
@@ -92,7 +92,7 @@ class YadladocSuite
             Yadladoc(ConfigurationFromFile(configDir))
                 .run(outputDir, markdownFile)
 
-            outputDir.resolve("surround.java") hasContent l"""
+            outputDir.resolve("surround.java") `has content` l"""
         package com.example;
         import com.awesome.lib.AwesomeClass;
         new AwesomeClass().doAmazingStuff(); // Wunderbar !
@@ -108,7 +108,7 @@ class YadladocSuite
                     * Markdown
             """
             Yadladoc(ConfigurationFromFile(configDir))
-                .check(outputDir, markdownFile) isEqualTo List.empty
+                .check(outputDir, markdownFile) `is equal to` List.empty
 
     testWithinYDocContext(
       "Check ok if generated files are already there and matching"
@@ -126,7 +126,7 @@ class YadladocSuite
             """
 
         Yadladoc(ConfigurationFromFile(configDir))
-            .check(outputDir, markdownFile) isEqualTo List.empty
+            .check(outputDir, markdownFile) `is equal to` List.empty
 
     testWithinYDocContext(
       "Report errors if a generated file is missing"
@@ -140,7 +140,10 @@ class YadladocSuite
         makeFile(outputDir, "notTheOneYouExpected.java", "Some content")
 
         Yadladoc(ConfigurationFromFile(configDir))
-            .check(outputDir, markdownFile) containsExactlyInAnyOrder List(
+            .check(
+              outputDir,
+              markdownFile
+            ) `contains exactly in any order` List(
           CheckErrors.MissingFile(p"ko.java")
         )
 
@@ -160,7 +163,7 @@ class YadladocSuite
             Yadladoc(ConfigurationFromFile(configDir))
                 .run(outputDir, markdownFile)
 
-            outputDir.resolve("a/b.txt") hasContent "a_b_txt"
+            outputDir.resolve("a/b.txt") `has content` "a_b_txt"
 
     testWithinYDocContext("Indexed example part name available in template"):
         (outputDir, configDir, workingDir) =>
@@ -186,7 +189,7 @@ class YadladocSuite
             Yadladoc(ConfigurationFromFile(configDir))
                 .run(outputDir, markdownFile)
 
-            outputDir.resolve("javaExample.java") hasContent l"""
+            outputDir.resolve("javaExample.java") `has content` l"""
             package com.example;
             // javaExample_java_0
             class A {}
@@ -212,7 +215,7 @@ class YadladocSuite
 
             outputDir.resolve(
               "javaExample.java"
-            ) hasContent """class Custom { String s = "Hello"; }"""
+            ) `has content` """class Custom { String s = "Hello"; }"""
 
     testWithinYDocContext("In-place markdown decoration"):
         (outputDir, configDir, workingDir) =>
@@ -224,7 +227,7 @@ class YadladocSuite
                 """
             Yadladoc(ConfigurationFromFile(configDir))
                 .run(outputDir, markdownFile)
-            markdownFile hasContent l"""
+            markdownFile `has content` l"""
             ```java ydoc.interpreter=jshell
             java.util.List.of(1,2,3)
             //> [1, 2, 3]

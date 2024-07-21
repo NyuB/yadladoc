@@ -10,7 +10,7 @@ class DirectoryDiffSuite extends munit.FunSuite with AssertExtensions:
         val dirA = fs.createTempDirectory("A")
         val dirB = fs.createTempDirectory("B")
 
-        differ.diff(dirA, dirB) isEqualTo DirectoryDiff.SAME
+        differ.diff(dirA, dirB) `is equal to` DirectoryDiff.SAME
 
     test("Single file in A, nothing in B"):
         given fs: FileSystem = InMemoryFileSystem.init()
@@ -19,7 +19,7 @@ class DirectoryDiffSuite extends munit.FunSuite with AssertExtensions:
 
         touch(dirA, "a.txt")
 
-        differ.diff(dirA, dirB) isEqualTo DirectoryDiff(
+        differ.diff(dirA, dirB) `is equal to` DirectoryDiff(
           Set(p"a.txt"),
           Set.empty,
           Set.empty
@@ -35,7 +35,7 @@ class DirectoryDiffSuite extends munit.FunSuite with AssertExtensions:
         touch(dirA / "common", "shared.txt")
         touch(dirB / "common", "shared.txt")
 
-        differ.diff(dirA, dirB) isEqualTo DirectoryDiff(
+        differ.diff(dirA, dirB) `is equal to` DirectoryDiff(
           Set(p"a.txt"),
           Set(p"onlyB/b.txt"),
           Set.empty
@@ -49,7 +49,7 @@ class DirectoryDiffSuite extends munit.FunSuite with AssertExtensions:
         writeFile(dirA, "content.txt", "AAA")
         writeFile(dirB, "content.txt", "BBB")
 
-        differ.diff(dirA, dirB) isEqualTo DirectoryDiff(
+        differ.diff(dirA, dirB) `is equal to` DirectoryDiff(
           Set.empty,
           Set.empty,
           Set(p"content.txt")

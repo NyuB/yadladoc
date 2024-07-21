@@ -11,7 +11,7 @@ class MarkdownSuite
     test("Parses empty lines"):
         val input = List.empty[String]
         val parsed = nyub.markdown.Markdown.parse(input)
-        parsed isEqualTo List.empty
+        parsed `is equal to` List.empty
 
     test("Only raw markdown"):
         val input = l"""
@@ -20,7 +20,7 @@ class MarkdownSuite
         ## Subtitle
         Text
         """
-        nyub.markdown.Markdown.parse(input) isEqualTo Seq(
+        nyub.markdown.Markdown.parse(input) `is equal to` Seq(
           nyub.markdown.Markdown.Raw(
             Seq("# Title", "Description", "## Subtitle", "Text")
           )
@@ -35,7 +35,7 @@ class MarkdownSuite
         ```
         Awesome isn't it ?
         """
-        nyub.markdown.Markdown.parse(input) isEqualTo Seq(
+        nyub.markdown.Markdown.parse(input) `is equal to` Seq(
           nyub.markdown.Markdown.Raw("# Title", "This is a code snippet"),
           nyub.markdown.Markdown.Snippet(
             nyub.markdown.Markdown.Snippet
@@ -54,7 +54,7 @@ class MarkdownSuite
         ```
         ```
         """
-        nyub.markdown.Markdown.parse(input) isEqualTo Seq(
+        nyub.markdown.Markdown.parse(input) `is equal to` Seq(
           nyub.markdown.Markdown.Snippet(
             nyub.markdown.Markdown.Snippet.Header(prefixOfLength3, None, "")
           )
@@ -71,7 +71,7 @@ class MarkdownSuite
         ````
         ```
         """
-        nyub.markdown.Markdown.parse(input) isEqualTo Seq(
+        nyub.markdown.Markdown.parse(input) `is equal to` Seq(
           nyub.markdown.Markdown.Snippet(
             nyub.markdown.Markdown.Snippet
                 .Header(
@@ -106,7 +106,7 @@ class MarkdownSuite
           Snippet.Header(Snippet.Prefix(4), None, " some words"),
           "One line"
         )
-        Markdown.toLines(Seq(snippet)) isEqualTo Seq(
+        Markdown.toLines(Seq(snippet)) `is equal to` Seq(
           "```` some words",
           "One line",
           "````"
@@ -118,7 +118,7 @@ class MarkdownSuite
               .Header(Snippet.Prefix(3), Some(Language.PYTHON), " some words"),
           "print('OK')"
         )
-        Markdown.toLines(Seq(snippet)) isEqualTo Seq(
+        Markdown.toLines(Seq(snippet)) `is equal to` Seq(
           "```python some words",
           "print('OK')",
           "```"
@@ -140,8 +140,8 @@ class MarkdownSuite
         )
         parsed(0) match
             case nyub.markdown.Markdown.Snippet(header, _) =>
-                header.language isEqualTo expectedLanguage
-                header.afterLanguage isEqualTo expectedAfterLanguage
+                header.language `is equal to` expectedLanguage
+                header.afterLanguage `is equal to` expectedAfterLanguage
             case e => fail(s"Expected a snippet header to be parsed but got $e")
 
 end MarkdownSuite

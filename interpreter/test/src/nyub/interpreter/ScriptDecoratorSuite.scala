@@ -6,19 +6,19 @@ import ScriptDecorator.Config
 class ScriptDecoratorSuite extends munit.FunSuite with AssertExtensions:
     val alwaysInline = Config.DEFAULT.withInlining(_ => true)
     test("Given and empty seq return an empty seq"):
-        ScriptDecorator(Echo, "> ").decorate(Seq.empty) isEqualTo Seq.empty
+        ScriptDecorator(Echo, "> ").decorate(Seq.empty) `is equal to` Seq.empty
 
     test(
       "Given an inlining config, when eval is a single line, then inline it after the script line prefixed with the decoration prefix"
     ):
         ScriptDecorator(Echo, "> ", alwaysInline).decorate(
           Seq("Hello")
-        ) isEqualTo Seq("Hello > Hello")
+        ) `is equal to` Seq("Hello > Hello")
 
     test(
       "Given a no inlining config, then output eval result on a separate line prefixed with the prefix"
     ):
-        ScriptDecorator(Echo, "> ").decorate(Seq("Hello")) isEqualTo Seq(
+        ScriptDecorator(Echo, "> ").decorate(Seq("Hello")) `is equal to` Seq(
           "Hello",
           "> Hello"
         )
@@ -26,7 +26,7 @@ class ScriptDecoratorSuite extends munit.FunSuite with AssertExtensions:
     test("Mix of single line and multi line output"):
         val oneTwoDecorator = ScriptDecorator(OneTwo, "> ", alwaysInline)
 
-        oneTwoDecorator.decorate(Seq("Hello", "World")) isEqualTo Seq(
+        oneTwoDecorator.decorate(Seq("Hello", "World")) `is equal to` Seq(
           "Hello > One",
           "World",
           "> One",
@@ -37,7 +37,7 @@ class ScriptDecoratorSuite extends munit.FunSuite with AssertExtensions:
         val eraseComment = Config.DEFAULT.eraseStartingWith("//")
         ScriptDecorator(Echo, "> ", eraseComment).decorate(
           Seq("Hey", "//Ignored")
-        ) isEqualTo Seq(
+        ) `is equal to` Seq(
           "Hey",
           "> Hey"
         )

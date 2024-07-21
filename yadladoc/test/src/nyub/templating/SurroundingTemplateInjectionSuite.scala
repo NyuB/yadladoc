@@ -9,24 +9,24 @@ class SurroundingTemplateInjectionSuite
         SurroundingTemplateInjection(prefix = "$", postfix = "$").inject(
           "Hello there ;)",
           Map.empty
-        ) isEqualTo "Hello there ;)"
+        ) `is equal to` "Hello there ;)"
 
     test("inject one property"):
         testInjection(
           "Property value = {{foo}}"
-        ) isEqualTo "Property value = boo"
+        ) `is equal to` "Property value = boo"
 
     test("inject two properties"):
         testInjection(
           "first={{foo}}, second={{far.faz}}"
-        ) isEqualTo "first=boo, second=bar.baz"
+        ) `is equal to` "first=boo, second=bar.baz"
 
     test("Nested properties not supported"):
         SurroundingTemplateInjection(prefix = "{{", postfix = "}}")
             .inject(
               "Nested={{a{{d}}}}",
               Map("ab" -> "c", "d" -> "a")
-            ) isEqualTo "Nested=}}"
+            ) `is equal to` "Nested=}}"
 
     private def testInjection(line: String) =
         SurroundingTemplateInjection(prefix = "{{", postfix = "}}").inject(
