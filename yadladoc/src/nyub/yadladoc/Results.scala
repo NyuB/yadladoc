@@ -1,6 +1,7 @@
 package nyub.yadladoc
 
 import java.nio.file.Path
+import munit.diff.Diffs
 
 sealed trait Errors:
     def prettyPrintedMessage: String
@@ -37,16 +38,9 @@ object CheckErrors:
         expectedContent: String
     ) extends Errors:
         override def prettyPrintedMessage: String =
+            val diff = Diffs.create(actualContent, expectedContent)
             s"""File '${fileName}' has mismatching content with what would have been generated
-Expected
-vvvvvvv
-${expectedContent}
-^^^^^^^
-
-Actual
-vvvvvvv
-${actualContent}
-^^^^^^^"""
+${diff.unifiedDiff}"""
 
 /** A file generated from a documentation example
   *

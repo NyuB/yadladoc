@@ -2,7 +2,8 @@ import mill._, scalalib._
 
 object Versions {
     val scala = "3.4.1"
-    val munit = "0.7.29"
+    val munit = "1.0.0"
+    val munit_diff = munit
 }
 
 trait SharedConfiguration extends ScalaModule {
@@ -49,6 +50,9 @@ object interpreter extends ScalaModule with SharedConfiguration {
 
 object yadladoc extends ScalaModule with SharedConfiguration {
     override def moduleDeps = super.moduleDeps ++ Seq(filesystem, interpreter)
+    override def ivyDeps = super.ivyDeps() ++ Agg(
+      ivy"org.scalameta::munit-diff::${Versions.munit_diff}"
+    )
 
     object test extends Tests
 }

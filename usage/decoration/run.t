@@ -42,41 +42,15 @@ to the decorated version that would have been generated during a run
   $ rm README.md.not_decorated
   $ java -jar ydoc.jar check README.md
   Error [MismatchingContent]: File 'README.md' has mismatching content with what would have been generated
-  Expected
-  vvvvvvv
-  # Decoration example
-  
-  Here is a code snippet that would be decorated in-place:
-  
-  ```java ydoc.interpreter=jshell
-  var l = java.util.List.of("Riri", "Fifi", "Loulou")
-  //> [Riri, Fifi, Loulou]
-  l.size()
-  //> 3
-  l.get(1)
-  //> "Fifi"
-  l.contains("Picsou")
-  //> false
-  l.get(-1)
-  //> java.lang.ArrayIndexOutOfBoundsException
-  ```
-  
-  ^^^^^^^
-  
-  Actual
-  vvvvvvv
-  # Decoration example
-  
-  Here is a code snippet that would be decorated in-place:
-  
-  ```java ydoc.interpreter=jshell
-  var l = java.util.List.of("Riri", "Fifi", "Loulou")
-  l.size()
-  l.get(1)
-  l.contains("Picsou")
-  l.get(-1)
-  ```
-  
-  
-  ^^^^^^^
+   var l = java.util.List.of("Riri", "Fifi", "Loulou")
+  \x1b[92m+//> [Riri, Fifi, Loulou]\x1b[0m (esc)
+   l.size()
+  \x1b[92m+//> 3\x1b[0m (esc)
+   l.get(1)
+  \x1b[92m+//> "Fifi"\x1b[0m (esc)
+   l.contains("Picsou")
+  \x1b[92m+//> false\x1b[0m (esc)
+   l.get(-1)
+  \x1b[92m+//> java.lang.ArrayIndexOutOfBoundsException\x1b[0m (esc)
+   ```
   [2]
