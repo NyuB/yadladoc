@@ -160,6 +160,7 @@ list.contains("B")
 list.get(-1)
 //> java.lang.ArrayIndexOutOfBoundsException
 ```
+*Note: the above snippet is itself decorated via yadladoc ;)*
 
 To trigger the in-place decoration of a snippet, add `ydoc.interpreter` property to the snippet header:
 ````markdown
