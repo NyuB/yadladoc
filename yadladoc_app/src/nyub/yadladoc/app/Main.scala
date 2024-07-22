@@ -3,6 +3,7 @@ package nyub.yadladoc.app
 import nyub.yadladoc.Yadladoc
 import nyub.yadladoc.ConfigurationFromFile
 import java.nio.file.Paths
+import nyub.ansi.AnsiPrinter
 
 @main def main(args: String*) =
     if args.size == 1 && isHelpOption(args(0)) then
@@ -33,6 +34,7 @@ import java.nio.file.Paths
 
     val outputDir = Paths.get(".")
     val yadladoc = Yadladoc(ConfigurationFromFile(configDir))
+    val printer = AnsiPrinter.NO_COLOR
     if command == "run" then
         val generated = yadladoc.run(outputDir, markdownFile)
         generated.foreach: g =>
@@ -42,7 +44,7 @@ import java.nio.file.Paths
         if !errors.isEmpty then
             errors.foreach: e =>
                 println(
-                  s"Error [${e.getClass().getSimpleName()}]: ${e.prettyPrintedMessage}"
+                  s"Error [${e.getClass().getSimpleName()}]: ${printer.print(e.prettyPrintedMessage)}"
                 )
 
             System.exit(2)

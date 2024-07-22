@@ -63,31 +63,14 @@ It will fail on files with mismatching content
   $ sed -i 's/assertEquals/assertNumberEquals/g' Test.java
   $ java -jar ydoc.jar check README.md
   Error [MismatchingContent]: File 'Test.java' has mismatching content with what would have been generated
-  Expected
-  vvvvvvv
-  import org.junit.jupiter.api.Test;
-  import static org.junit.jupiter.api.Assertions.assertEquals;
-  class Test {
-      @Test
-      void test() {
-          assertEquals(42, 21 * 2);
-      }
-  }
-  
-  ^^^^^^^
-  
-  Actual
-  vvvvvvv
-  import org.junit.jupiter.api.Test;
-  import static org.junit.jupiter.api.Assertions.assertNumberEquals;
-  class Test {
-      @Test
-      void test() {
-          assertNumberEquals(42, 21 * 2);
-      }
-  }
-  
-  ^^^^^^^
+   import org.junit.jupiter.api.Test;
+  -import static org.junit.jupiter.api.Assertions.assertNumberEquals;
+  +import static org.junit.jupiter.api.Assertions.assertEquals;
+   class Test {
+       void test() {
+  -        assertNumberEquals(42, 21 * 2);
+  +        assertEquals(42, 21 * 2);
+       }
   [2]
 
 It will fail on missing files

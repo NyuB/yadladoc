@@ -47,12 +47,12 @@ It will fail on files with mismatching content
   $ java -jar ydoc.jar check README.md
   Error [MismatchingContent]: File 'Test.java' has mismatching content with what would have been generated
    import org.junit.jupiter.api.Test;
-  \x1b[91m-import static org.junit.jupiter.api.Assertions.assertNumberEquals;\x1b[0m (esc)
-  \x1b[92m+import static org.junit.jupiter.api.Assertions.assertEquals;\x1b[0m (esc)
+  -import static org.junit.jupiter.api.Assertions.assertNumberEquals;
+  +import static org.junit.jupiter.api.Assertions.assertEquals;
    class Test {
        void test() {
-  \x1b[91m-        assertNumberEquals(42, 21 * 2);\x1b[0m (esc)
-  \x1b[92m+        assertEquals(42, 21 * 2);\x1b[0m (esc)
+  -        assertNumberEquals(42, 21 * 2);
+  +        assertEquals(42, 21 * 2);
        }
   [2]
 

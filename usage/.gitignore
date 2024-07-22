@@ -1,0 +1,4 @@
+# Cram test failure outputs
+*.err
+*.orig
+*.rej

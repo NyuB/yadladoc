@@ -43,14 +43,14 @@ to the decorated version that would have been generated during a run
   $ java -jar ydoc.jar check README.md
   Error [MismatchingContent]: File 'README.md' has mismatching content with what would have been generated
    var l = java.util.List.of("Riri", "Fifi", "Loulou")
-  \x1b[92m+//> [Riri, Fifi, Loulou]\x1b[0m (esc)
+  +//> [Riri, Fifi, Loulou]
    l.size()
-  \x1b[92m+//> 3\x1b[0m (esc)
+  +//> 3
    l.get(1)
-  \x1b[92m+//> "Fifi"\x1b[0m (esc)
+  +//> "Fifi"
    l.contains("Picsou")
-  \x1b[92m+//> false\x1b[0m (esc)
+  +//> false
    l.get(-1)
-  \x1b[92m+//> java.lang.ArrayIndexOutOfBoundsException\x1b[0m (esc)
+  +//> java.lang.ArrayIndexOutOfBoundsException
    ```
   [2]
