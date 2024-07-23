@@ -42,6 +42,12 @@ class ScriptDecoratorSuite extends munit.FunSuite with AssertExtensions:
           "> Hey"
         )
 
+    test("Given a transforming config, pass transformed lines to interpreter"):
+        val removeDollars = Config.DEFAULT.withTransform(_.replace("$", ">"))
+        ScriptDecorator(Echo, "", removeDollars).decorate(
+          Seq("$ Hey")
+        ) `is equal to` Seq("$ Hey", "> Hey")
+
     private object Echo extends InterpreterFactory:
         override def create(): Interpreter = new:
             override def eval(line: String): Seq[String] = Seq(line)

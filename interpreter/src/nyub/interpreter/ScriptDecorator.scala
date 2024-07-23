@@ -32,7 +32,7 @@ class ScriptDecorator(
         script
             .filterNot(config.erase)
             .flatMap: l =>
-                val interpretation = interpreter.eval(l)
+                val interpretation = interpreter.eval(config.transform(l))
                 if interpretation.size == 1 && config.inline(interpretation(0))
                 then Seq(l + " " + decorationPrefix + interpretation(0))
                 else Seq(l) ++ interpretation.map(decorationPrefix + _)
@@ -73,24 +73,31 @@ object ScriptDecorator:
           * @param inputLine
           *   a script line
           * @return
-          *   `true` if `inputLine` should be evaluated and kept in the
-          *   decorated output, `false` if it should be discarded
+          *   `false` if `inputLine` should be evaluated and kept in the
+          *   decorated output, `true` if it should be discarded
           */
         def erase(inputLine: String): Boolean
 
+        def transform(inputLine: String): String
+
     object Config:
         val DEFAULT: OverridableDefaults =
-            OverridableDefaults(_ => false, _ => false)
+            OverridableDefaults(_ => false, _ => false, identity)
 
         class OverridableDefaults private[Config] (
             private val inlining: String => Boolean,
-            private val erasing: String => Boolean
+            private val erasing: String => Boolean,
+            private val transforming: String => String
         ) extends Config:
             override def inline(outputLine: String): Boolean = inlining(
               outputLine
             )
 
             override def erase(inputLine: String): Boolean = erasing(inputLine)
+
+            override def transform(inputLine: String): String = transforming(
+              inputLine
+            )
 
             /** Set a new inlining policy
               * @param newInlining
@@ -100,7 +107,7 @@ object ScriptDecorator:
               *   policy
               */
             def withInlining(newInlining: String => Boolean) =
-                OverridableDefaults(newInlining, erasing)
+                OverridableDefaults(newInlining, erasing, transforming)
 
             /** Add an inlining criteria to this configuration.
               *
@@ -124,7 +131,7 @@ object ScriptDecorator:
               *   policy
               */
             def withErasing(newErasing: String => Boolean) =
-                OverridableDefaults(inlining, newErasing)
+                OverridableDefaults(inlining, newErasing, transforming)
 
             /** Add an erasing criteria to this configuration.
               *
@@ -160,3 +167,15 @@ object ScriptDecorator:
                 predicate: String => Boolean
             ): OverridableDefaults = withErasing: s =>
                 erasing(s) || predicate(s)
+
+            /** Set a new transform operation to apply to the input lines
+              *
+              * @param newTransform
+              *   transform to apply to each input line before interpreting it
+              * @return
+              *   a copy of this configuration with a new transform operation
+              */
+            def withTransform(
+                newTransform: String => String
+            ): OverridableDefaults =
+                OverridableDefaults(inlining, erasing, newTransform)
