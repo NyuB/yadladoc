@@ -1,11 +1,17 @@
 TEST_RUNNER_IMAGE=ydoc:test-runner
 TEST_RUNNER_WORKDIR=/home/usage
-WITH_TEST_RUNNER=docker run --rm -v $(CURDIR):$(TEST_RUNNER_WORKDIR) -w $(TEST_RUNNER_WORKDIR) $(TEST_RUNNER_IMAGE) 
+ifeq ($(IN_DOCKER), NO)
+	WITH_TEST_RUNNER=
+	TEST_DEPS=
+else
+	WITH_TEST_RUNNER=docker run --rm -v $(CURDIR):$(TEST_RUNNER_WORKDIR) -w $(TEST_RUNNER_WORKDIR) $(TEST_RUNNER_IMAGE)
+	TEST_DEPS=build-runner
+endif
 CRAM=cram --shell /bin/bash
 TESTS=basics decoration
-test: build-runner
+test: $(TEST_DEPS)
 	$(WITH_TEST_RUNNER) $(CRAM) $(TESTS)
-update: build-runner
+update: $(TEST_DEPS)
 	$(WITH_TEST_RUNNER) $(CRAM) --interactive --yes $(TESTS) 
 
 build-runner: Dockerfile
