@@ -6,12 +6,12 @@ Inspired by [cram](https://bitheap.org/cram/), [knit](https://github.com/Kotlin/
 ## Motivation
 Documenting code is a an effort, maintening the documentation can be even harder. This is especially true for code snippets that can 'rot' easily with refactorings, API changes, renaming, removals...
 
- But code snippets also have considerable values, as a few lines of codes can sometimes illustrate an API usage in a much more consise and expressive way than a higher level description. 
+But code snippets also have considerable values, as a few lines of codes can sometimes illustrate an API usage in a much more consise and expressive way than a higher level description. 
  
- A place where code snippets are guaranteed to be valid is the test suite. Indeed, we can consider the tests as an accurate documentation of our code(assuming they are present) but the suites are often far away from the README, asciidoc folder, or other entrypoint document for a user discovering the code. 
+A place where code snippets are guaranteed to be valid is the test suite. Indeed, we can consider the tests as an accurate documentation of our code(assuming they are present) but the suites are often far away from the README, asciidoc folder, or other entrypoint document for a user discovering the code. 
  To have the best of both world, an idea is to blur the barrier between test and documentation. 
  
- Yadladoc tries to follow this path in a way similar to [knit](https://github.com/Kotlin/kotlinx-knit) by generating files from mardkown code snippets. These file would be placed in your test suite folders and executed during CI, ensuring their validity. From the reader point of view, they are just snippet embedded in the visual markdown documentation, keeping the readibility intact.
+Yadladoc tries to follow this path in a way similar to [knit](https://github.com/Kotlin/kotlinx-knit) by generating files from mardkown code snippets. These file would be placed in your test suite folders and executed during CI, ensuring their validity. From the reader point of view, they are just snippet embedded in the visual markdown documentation, keeping the readibility intact.
 
 ![Schema](.ydoc/images/idea.png)
 
@@ -141,7 +141,7 @@ end test_scala
 In addition to the main template file that will be injected with the concatenation of all snippets related to a file, each of these snippets can be prefixed/suffixed by a custom template designated with the properties ``ydoc.example.prefix`` and `ydoc.example.suffix`. For example, adding `ydoc.example.prefix=templateId` to a snippet header would cause it's line to be prefixed by the expansion of `.ydoc/includes/templateId.template`. A property `ydoc.subExampleName` is injected in these templates with the identifier for the current snippet.
 
 ### In-place snippet decoration
-In addition to generating new files, Yadladoc can alter code snippets in-place, annotating them with execution results. It currently supports the jshell interpreter to annotate java snippets, annotating them with toString() representations of each line.
+In addition to generating new files, Yadladoc can alter code snippets in-place, annotating them with execution results. For example, the built-in jshell interpreter annotates java snippets with toString() representations of each line:
 
 ```java
 var list = java.util.List.of("A", "B", "C");
@@ -162,6 +162,12 @@ list.get(-1)
 ```
 *Note: the above snippet is itself decorated via yadladoc ;)*
 
+In run mode, yadladoc rewrites the markdown file itself with the decorated snippets.
+
+In check mode, decorated markdown files are checked the same way as other generated files and compared against the actual markdown file.
+
+#### Marking a snippet as decorated
+
 To trigger the in-place decoration of a snippet, add `ydoc.interpreter` property to the snippet header:
 ````markdown
 ```java ydoc.interpreter=jshell
@@ -172,8 +178,14 @@ list.get(-1)
 ```
 ````
 
-In check mode, decorated markdown files are checked in the same way as other generated files and compared against the actual markdown file.
+#### Built-in interpreters
 
+- **jshell** (```ydoc.interpreter=jshell```), uses the built in JShell interpreter from the JDK. Decorates each snippet's line with the toString() representation of the expression prefixed with ```//> ```. (see [the example above](#in-place-snippet-decoration))
+- **cram** (```ydoc.interpreter=cram```), uses an evaluation method similar to the [cram test framework](https://bitheap.org/cram/) to decorate bash scripts. You can specify the bash executable with the ydoc.interpreter.cram.bash property in your ```.ydoc/ydoc.properties``` file.
+
+#### Custom interpreter
+
+**COMING SOON** allow custom interpreter implementations
 
 ## Install
 ### From source

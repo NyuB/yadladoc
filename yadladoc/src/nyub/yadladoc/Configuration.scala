@@ -7,6 +7,7 @@ import nyub.filesystem.FileSystem
 import nyub.filesystem.OsFileSystem
 import nyub.interpreter.ScriptDecorator
 import nyub.interpreter.JShellInterpreter
+import nyub.interpreter.CramDecorator
 
 val DEFAULT_LANGUAGE = Language.named("default")
 trait Configuration:
@@ -80,6 +81,16 @@ trait Configuration:
                 JShellInterpreter,
                 "//> ",
                 ScriptDecorator.Config.DEFAULT.eraseStartingWith("//> ")
+              )
+            )
+        else if interpreterId == "cram" then
+            Some(
+              CramDecorator(
+                Paths.get(
+                  properties.getOrDefault("ydoc.interpreter.cram.bash")(
+                    "/bin/bash"
+                  )
+                )
               )
             )
         else None
