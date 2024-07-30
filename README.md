@@ -222,9 +222,6 @@ Run `make usage/ydoc.jar` to produce the executable jar `ydoc.jar` in `usage/`
 
 Each [github release](https://github.com/NyuB/yadladoc/releases/) contains an executable jar, which is enough to run all of the examples listed in this document. 
 
-### From the release binary
-**COMING SOON** expose a native binary with graalVM
-
 ## Contribute
 
 Pull requests and issues welcome !
