@@ -74,7 +74,10 @@ trait Configuration:
     ): Iterable[TemplateId] =
         snippet.properties.get("ydoc.suffix").toList.map(TemplateId(_))
 
-    def scriptDecorator(decoratorId: String): Option[ScriptDecorator] =
+    def scriptDecorator(
+        decoratorId: String,
+        snippetProperties: Properties
+    ): Option[ScriptDecorator] =
         if decoratorId == "jshell" then
             Some(
               ScriptDecorator(
@@ -84,12 +87,11 @@ trait Configuration:
               )
             )
         else if decoratorId == "cram" then
+            val fullProperties = properties.extendedWith(snippetProperties)
             Some(
               CramDecorator(
-                Paths.get(
-                  properties.getOrDefault("ydoc.interpreter.cram.bash")(
-                    "/bin/bash"
-                  )
+                fullProperties.getPathOrDefault("ydoc.interpreter.cram.bash")(
+                  Paths.get("/bin/bash")
                 )
               )
             )

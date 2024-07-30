@@ -82,8 +82,9 @@ class Yadladoc(
         markdown.foldLeft(DocumentationGeneration.init(config)): (doc, block) =>
             block match
                 case snippet: Markdown.Snippet =>
+                    val docSnippet = snippet.toDocSnippet
                     config.documentationKindForSnippet(
-                      snippet.toDocSnippet
+                      docSnippet
                     ) match
                         case example: DocumentationKind.ExampleSnippet =>
                             doc.addExampleSnippet(snippet, example)
@@ -91,7 +92,10 @@ class Yadladoc(
                               interpreterId
                             ) =>
                             val decorated = config
-                                .scriptDecorator(interpreterId)
+                                .scriptDecorator(
+                                  interpreterId,
+                                  docSnippet.properties
+                                )
                                 .map(
                                   _.decorate(snippet.lines)
                                 )
