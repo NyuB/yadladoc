@@ -141,7 +141,7 @@ end test_scala
 In addition to the main template file that will be injected with the concatenation of all snippets related to a file, each of these snippets can be prefixed/suffixed by a custom template designated with the properties ``ydoc.example.prefix`` and `ydoc.example.suffix`. For example, adding `ydoc.example.prefix=templateId` to a snippet header would cause it's line to be prefixed by the expansion of `.ydoc/includes/templateId.template`. A property `ydoc.subExampleName` is injected in these templates with the identifier for the current snippet.
 
 ### In-place snippet decoration
-In addition to generating new files, Yadladoc can alter code snippets in-place, annotating them with execution results. For example, the built-in jshell interpreter annotates java snippets with toString() representations of each line:
+In addition to generating new files, Yadladoc can alter code snippets in-place, annotating them with execution results. For example, the built-in jshell decorator annotates java snippets with toString() representations of each line:
 
 ```java
 var list = java.util.List.of("A", "B", "C");
@@ -150,7 +150,7 @@ list.contains("B")
 list.get(-1)
 ```
 
-```java ydoc.interpreter=jshell
+```java ydoc.decorator=jshell
 var list = java.util.List.of("A", "B", "C");
 //> [A, B, C]
 list.get(0)
@@ -168,9 +168,9 @@ In check mode, decorated markdown files are checked the same way as other genera
 
 #### Marking a snippet as decorated
 
-To trigger the in-place decoration of a snippet, add `ydoc.interpreter` property to the snippet header:
+To trigger the in-place decoration of a snippet, add `ydoc.decorator` property to the snippet header:
 ````markdown
-```java ydoc.interpreter=jshell
+```java ydoc.decorator=jshell
 var list = java.util.List.of("A", "B", "C");
 list.get(0)
 list.contains("B")
@@ -178,14 +178,14 @@ list.get(-1)
 ```
 ````
 
-#### Built-in interpreters
+#### Built-in decorators
 
-- **jshell** (```ydoc.interpreter=jshell```), uses the built in JShell interpreter from the JDK. Decorates each snippet's line with the toString() representation of the expression prefixed with ```//> ```. (see [the example above](#in-place-snippet-decoration))
-- **cram** (```ydoc.interpreter=cram```), uses an evaluation method similar to the [cram test framework](https://bitheap.org/cram/) to decorate bash scripts. You can specify the bash executable with the ydoc.interpreter.cram.bash property in your ```.ydoc/ydoc.properties``` file.
+- **jshell** (```ydoc.decorator=jshell```), uses the built-in JShell REPL from the JDK. Decorates each snippet's line with the toString() representation of the expression prefixed with ```//> ```. (see [the example above](#in-place-snippet-decoration))
+- **cram** (```ydoc.decorator=cram```), uses an evaluation method similar to the [cram test framework](https://bitheap.org/cram/) to decorate bash scripts. You can specify the bash executable with the ydoc.decorator.cram.bash property in your ```.ydoc/ydoc.properties``` file.
 
-#### Custom interpreter
+#### Custom decorators
 
-**COMING SOON** allow custom interpreter implementations
+**COMING SOON** allow custom decorator implementations
 
 ## Install
 ### From source

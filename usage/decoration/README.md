@@ -2,7 +2,7 @@
 
 Here is a code snippet that would be decorated in-place:
 
-```java ydoc.interpreter=jshell
+```java ydoc.decorator=jshell
 var l = java.util.List.of("Riri", "Fifi", "Loulou")
 l.size()
 l.get(1)

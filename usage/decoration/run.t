@@ -2,13 +2,13 @@ Link resources to test execution directory, TESTDIR is provided by cram and poin
   $ shopt -s dotglob
   $ ln -s ${TESTDIR}/../ydoc.jar ydoc.jar
   $ ln -s ${TESTDIR}/* .
-Along generated files, yadladoc will also "decorate" code snippets annotated with ydoc.interpreter property
+Along generated files, yadladoc will also "decorate" code snippets annotated with ydoc.decorator property
   $ cat README.md
   # Decoration example
   
   Here is a code snippet that would be decorated in-place:
   
-  ```java ydoc.interpreter=jshell
+  ```java ydoc.decorator=jshell
   var l = java.util.List.of("Riri", "Fifi", "Loulou")
   l.size()
   l.get(1)
@@ -24,7 +24,7 @@ Along generated files, yadladoc will also "decorate" code snippets annotated wit
   
   Here is a code snippet that would be decorated in-place:
   
-  ```java ydoc.interpreter=jshell
+  ```java ydoc.decorator=jshell
   var l = java.util.List.of("Riri", "Fifi", "Loulou")
   //> [Riri, Fifi, Loulou]
   l.size()

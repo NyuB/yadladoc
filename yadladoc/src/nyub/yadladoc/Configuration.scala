@@ -24,7 +24,7 @@ trait Configuration:
 
     def exampleNamePropertyKey: String = "ydoc.example"
 
-    def interpreterIdPropertyKey: String = "ydoc.interpreter"
+    def decoratorIdPropertyKey: String = "ydoc.decorator"
 
     def templateFile(templateId: TemplateId): Path =
         includesDir / s"${templateId}.template"
@@ -51,9 +51,9 @@ trait Configuration:
             .map(DocumentationKind.ExampleSnippet(_, snippet))
             .getOrElse:
                 snippet.properties
-                    .get(interpreterIdPropertyKey)
+                    .get(decoratorIdPropertyKey)
                     .filterNot(_.isBlank)
-                    .map(DocumentationKind.InterpretedSnippet(_))
+                    .map(DocumentationKind.DecoratedSnippet(_))
                     .getOrElse(DocumentationKind.Raw)
 
     def exampleFile(
@@ -74,8 +74,8 @@ trait Configuration:
     ): Iterable[TemplateId] =
         snippet.properties.get("ydoc.suffix").toList.map(TemplateId(_))
 
-    def scriptDecorator(interpreterId: String): Option[ScriptDecorator] =
-        if interpreterId == "jshell" then
+    def scriptDecorator(decoratorId: String): Option[ScriptDecorator] =
+        if decoratorId == "jshell" then
             Some(
               ScriptDecorator(
                 JShellInterpreter,
@@ -83,7 +83,7 @@ trait Configuration:
                 ScriptDecorator.Config.DEFAULT.eraseStartingWith("//> ")
               )
             )
-        else if interpreterId == "cram" then
+        else if decoratorId == "cram" then
             Some(
               CramDecorator(
                 Paths.get(

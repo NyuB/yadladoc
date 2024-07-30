@@ -221,14 +221,14 @@ class YadladocSuite
         (outputDir, configDir, workingDir) =>
             val markdownFile = makeFile(workingDir, "README.md"):
                 l"""
-                ```java ydoc.interpreter=jshell
+                ```java ydoc.decorator=jshell
                 java.util.List.of(1,2,3)
                 ```
                 """
             Yadladoc(ConfigurationFromFile(configDir))
                 .run(outputDir, markdownFile)
             markdownFile `has content` l"""
-            ```java ydoc.interpreter=jshell
+            ```java ydoc.decorator=jshell
             java.util.List.of(1,2,3)
             //> [1, 2, 3]
             ```
@@ -238,7 +238,7 @@ class YadladocSuite
         (outputDir, configDir, workingDir) =>
             val markdownFile = makeFile(workingDir, "README.md"):
                 l"""
-                ```java ydoc.interpreter=jshell
+                ```java ydoc.decorator=jshell
                 java.util.List.of(1,2,3)
                 ```
                 """

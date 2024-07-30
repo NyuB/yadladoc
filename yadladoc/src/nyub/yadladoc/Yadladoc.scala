@@ -87,7 +87,7 @@ class Yadladoc(
                     ) match
                         case example: DocumentationKind.ExampleSnippet =>
                             doc.addExampleSnippet(snippet, example)
-                        case DocumentationKind.InterpretedSnippet(
+                        case DocumentationKind.DecoratedSnippet(
                               interpreterId
                             ) =>
                             val decorated = config
