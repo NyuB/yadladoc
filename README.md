@@ -230,4 +230,13 @@ Each [github release](https://github.com/NyuB/yadladoc/releases/) contains an ex
 Pull requests and issues welcome !
 
 ### Entry points
-[YadladocSuite](yadladoc/test/src/nyub/yadladoc/YadladocSuite.scala) groups the high level 'end to end' tests an should be a good entrypoint to have an overview of the current features.
+[YadladocSuite](yadladoc/test/src/nyub/yadladoc/YadladocSuite.scala) groups the most 'end to end' scala tests an should be a good entrypoint to have an overview of the current features.
+
+[The usage tests](usage/basics/run.t) are real end-to-end test using yadladoc as an executable.
+
+### Tests and build
+
+- All scala unit tests are placed under ```<moduleName>/test``` folders and played during CI. They can be ran with ```make test```.
+- The final executable jar can be produced with ```make usage/ydoc.jar```. Warning: it is not rebuilt if it is already present, delete it or use ```millw yadladoc_app.ydocJar``` directly to take your changes into account.
+- This README is itself checked with yadladoc, use ```make doc-check``` or ```make doc-run``` to use the current ```usage/ydoc.jar``` to check it.
+- The tests in ```usage/**/run.t``` are ran with cram. They use the current ```usage/ydoc.jar``` to run E2E console tests. Notice that some of them are generated from this README, keep both sides synchronized when editing the tests. You can run ```make usage-test``` to run the usage tests, and ```make usage-update``` to update them from the actual execution results.
