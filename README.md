@@ -181,7 +181,7 @@ list.get(-1)
 #### Built-in decorators
 
 - **jshell** (```ydoc.decorator=jshell```), uses the built-in JShell REPL from the JDK. Decorates each snippet's line with the toString() representation of the expression prefixed with ```//> ```. (see [the example above](#in-place-snippet-decoration))
-- **cram** (```ydoc.decorator=cram```), uses an evaluation method similar to the [cram test framework](https://bitheap.org/cram/) to decorate bash scripts. You can specify the bash executable with the ydoc.decorator.cram.bash property in your ```.ydoc/ydoc.properties``` file.
+- **cram** (```ydoc.decorator=cram```), uses an evaluation method similar to the [cram test framework](https://bitheap.org/cram/) to decorate bash scripts. You can specify the bash executable with the ```cram.bash``` property in your ```.ydoc/ydoc.properties``` file.
 
 #### Custom decorators
 

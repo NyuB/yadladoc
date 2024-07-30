@@ -6,6 +6,10 @@ trait AssertExtensions extends munit.Assertions:
         infix def `is equal to`(other: T): Unit =
             assertEquals(t, other)
 
+    extension [T](t: Option[T])
+        infix def `is equal to some`(other: T): Unit =
+            assertEquals(t, Some(other))
+
     extension [T](l: Iterable[T])
         infix def `contains exactly in any order`(expected: Iterable[T]): Unit =
             assertEquals(

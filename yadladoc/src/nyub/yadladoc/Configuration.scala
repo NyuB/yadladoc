@@ -6,8 +6,9 @@ import java.nio.file.Paths
 import nyub.filesystem.FileSystem
 import nyub.filesystem.OsFileSystem
 import nyub.interpreter.ScriptDecorator
-import nyub.interpreter.JShellInterpreter
-import nyub.interpreter.CramDecorator
+import nyub.interpreter.ScriptDecoratorService
+import nyub.interpreter.CramDecoratorService
+import nyub.interpreter.JShellDecoratorService
 
 val DEFAULT_LANGUAGE = Language.named("default")
 trait Configuration:
@@ -78,24 +79,18 @@ trait Configuration:
         decoratorId: String,
         snippetProperties: Properties
     ): Option[ScriptDecorator] =
-        if decoratorId == "jshell" then
-            Some(
-              ScriptDecorator(
-                JShellInterpreter,
-                "//> ",
-                ScriptDecorator.Config.DEFAULT.eraseStartingWith("//> ")
+        decoratorServices
+            .get(decoratorId)
+            .map(
+              _.createDecorator(
+                properties.extendedWith(snippetProperties).toMap
               )
             )
-        else if decoratorId == "cram" then
-            val fullProperties = properties.extendedWith(snippetProperties)
-            Some(
-              CramDecorator(
-                fullProperties.getPathOrDefault("ydoc.interpreter.cram.bash")(
-                  Paths.get("/bin/bash")
-                )
-              )
-            )
-        else None
+
+    def decoratorServices: Map[String, ScriptDecoratorService] =
+        Seq(CramDecoratorService(), JShellDecoratorService())
+            .map(d => d.id -> d)
+            .toMap
 
 case class ConfigurationFromFile(
     override val configDir: Path,
