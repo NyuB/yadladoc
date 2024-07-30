@@ -185,7 +185,34 @@ list.get(-1)
 
 #### Custom decorators
 
-**COMING SOON** allow custom decorator implementations
+Decorators are discovered using the java Service Provider Interface mechanism. To make your own decorator available, simply add your jar with your implementation of ScriptDecoratorService
+
+```scala ydoc.example=interpreter/src/nyub/interpreter/ScriptDecoratorService.scala ydoc.template=raw
+package nyub.interpreter
+
+/** An interface to instanciate [[ScriptDecorator]]s. Designed for (but not
+  * restricted to) SPI usage
+  */
+trait ScriptDecoratorService:
+    /** @return
+      *   An unique identifier to represent this decorator
+      */
+    def id: String
+
+    /** @return
+      *   An extended description, including for example the languages this
+      *   decorator is suited for
+      */
+    def description: String
+
+    /** @param parameters
+      *   free map to parameterize a given instanciation
+      */
+    def createDecorator(parameters: Map[String, String]): ScriptDecorator
+
+```
+
+You can then refer to your decorator using the ```id``` method return value as ```ydoc.decorator``` value.
 
 ## Install
 ### From source

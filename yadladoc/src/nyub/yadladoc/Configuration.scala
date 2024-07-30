@@ -7,8 +7,7 @@ import nyub.filesystem.FileSystem
 import nyub.filesystem.OsFileSystem
 import nyub.interpreter.ScriptDecorator
 import nyub.interpreter.ScriptDecoratorService
-import nyub.interpreter.CramDecoratorService
-import nyub.interpreter.JShellDecoratorService
+import java.util.ServiceLoader
 
 val DEFAULT_LANGUAGE = Language.named("default")
 trait Configuration:
@@ -88,9 +87,12 @@ trait Configuration:
             )
 
     def decoratorServices: Map[String, ScriptDecoratorService] =
-        Seq(CramDecoratorService(), JShellDecoratorService())
-            .map(d => d.id -> d)
-            .toMap
+        val mutableMap =
+            scala.collection.mutable.Map.empty[String, ScriptDecoratorService]
+        ServiceLoader
+            .load(classOf[ScriptDecoratorService])
+            .forEach(s => mutableMap(s.id) = s)
+        mutableMap.toMap
 
 case class ConfigurationFromFile(
     override val configDir: Path,
