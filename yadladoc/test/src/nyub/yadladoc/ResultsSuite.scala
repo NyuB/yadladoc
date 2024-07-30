@@ -15,8 +15,8 @@ class ResultsSuite extends munit.FunSuite with AssertExtensions:
           expectedContent
         )
 
-        error.prettyPrintedMessage.contains(actualContent) `is equal to` true
-        error.prettyPrintedMessage.contains(expectedContent) `is equal to` true
+        error.prettyPrintedMessage `contains substring` actualContent
+        error.prettyPrintedMessage `contains substring` expectedContent
 
     private val somePath = Paths.get("some")
 end ResultsSuite

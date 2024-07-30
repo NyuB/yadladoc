@@ -29,6 +29,13 @@ trait AssertExtensions extends munit.Assertions:
         infix def `is equal to lines`(lines: Iterable[String]): Unit =
             assertEquals(s, lines.mkString("\n"))
 
+        infix def `contains substring`(subString: String): Unit =
+            assertEquals(
+              s.contains(subString),
+              true,
+              s"Expected ${s} to contain ${subString}"
+            )
+
     extension (p: Path)
         infix def `has content`(content: String): Unit =
             assertEquals(p.toFile().isFile(), true, s"$p is not a file")

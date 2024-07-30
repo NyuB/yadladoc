@@ -51,7 +51,7 @@ class YadladocSuite
                 Yadladoc(ConfigurationFromFile(configDir))
                     .run(outputDir, markdownFile)
 
-            generatedFiles.toList `is equal to` List(
+            generatedFiles `is equal to` List(
               GeneratedFile(
                 Some(outputDir),
                 p"kotlin-list-example.kt",
