@@ -220,7 +220,13 @@ Run `make usage/ydoc.jar` to produce the executable jar `ydoc.jar` in `usage/`
 
 ### From the release jar
 
-Each [github release](https://github.com/NyuB/yadladoc/releases/) contains an executable jar, which is enough to run all of the examples listed in this document. 
+Each [github release](https://github.com/NyuB/yadladoc/releases/) contains an executable `ydoc.jar`, which is enough to run all of the examples listed in this document.
+
+### From the release binary
+
+Each [github release](https://github.com/NyuB/yadladoc/releases/) contains native binaries for windows and linux.
+
+**NB** these binaries do not currently support the [in-place decoration feature](#in-place-snippet-decoration), decorated snippets will be ignored.
 
 ## Contribute
 
