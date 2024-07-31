@@ -185,7 +185,7 @@ list.get(-1)
 
 #### Custom decorators
 
-Decorators are discovered using the java Service Provider Interface mechanism. To make your own decorator available, simply add your jar with your implementation of ScriptDecoratorService
+Decorators are discovered using the java Service Provider Interface mechanism. Your own decorators should implement the ScriptDecoratorService interface.
 
 ```scala ydoc.example=interpreter/src/nyub/interpreter/ScriptDecoratorService.scala ydoc.template=raw
 package nyub.interpreter
@@ -212,6 +212,10 @@ trait ScriptDecoratorService:
 
 ```
 
+Add your jar with these decorator implementations to the classpath when running yadladoc:
+```console
+  $ java -cp my_decorator.jar -jar ydoc.jar check README.md
+```
 You can then refer to your decorator using the ```id``` method return value as ```ydoc.decorator``` value.
 
 ## Install
@@ -220,7 +224,13 @@ Run `make usage/ydoc.jar` to produce the executable jar `ydoc.jar` in `usage/`
 
 ### From the release jar
 
-Each [github release](https://github.com/NyuB/yadladoc/releases/) contains an executable jar, which is enough to run all of the examples listed in this document. 
+Each [github release](https://github.com/NyuB/yadladoc/releases/) contains an executable `ydoc.jar`, which is enough to run all of the examples listed in this document.
+
+### From the release binary
+
+Each [github release](https://github.com/NyuB/yadladoc/releases/) contains native binaries for windows and linux.
+
+**NB** these binaries do not currently support the [in-place decoration feature](#in-place-snippet-decoration), decorated snippets will be ignored.
 
 ## Contribute
 
