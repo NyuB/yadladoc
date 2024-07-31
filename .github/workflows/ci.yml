@@ -72,7 +72,7 @@ jobs:
         with:
           python-version: '3.9'
           cache: 'pip'
-      - run: pip install -r requirements.txt # install cram to avoid usage of a full docker image for usage-tests
+      - run: pip install -r etc/requirements.txt # install cram to avoid usage of a full docker image for usage-tests
   
       - uses: actions/download-artifact@v4
         with:
