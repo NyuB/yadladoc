@@ -37,6 +37,7 @@ jobs:
   package:
     # ydoc.jar built on linux github runners encountered the following error with JShell:
     # "java.lang.NullPointerException: Cannot invoke "com.sun.tools.javac.code.Scope$StarImportScope.isFilled()" because "tree.starImportScope" is null"
+    # (reproduced on 31/07/2024 within image etc/Dockerfile.dev)
     # therefore, we use a windows runner to build the jar and execute doc check tasks
     runs-on: windows-latest
     steps:
