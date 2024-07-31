@@ -5,9 +5,9 @@ import nyub.filesystem./
 import java.nio.file.Paths
 import nyub.filesystem.FileSystem
 import nyub.filesystem.OsFileSystem
-import nyub.interpreter.ScriptDecorator
 import nyub.interpreter.ScriptDecoratorService
 import java.util.ServiceLoader
+import nyub.interpreter.ScriptDecorator
 
 val DEFAULT_LANGUAGE = Language.named("default")
 trait Configuration:

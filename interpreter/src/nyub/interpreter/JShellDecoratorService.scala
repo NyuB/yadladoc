@@ -8,8 +8,8 @@ class JShellDecoratorService extends ScriptDecoratorService:
     override def createDecorator(
         parameters: Map[String, String]
     ): ScriptDecorator =
-        ScriptDecorator(
+        InterpreterScriptDecorator(
           JShellInterpreter,
           "//> ",
-          ScriptDecorator.Config.DEFAULT.eraseStartingWith("//> ")
+          InterpreterScriptDecorator.Config.DEFAULT.eraseStartingWith("//> ")
         )

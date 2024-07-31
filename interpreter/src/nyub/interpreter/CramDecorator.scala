@@ -3,12 +3,17 @@ package nyub.interpreter
 import java.nio.file.Path
 
 object CramDecorator:
-    val DEFAULT_CONFIG = ScriptDecorator.Config.DEFAULT.eraseMatching(s =>
-        s.startsWith("  ") && !s.startsWith("  $ ")
-    )
+    val DEFAULT_CONFIG =
+        InterpreterScriptDecorator.Config.DEFAULT.eraseMatching(s =>
+            s.startsWith("  ") && !s.startsWith("  $ ")
+        )
 
     def apply(
         bashPath: Path,
-        config: ScriptDecorator.Config = DEFAULT_CONFIG
-    ): ScriptDecorator =
-        ScriptDecorator(CramInterpreter.Factory.BASH(bashPath), "", config)
+        config: InterpreterScriptDecorator.Config = DEFAULT_CONFIG
+    ): InterpreterScriptDecorator =
+        InterpreterScriptDecorator(
+          CramInterpreter.Factory.BASH(bashPath),
+          "",
+          config
+        )
