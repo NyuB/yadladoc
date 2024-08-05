@@ -25,7 +25,7 @@ class Yadladoc(
     def run(outputDir: Path, markdownFile: Path): Results[Seq[GeneratedFile]] =
         run(outputDir, markdownFile, fileSystem)
 
-    def check(outputDir: Path, markdownFile: Path): Seq[Errors] =
+    def check(outputDir: Path, markdownFile: Path): Iterable[Errors] =
         val checkFs = InMemoryFileSystem.init()
         val checkDir = checkFs.createTempDirectory("check")
 
@@ -35,7 +35,7 @@ class Yadladoc(
                     .map(checkGeneratedFile(_, outputDir, checkFs))
                     .flatMap(_.toList)
                     .toList
-                Results((), errors)
+                Results((), errors.toSet)
             .errors
 
     private def run(
@@ -109,24 +109,12 @@ class Yadladoc(
                               _.addExampleSnippet(snippet, example)
                             )
                         case DocumentationKind.DecoratedSnippet(
-                              interpreterId
+                              decoratorId
                             ) =>
-                            val decorated = config
-                                .scriptDecorator(
-                                  interpreterId,
-                                  docSnippet.properties
-                                )
-                                .map(
-                                  _.decorate(snippet.lines)
-                                )
-                                .getOrElse(snippet.lines)
-                            docResults.map(
-                              _.addRawSnippet(
-                                Markdown.Snippet(
-                                  snippet.header,
-                                  decorated.toSeq
-                                )
-                              )
+                            docResults.tryToAddDecoratedSnippet(
+                              decoratorId,
+                              docSnippet.properties,
+                              snippet
                             )
                         case DocumentationKind.Raw =>
                             docResults.map(
@@ -179,3 +167,36 @@ class Yadladoc(
                                 expectedContent
                               )
                             )
+
+    extension (docResults: Results[DocumentationGeneration])
+        private def tryToAddDecoratedSnippet(
+            decoratorId: String,
+            properties: Properties,
+            snippet: Markdown.Snippet
+        ): Results[DocumentationGeneration] =
+            val decorated = config
+                .scriptDecorator(
+                  decoratorId,
+                  properties
+                )
+                .map(
+                  _.decorate(snippet.lines)
+                )
+            decorated
+                .map(d =>
+                    docResults.map(
+                      _.addRawSnippet(
+                        Markdown.Snippet(
+                          snippet.header,
+                          d.toSeq
+                        )
+                      )
+                    )
+                )
+                .getOrElse(
+                  docResults
+                      .withError(
+                        MissingDecoratorError(decoratorId)
+                      )
+                      .map(_.addRawSnippet(snippet))
+                )

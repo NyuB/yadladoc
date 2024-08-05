@@ -51,7 +51,7 @@ private val DOCUMENTATION_PROBLEM_RETURN_CODE = 2
         printErrorsThenExit(errors, printer)
 
 private def printErrorsThenExit(
-    documentationErrors: Seq[Errors],
+    documentationErrors: Iterable[Errors],
     printer: AnsiPrinter
 ) =
     documentationErrors.foreach: e =>

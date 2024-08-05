@@ -51,7 +51,7 @@ class YadladocSuite
                 Yadladoc(ConfigurationFromFile(configDir))
                     .run(outputDir, markdownFile)
 
-            errors `is equal to` Seq.empty
+            errors `is equal to` Set.empty
 
             generatedFiles `is equal to` List(
               GeneratedFile(
@@ -110,7 +110,7 @@ class YadladocSuite
                     * Markdown
             """
             Yadladoc(ConfigurationFromFile(configDir))
-                .check(outputDir, markdownFile) `is equal to` List.empty
+                .check(outputDir, markdownFile) `is equal to` Set.empty
 
     testWithinYDocContext(
       "Check ok if generated files are already there and matching"
@@ -128,7 +128,7 @@ class YadladocSuite
             """
 
         Yadladoc(ConfigurationFromFile(configDir))
-            .check(outputDir, markdownFile) `is equal to` List.empty
+            .check(outputDir, markdownFile) `is equal to` Set.empty
 
     testWithinYDocContext(
       "Report errors if a generated file is missing"
@@ -245,7 +245,8 @@ class YadladocSuite
                 ```
                 """
             Yadladoc(ConfigurationFromFile(configDir))
-                .check(outputDir, markdownFile) match
+                .check(outputDir, markdownFile)
+                .toList match
                 case List(CheckErrors.MismatchingContent(f, _, _))
                     if markdownFile == f =>
                     ()
