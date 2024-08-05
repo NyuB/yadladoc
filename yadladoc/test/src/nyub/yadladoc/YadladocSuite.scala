@@ -47,9 +47,11 @@ class YadladocSuite
             ```
             """
 
-            val generatedFiles =
+            val Results(generatedFiles, errors) =
                 Yadladoc(ConfigurationFromFile(configDir))
                     .run(outputDir, markdownFile)
+
+            errors `is equal to` Seq.empty
 
             generatedFiles `is equal to` List(
               GeneratedFile(

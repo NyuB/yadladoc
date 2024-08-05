@@ -22,49 +22,66 @@ class Yadladoc(
       config.templateInjectionPostfix
     )
 
-    def run(outputDir: Path, markdownFile: Path): Iterable[GeneratedFile] =
+    def run(outputDir: Path, markdownFile: Path): Results[Seq[GeneratedFile]] =
         run(outputDir, markdownFile, fileSystem)
 
-    def check(outputDir: Path, markdownFile: Path): List[Errors] =
+    def check(outputDir: Path, markdownFile: Path): Seq[Errors] =
         val checkFs = InMemoryFileSystem.init()
         val checkDir = checkFs.createTempDirectory("check")
 
-        val generated = run(checkDir, markdownFile, checkFs)
-        generated
-            .map(checkGeneratedFile(_, outputDir, checkFs))
-            .flatMap(_.toList)
-            .toList
+        run(checkDir, markdownFile, checkFs)
+            .flatMap: results =>
+                val errors = results
+                    .map(checkGeneratedFile(_, outputDir, checkFs))
+                    .flatMap(_.toList)
+                    .toList
+                Results((), errors)
+            .errors
 
     private def run(
         outputDir: Path,
         markdownFile: Path,
         writeFs: FileSystem
-    ): Iterable[GeneratedFile] =
+    ): Results[Seq[GeneratedFile]] =
         val markdownLines = markdownFile.useLines(_.toSeq)
         val docGen = dogGenFromMarkdown(Markdown.parse(markdownLines))
 
-        val generatedExamples =
-            for example <- docGen.exampleSnippets.examples.values yield
-                val fullExample = buildFullExample(example)
-                val exampleFile =
-                    config.exampleFile(example.name, example.language)
+        val generatedExamples = docGen
+            .map(_.exampleSnippets.examples.values)
+            .flatMap: examples =>
+                val generated =
+                    for example <- examples yield
+                        val fullExample = buildFullExample(example)
+                        val exampleFile =
+                            config.exampleFile(example.name, example.language)
 
-                writeFs.writeContent(
-                  outputDir / exampleFile,
-                  fullExample.mkString("\n")
-                )
+                        writeFs.writeContent(
+                          outputDir / exampleFile,
+                          fullExample.mkString("\n")
+                        )
 
-                GeneratedFile(Some(outputDir), exampleFile, markdownFile)
-        val decoratedMarkdownLines = docGen.markdownDecoration.decoratedLines
-        if decoratedMarkdownLines == markdownLines then generatedExamples
-        else
-            generatedExamples.toSeq :+ {
-                writeFs.writeContent(
-                  markdownFile,
-                  decoratedMarkdownLines.mkString("\n")
-                )
-                GeneratedFile(None, markdownFile, markdownFile)
-            }
+                        GeneratedFile(
+                          Some(outputDir),
+                          exampleFile,
+                          markdownFile
+                        )
+                Results.success(generated)
+
+        val generatedMarkdown = docGen
+            .map(_.markdownDecoration.decoratedLines)
+            .flatMap: decoratedLines =>
+                if decoratedLines == markdownLines then Results.success(None)
+                else
+                    writeFs.writeContent(
+                      markdownFile,
+                      decoratedLines.mkString("\n")
+                    )
+                    Results.success(
+                      Some(GeneratedFile(None, markdownFile, markdownFile))
+                    )
+
+        generatedExamples.aggregate(generatedMarkdown): (examples, markdown) =>
+            Results.success(examples.toSeq ++ markdown.toList)
 
     private def buildFullExample(example: Example) =
         example.build(
@@ -78,8 +95,9 @@ class Yadladoc(
 
     private def dogGenFromMarkdown(
         markdown: Iterable[Markdown.Block]
-    ): DocumentationGeneration =
-        markdown.foldLeft(DocumentationGeneration.init(config)): (doc, block) =>
+    ): Results[DocumentationGeneration] =
+        val init = Results.success(DocumentationGeneration.init(config))
+        val docGen = markdown.foldLeft(init): (docResults, block) =>
             block match
                 case snippet: Markdown.Snippet =>
                     val docSnippet = snippet.toDocSnippet
@@ -87,7 +105,9 @@ class Yadladoc(
                       docSnippet
                     ) match
                         case example: DocumentationKind.ExampleSnippet =>
-                            doc.addExampleSnippet(snippet, example)
+                            docResults.map(
+                              _.addExampleSnippet(snippet, example)
+                            )
                         case DocumentationKind.DecoratedSnippet(
                               interpreterId
                             ) =>
@@ -100,13 +120,21 @@ class Yadladoc(
                                   _.decorate(snippet.lines)
                                 )
                                 .getOrElse(snippet.lines)
-                            doc.addRawSnippet(
-                              Markdown.Snippet(snippet.header, decorated.toSeq)
+                            docResults.map(
+                              _.addRawSnippet(
+                                Markdown.Snippet(
+                                  snippet.header,
+                                  decorated.toSeq
+                                )
+                              )
                             )
                         case DocumentationKind.Raw =>
-                            doc.addRawSnippet(snippet) // no doc to generate
+                            docResults.map(
+                              _.addRawSnippet(snippet)
+                            ) // no doc to generate
                 case raw: Markdown.Raw =>
-                    doc.addRawBlock(raw) // no doc to generate
+                    docResults.map(_.addRawBlock(raw)) // no doc to generate
+        docGen
 
     extension (s: Markdown.Snippet)
         private def toDocSnippet: Snippet =

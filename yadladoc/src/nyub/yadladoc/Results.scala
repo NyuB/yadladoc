@@ -3,6 +3,30 @@ package nyub.yadladoc
 import java.nio.file.Path
 import munit.diff.Diffs
 
+case class Results[A](
+    val results: A,
+    val errors: Seq[Errors]
+):
+
+    def map[B](f: A => B): Results[B] =
+        Results(f(results), errors)
+
+    def flatMap[B](f: A => Results[B]): Results[B] =
+        val nextResults = f(results)
+        Results(nextResults.results, errors ++ nextResults.errors)
+
+    def aggregate[B, C](other: Results[B])(
+        f: (A, B) => Results[C]
+    ): Results[C] =
+        val nextResults = f(results, other.results)
+        Results(
+          nextResults.results,
+          errors ++ other.errors ++ nextResults.errors
+        )
+
+object Results:
+    def success[A](results: A): Results[A] = Results(results, Seq.empty)
+
 sealed trait Errors:
     def prettyPrintedMessage: String
 

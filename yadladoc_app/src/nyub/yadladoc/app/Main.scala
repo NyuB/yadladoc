@@ -1,54 +1,66 @@
 package nyub.yadladoc.app
 
-import nyub.yadladoc.Yadladoc
-import nyub.yadladoc.ConfigurationFromFile
-import java.nio.file.Paths
 import nyub.ansi.AnsiPrinter
+import nyub.yadladoc.ConfigurationFromFile
+import nyub.yadladoc.Results
+import nyub.yadladoc.Yadladoc
+import java.nio.file.Paths
+import nyub.yadladoc.Errors
+
+private val OK_RETURN_CODE = 0
+private val INVALID_ARGUMENT_RETURN_CODE = 1
+private val DOCUMENTATION_PROBLEM_RETURN_CODE = 2
 
 @main def main(args: String*) =
     if args.size == 1 && isHelpOption(args(0)) then
         print(help)
-        System.exit(0)
+        System.exit(OK_RETURN_CODE)
 
     if args.size != 2 then
         println(s"Error: wrong number of arguments, expected 2")
         println(help)
-        System.exit(1)
+        System.exit(INVALID_ARGUMENT_RETURN_CODE)
 
     val command = args(0)
     if command != "run" && command != "check" then
         println(s"Error: unknown comand ${command}")
         println(help)
-        System.exit(1)
+        System.exit(INVALID_ARGUMENT_RETURN_CODE)
 
     val markdownFile = Paths.get(args(1))
     if !markdownFile.toFile().isFile() then
         println(s"Error: ${markdownFile} is not a valid file")
         println(help)
-        System.exit(1)
+        System.exit(INVALID_ARGUMENT_RETURN_CODE)
 
     val configDir = Paths.get(".ydoc")
     if !configDir.toFile().isDirectory() then
         println(".ydoc is not a valid directory")
-        System.exit(1)
+        System.exit(INVALID_ARGUMENT_RETURN_CODE)
 
     val outputDir = Paths.get(".")
     val yadladoc = Yadladoc(ConfigurationFromFile(configDir))
     val printer = AnsiPrinter.NO_COLOR
     if command == "run" then
-        val generated = yadladoc.run(outputDir, markdownFile)
+        val Results(generated, errors) = yadladoc.run(outputDir, markdownFile)
         generated.foreach: g =>
             println(s"Generated ${g.short} from ${g.from}")
+        printErrorsThenExit(errors, printer)
     else if command == "check" then
         val errors = yadladoc.check(outputDir, markdownFile)
-        if !errors.isEmpty then
-            errors.foreach: e =>
-                println(
-                  s"Error [${e.getClass().getSimpleName()}]: ${printer.print(e.prettyPrintedMessage)}"
-                )
+        printErrorsThenExit(errors, printer)
 
-            System.exit(2)
-        else System.exit(0)
+private def printErrorsThenExit(
+    documentationErrors: Seq[Errors],
+    printer: AnsiPrinter
+) =
+    documentationErrors.foreach: e =>
+        println(
+          s"Error [${e.getClass().getSimpleName()}]: ${printer.print(e.prettyPrintedMessage)}"
+        )
+    if !documentationErrors.isEmpty then
+        System.exit(DOCUMENTATION_PROBLEM_RETURN_CODE)
+    else System.exit(OK_RETURN_CODE)
 
 private def isHelpOption(arg: String) =
     arg == "--help" ||
