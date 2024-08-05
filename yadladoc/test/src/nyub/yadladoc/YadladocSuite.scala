@@ -51,7 +51,7 @@ class YadladocSuite
                 Yadladoc(ConfigurationFromFile(configDir))
                     .run(outputDir, markdownFile)
 
-            errors `is equal to` Seq.empty
+            errors `is equal to` List.empty
 
             generatedFiles `is equal to` List(
               GeneratedFile(
@@ -245,7 +245,8 @@ class YadladocSuite
                 ```
                 """
             Yadladoc(ConfigurationFromFile(configDir))
-                .check(outputDir, markdownFile) match
+                .check(outputDir, markdownFile)
+                .toList match
                 case List(CheckErrors.MismatchingContent(f, _, _))
                     if markdownFile == f =>
                     ()

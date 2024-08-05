@@ -18,5 +18,26 @@ class ResultsSuite extends munit.FunSuite with AssertExtensions:
         error.prettyPrintedMessage `contains substring` actualContent
         error.prettyPrintedMessage `contains substring` expectedContent
 
+    test("Merged results share common errors"):
+        val someError = MissingDecoratorError("Missing A")
+        val anotherError = MissingDecoratorError("Missing B")
+        val yetAnotherError = MissingDecoratorError("Missing C")
+        val mergeError = MissingDecoratorError("Missing D")
+
+        val rootResult = Results.success(None).withError(someError)
+        val leftResult = rootResult.withError(anotherError)
+        val rightResult = rootResult.withError(yetAnotherError)
+
+        val merged = leftResult.merge(rightResult)((_, _) =>
+            Results((), Seq(mergeError))
+        )
+
+        merged.errors `is equal to` Seq(
+          someError,
+          anotherError,
+          yetAnotherError,
+          mergeError
+        )
+
     private val somePath = Paths.get("some")
 end ResultsSuite

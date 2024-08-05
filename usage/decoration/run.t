@@ -54,3 +54,20 @@ to the decorated version that would have been generated during a run
   +//> java.lang.ArrayIndexOutOfBoundsException
    ```
   [2]
+
+An error is reported if the decorator is unknown in both run and check mode:
+  $ cat UNKNOWN.md
+  # Decoration error example
+  
+  The following code snippet refers to an unknown `ydoc.decorator`:
+  
+  ```text ydoc.decorator=unknown-decorator
+  line 1
+  line 2
+  ``` (no-eol)
+  $ java -jar ydoc.jar check UNKNOWN.md
+  Error [MissingDecoratorError]: Unknown decorator id 'unknown-decorator'
+  [2]
+  $ java -jar ydoc.jar run UNKNOWN.md
+  Error [MissingDecoratorError]: Unknown decorator id 'unknown-decorator'
+  [2]
