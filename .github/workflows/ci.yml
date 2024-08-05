@@ -3,7 +3,7 @@ name: CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "fail-if-missing-decorator" ]
   pull_request:
     branches: [ "main" ]
   workflow_dispatch:
