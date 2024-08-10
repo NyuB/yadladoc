@@ -2,9 +2,15 @@ package nyub.assert
 
 import java.nio.file.{Files, Path}
 trait AssertExtensions extends munit.Assertions:
-    extension [T](t: T)
-        infix def `is equal to`(other: T): Unit =
-            assertEquals(t, other)
+    extension [A](a: A)
+        infix def `is equal to`(other: A): Unit =
+            assertEquals(a, other)
+
+        infix def matches(pf: PartialFunction[A, Unit]): Unit =
+            pf.applyOrElse(
+              a,
+              _ => fail("$a does not match the expected clauses")
+            )
 
     extension [T](t: Option[T])
         infix def `is equal to some`(other: T): Unit =

@@ -25,7 +25,10 @@ class Yadladoc(
     def run(outputDir: Path, markdownFile: Path): Results[Seq[GeneratedFile]] =
         run(outputDir, markdownFile, fileSystem)
 
-    def check(outputDir: Path, markdownFile: Path): Iterable[Errors] =
+    def check(
+        outputDir: Path,
+        markdownFile: Path
+    ): Results[Seq[GeneratedFile]] =
         val checkFs = InMemoryFileSystem.init()
         val checkDir = checkFs.createTempDirectory("check")
 
@@ -35,8 +38,7 @@ class Yadladoc(
                     .map(checkGeneratedFile(_, outputDir, checkFs))
                     .flatMap(_.toList)
                     .toList
-                Results((), errors)
-            .errors
+                Results(results, errors)
 
     private def run(
         outputDir: Path,

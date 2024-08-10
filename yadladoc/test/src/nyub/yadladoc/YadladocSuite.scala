@@ -110,7 +110,10 @@ class YadladocSuite
                     * Markdown
             """
             Yadladoc(ConfigurationFromFile(configDir))
-                .check(outputDir, markdownFile) `is equal to` List.empty
+                .check(outputDir, markdownFile) `is equal to` Results(
+              Seq.empty,
+              Seq.empty
+            )
 
     testWithinYDocContext(
       "Check ok if generated files are already there and matching"
@@ -128,7 +131,12 @@ class YadladocSuite
             """
 
         Yadladoc(ConfigurationFromFile(configDir))
-            .check(outputDir, markdownFile) `is equal to` List.empty
+            .check(outputDir, markdownFile) matches:
+            case Results(
+                  Seq(GeneratedFile(Some(_), _, generatedFrom)),
+                  Seq()
+                ) =>
+                generatedFrom `is equal to` markdownFile
 
     testWithinYDocContext(
       "Report errors if a generated file is missing"
@@ -145,7 +153,8 @@ class YadladocSuite
             .check(
               outputDir,
               markdownFile
-            ) `contains exactly in any order` List(
+            )
+            .errors `contains exactly in any order` List(
           CheckErrors.MissingFile(p"ko.java")
         )
 
@@ -246,6 +255,7 @@ class YadladocSuite
                 """
             Yadladoc(ConfigurationFromFile(configDir))
                 .check(outputDir, markdownFile)
+                .errors
                 .toList match
                 case List(CheckErrors.MismatchingContent(f, _, _))
                     if markdownFile == f =>

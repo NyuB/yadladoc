@@ -41,6 +41,7 @@ to the decorated version that would have been generated during a run
   $ cp README.md.not_decorated README.md
   $ rm README.md.not_decorated
   $ java -jar ydoc.jar check README.md
+  Checked README.md generated from README.md
   Error [MismatchingContent]: File 'README.md' has mismatching content with what would have been generated
    var l = java.util.List.of("Riri", "Fifi", "Loulou")
   +//> [Riri, Fifi, Loulou]

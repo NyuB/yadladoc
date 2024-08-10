@@ -47,7 +47,9 @@ private val DOCUMENTATION_PROBLEM_RETURN_CODE = 2
             println(s"Generated ${g.short} from ${g.from}")
         printErrorsThenExit(errors, printer)
     else if command == "check" then
-        val errors = yadladoc.check(outputDir, markdownFile)
+        val Results(generated, errors) = yadladoc.check(outputDir, markdownFile)
+        generated.foreach: g =>
+            println(s"Checked ${g.short} generated from ${g.from}")
         printErrorsThenExit(errors, printer)
 
 private def printErrorsThenExit(

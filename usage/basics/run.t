@@ -42,9 +42,11 @@ In 'run' mode, Yadladoc generates actual files based on these code snippets
 
 In 'check' mode, Yadladoc verifies that the files content indeed match what would be generated from the snippets
   $ java -jar ydoc.jar check README.md
+  Checked Test.java generated from README.md
 It will fail on files with mismatching content
   $ sed -i 's/assertEquals/assertNumberEquals/g' Test.java
   $ java -jar ydoc.jar check README.md
+  Checked Test.java generated from README.md
   Error [MismatchingContent]: File 'Test.java' has mismatching content with what would have been generated
    import org.junit.jupiter.api.Test;
   -import static org.junit.jupiter.api.Assertions.assertNumberEquals;
@@ -59,5 +61,6 @@ It will fail on files with mismatching content
 It will fail on missing files
   $ rm Test.java
   $ java -jar ydoc.jar check README.md
+  Checked Test.java generated from README.md
   Error [MissingFile]: File 'Test.java' is missing
   [2]
