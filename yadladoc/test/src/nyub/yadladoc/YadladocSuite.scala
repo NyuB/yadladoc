@@ -256,14 +256,9 @@ class YadladocSuite
             Yadladoc(ConfigurationFromFile(configDir))
                 .check(outputDir, markdownFile)
                 .errors
-                .toList match
-                case List(CheckErrors.MismatchingContent(f, _, _))
-                    if markdownFile == f =>
-                    ()
-                case _ =>
-                    fail(
-                      "Expected content mismatch error for decorated markdown file"
-                    )
+                .toList matches:
+                case List(CheckErrors.MismatchingContent(f, _, _)) =>
+                    markdownFile `is equal to` f
 
     def testWithinYDocContext(name: String)(f: (Path, Path, Path) => Any) =
         val withYdocContext =
