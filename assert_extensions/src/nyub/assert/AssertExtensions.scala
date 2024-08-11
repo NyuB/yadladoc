@@ -2,6 +2,7 @@ package nyub.assert
 
 import java.nio.file.{Files, Path}
 import nyub.assert.CaseClauses.caseClauses
+import nyub.assert.BooleanExpression.booleanExpression
 
 trait AssertExtensions extends munit.Assertions:
     extension [A](a: A)
@@ -17,6 +18,21 @@ trait AssertExtensions extends munit.Assertions:
                     s"${a} does not match the expected clauses ${caseClausesWithRepr.repr}"
                   )
             )
+
+    extension (inline b: Boolean)
+        inline infix def `is true because`(reason: String) =
+            val booleanExpr = booleanExpression(b)
+            if !booleanExpr.booleanValue then
+                fail(
+                  s"Expected '${booleanExpr.repr}' to be true because '${reason}' but was false"
+                )
+
+        inline infix def `is false because`(reason: String) =
+            val booleanExpr = booleanExpression(b)
+            if booleanExpr.booleanValue then
+                fail(
+                  s"Expected '${booleanExpr.repr}' to be false because '${reason}' but was true"
+                )
 
     extension [T](t: Option[T])
         infix def `is equal to some`(other: T): Unit =
