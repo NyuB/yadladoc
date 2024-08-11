@@ -1,15 +1,21 @@
 package nyub.assert
 
 import java.nio.file.{Files, Path}
+import nyub.assert.CaseClauses.caseClauses
+
 trait AssertExtensions extends munit.Assertions:
     extension [A](a: A)
         infix def `is equal to`(other: A): Unit =
             assertEquals(a, other)
 
-        infix def matches(pf: PartialFunction[A, Unit]): Unit =
-            pf.applyOrElse(
+        inline infix def matches(inline pf: PartialFunction[A, Unit]): Unit =
+            val caseClausesWithRepr = caseClauses(pf)
+            caseClausesWithRepr.applyOrElse(
               a,
-              _ => fail("$a does not match the expected clauses")
+              _ =>
+                  fail(
+                    s"${a} does not match the expected clauses ${caseClausesWithRepr.repr}"
+                  )
             )
 
     extension [T](t: Option[T])

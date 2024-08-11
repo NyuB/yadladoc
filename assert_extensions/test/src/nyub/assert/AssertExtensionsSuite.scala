@@ -9,8 +9,9 @@ class AssertExtensionsSuite extends munit.FunSuite with AssertExtensions:
             case Seq(_, 2) => ()
 
     test("Seq(1) does not match Seq(_, _)"):
-        intercept[AssertionError]:
+        val err = intercept[AssertionError]:
             Seq(1) matches:
                 case Seq(_, _) => ()
+        err.getMessage().contains("case Seq(_, _) =>") `is equal to` true
 
 end AssertExtensionsSuite
