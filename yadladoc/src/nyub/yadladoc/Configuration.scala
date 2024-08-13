@@ -8,6 +8,7 @@ import nyub.filesystem.OsFileSystem
 import nyub.interpreter.ScriptDecoratorService
 import java.util.ServiceLoader
 import nyub.interpreter.ScriptDecorator
+import nyub.interpreter.CramDecoratorService
 
 val DEFAULT_LANGUAGE = Language.named("default")
 trait Configuration:
@@ -90,13 +91,28 @@ trait Configuration:
               )
             )
 
-    def decoratorServices: Map[String, ScriptDecoratorService] =
+    final def decoratorServices: Map[String, ScriptDecoratorService] =
         val mutableMap =
-            scala.collection.mutable.Map.empty[String, ScriptDecoratorService]
+            scala.collection.mutable.Map.from(builtinDecoratorServices)
         ServiceLoader
             .load(classOf[ScriptDecoratorService])
             .forEach(s => mutableMap(s.id) = s)
         mutableMap.toMap
+
+    /** **Please note**: this method should only return decorator services meant
+      * to be usable within any user environment
+      *
+      *   - Do not add any JVM reflective feature as yadladoc could be packaged
+      *     as native binaries
+      *   - Do not add any OS specific feature as yadladoc supports both Unix
+      *     and Windows
+      *
+      * For more specific or user-defined decorators, use SPI embedded in the
+      * classpath
+      * @return
+      */
+    def builtinDecoratorServices: Map[String, ScriptDecoratorService] =
+        Map("cram" -> CramDecoratorService())
 
 /** Constants meant to be overridable for programatic use (i.e. as a library) of
   * yadladoc
