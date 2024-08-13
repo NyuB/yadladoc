@@ -6,6 +6,7 @@ import nyub.yadladoc.Results
 import nyub.yadladoc.Yadladoc
 import java.nio.file.Paths
 import nyub.yadladoc.Errors
+import nyub.yadladoc.ConfigurationConstants
 
 private val OK_RETURN_CODE = 0
 private val INVALID_ARGUMENT_RETURN_CODE = 1
@@ -39,7 +40,9 @@ private val DOCUMENTATION_PROBLEM_RETURN_CODE = 2
         System.exit(INVALID_ARGUMENT_RETURN_CODE)
 
     val outputDir = Paths.get(".")
-    val yadladoc = Yadladoc(ConfigurationFromFile(configDir))
+    val yadladoc = Yadladoc(
+      ConfigurationFromFile(configDir, ConfigurationConstants.DEFAULTS)
+    )
     val printer = AnsiPrinter.NO_COLOR
     if command == "run" then
         val Results(generated, errors) = yadladoc.run(outputDir, markdownFile)
