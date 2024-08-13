@@ -4,7 +4,7 @@
 Inspired by [cram](https://bitheap.org/cram/), [knit](https://github.com/Kotlin/kotlinx-knit), [mdoc](https://github.com/scalameta/mdoc), [mdx](https://github.com/realworldocaml/mdx)
 
 ## Motivation
-Documenting code is a an effort, maintening the documentation can be even harder. This is especially true for code snippets that can 'rot' easily with refactorings, API changes, renaming, removals...
+Documenting code is a an effort, maintaining the documentation can be even harder. This is especially true for code snippets that can 'rot' easily with refactorings, API changes, renaming, removals...
 
 But code snippets also have considerable values, as a few lines of codes can sometimes illustrate an API usage in a much more consise and expressive way than a higher level description. 
  
@@ -229,7 +229,13 @@ Run `make usage/ydoc.jar` to produce the executable jar `ydoc.jar` in `usage/`
 
 ### From the release jar
 
-Each [github release](https://github.com/NyuB/yadladoc/releases/) contains an executable jar, which is enough to run all of the examples listed in this document. 
+Each [github release](https://github.com/NyuB/yadladoc/releases/) contains an executable `ydoc.jar`, which is enough to run all of the examples listed in this document.
+
+### From the release binary
+
+Each [github release](https://github.com/NyuB/yadladoc/releases/) contains native binaries for windows and linux.
+
+**NB** these binaries do not currently support the [in-place decoration feature](#in-place-snippet-decoration), decorated snippets will be ignored.
 
 ## Contribute
 

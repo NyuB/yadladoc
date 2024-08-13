@@ -34,11 +34,11 @@ jobs:
     - name: Test
       run: make test
 
-  package:
+  jar:
     # ydoc.jar built on linux github runners encountered the following error with JShell:
     # "java.lang.NullPointerException: Cannot invoke "com.sun.tools.javac.code.Scope$StarImportScope.isFilled()" because "tree.starImportScope" is null"
     # (reproduced on 31/07/2024 within image etc/Dockerfile.dev)
-    # therefore, we use a windows runner to build the jar and execute doc check tasks
+    # therefore, we use a windows runner to build the jar
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -48,7 +48,7 @@ jobs:
           apps: cs scala3 scalafmt
           jvm: graalvm-java21:21.0.2
 
-      - name: Package
+      - name: Build Jar
         run: make usage/ydoc.jar
   
       - uses: actions/upload-artifact@v4
@@ -57,10 +57,48 @@ jobs:
           path: usage/ydoc.jar
           if-no-files-found: error
           retention-days: 1
+  
+  binary:
+    name: ${{ matrix.os }} native binary
+    needs: [jar]
+    # only build binaries for releases
+    if: github.event_name == 'workflow_dispatch' 
+    runs-on: ${{ matrix.os }}-latest
+    strategy:
+      matrix:
+        os: [ubuntu, windows]
+        include:
+          - os: windows
+            name: windows
+          - os: ubuntu
+            name: linux
+    steps:
+      - uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '21'
+          distribution: 'graalvm'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          native-image-job-reports: 'true'
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: ydoc.jar
+          path: usage/
+
+      - name: Build native binary from jar
+        run: native-image -jar usage/ydoc.jar ydoc-${{ matrix.name }}
+      
+      - name: Upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: ydoc-${{ matrix.name }}
+          path: ydoc-${{ matrix.name }}*
+          if-no-files-found: error
+          retention-days: 1
 
   doc-check:
     runs-on: ubuntu-latest
-    needs: [package]
+    needs: [jar]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -87,13 +125,23 @@ jobs:
   
   release:
     runs-on: ubuntu-latest
-    needs: [test, package, doc-check]
+    needs: [test, jar, binary, doc-check]
     if: github.event_name == 'workflow_dispatch'
     steps:
     - uses: actions/download-artifact@v4
       with:
         name: ydoc.jar
         path: usage/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: ydoc-linux
+        path: bin/
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: ydoc-windows
+        path: bin/
 
     - name: Release
       uses: softprops/action-gh-release@v2
@@ -105,3 +153,5 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         files: |
           usage/ydoc.jar
+          bin/ydoc-linux
+          bin/ydoc-windows.exe
