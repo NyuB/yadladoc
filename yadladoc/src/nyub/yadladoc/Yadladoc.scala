@@ -89,9 +89,9 @@ class Yadladoc(
         example.build(
           templating,
           id => config.templateFile(id).useLines(_.toList),
-          config.snippetInjectionKey,
-          config.exampleNameInjectionKey,
-          config.subExampleNameInjectionKey,
+          config.constants.snippetInjectionKey,
+          config.constants.exampleNameInjectionKey,
+          config.constants.subExampleNameInjectionKey,
           config.properties.toMap
         )
 

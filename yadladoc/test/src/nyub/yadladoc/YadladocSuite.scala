@@ -20,7 +20,7 @@ class YadladocSuite
             ```
             """
 
-        Yadladoc(ConfigurationFromFile(configDir))
+        Yadladoc(testConfig(configDir))
             .run(outputDir, markdownFile)
 
         outputDir.resolve("one.java") `has content` l"""
@@ -48,7 +48,7 @@ class YadladocSuite
             """
 
             val Results(generatedFiles, errors) =
-                Yadladoc(ConfigurationFromFile(configDir))
+                Yadladoc(testConfig(configDir))
                     .run(outputDir, markdownFile)
 
             errors `is equal to` List.empty
@@ -91,7 +91,7 @@ class YadladocSuite
             new AwesomeClass().doAmazingStuff(); // Wunderbar !
             ```
             """
-            Yadladoc(ConfigurationFromFile(configDir))
+            Yadladoc(testConfig(configDir))
                 .run(outputDir, markdownFile)
 
             outputDir.resolve("surround.java") `has content` l"""
@@ -109,7 +109,7 @@ class YadladocSuite
                 - A simple
                     * Markdown
             """
-            Yadladoc(ConfigurationFromFile(configDir))
+            Yadladoc(testConfig(configDir))
                 .check(outputDir, markdownFile) `is equal to` Results(
               Seq.empty,
               Seq.empty
@@ -130,7 +130,7 @@ class YadladocSuite
             println("Hello world");
             """
 
-        Yadladoc(ConfigurationFromFile(configDir))
+        Yadladoc(testConfig(configDir))
             .check(outputDir, markdownFile) matches:
             case Results(
                   Seq(GeneratedFile(Some(_), _, generatedFrom)),
@@ -149,7 +149,7 @@ class YadladocSuite
             """
         makeFile(outputDir, "notTheOneYouExpected.java", "Some content")
 
-        Yadladoc(ConfigurationFromFile(configDir))
+        Yadladoc(testConfig(configDir))
             .check(
               outputDir,
               markdownFile
@@ -171,7 +171,7 @@ class YadladocSuite
               "txt.template",
               "${{ydoc.exampleName}}"
             )
-            Yadladoc(ConfigurationFromFile(configDir))
+            Yadladoc(testConfig(configDir))
                 .run(outputDir, markdownFile)
 
             outputDir.resolve("a/b.txt") `has content` "a_b_txt"
@@ -197,7 +197,7 @@ class YadladocSuite
               "B.template",
               "// ${{ydoc.subExampleName}}"
             )
-            Yadladoc(ConfigurationFromFile(configDir))
+            Yadladoc(testConfig(configDir))
                 .run(outputDir, markdownFile)
 
             outputDir.resolve("javaExample.java") `has content` l"""
@@ -221,7 +221,7 @@ class YadladocSuite
               "custom.template",
               "class Custom { ${{ydoc.snippet}} }"
             )
-            Yadladoc(ConfigurationFromFile(configDir))
+            Yadladoc(testConfig(configDir))
                 .run(outputDir, markdownFile)
 
             outputDir.resolve(
@@ -236,7 +236,7 @@ class YadladocSuite
                 java.util.List.of(1,2,3)
                 ```
                 """
-            Yadladoc(ConfigurationFromFile(configDir))
+            Yadladoc(testConfig(configDir))
                 .run(outputDir, markdownFile)
             markdownFile `has content` l"""
             ```java ydoc.decorator=jshell
@@ -253,14 +253,16 @@ class YadladocSuite
                 java.util.List.of(1,2,3)
                 ```
                 """
-            Yadladoc(ConfigurationFromFile(configDir))
+            Yadladoc(testConfig(configDir))
                 .check(outputDir, markdownFile)
                 .errors
                 .toList matches:
                 case List(CheckErrors.MismatchingContent(f, _, _)) =>
                     markdownFile `is equal to` f
 
-    def testWithinYDocContext(name: String)(f: (Path, Path, Path) => Any) =
+    private def testWithinYDocContext(name: String)(
+        f: (Path, Path, Path) => Any
+    ) =
         val withYdocContext =
             FunFixture.map3(withTempDir, withTempDir, withTempDir)
         withYdocContext.test(name): (outputDir, configDir, workingDir) =>
@@ -278,7 +280,10 @@ class YadladocSuite
             )
             f(outputDir, configDir, workingDir)
 
-    object TestContext:
+    private def testConfig(configDir: Path): Configuration =
+        ConfigurationFromFile(configDir, ConfigurationConstants.DEFAULTS)
+
+    private object TestContext:
         val kotlinTemplate = l"""
             package com.example
             fun main() {

@@ -188,7 +188,7 @@ list.get(-1)
 
 #### Custom decorators
 
-Decorators are discovered using the java Service Provider Interface mechanism. To make your own decorator available, simply add your jar with your implementation of ScriptDecoratorService
+Decorators are discovered using the java Service Provider Interface mechanism. To make your own decorator available, implement ScriptDecoratorService:
 
 ```scala ydoc.example=interpreter/src/nyub/interpreter/ScriptDecoratorService.scala ydoc.template=raw
 package nyub.interpreter
@@ -213,6 +213,12 @@ trait ScriptDecoratorService:
       */
     def createDecorator(parameters: Map[String, String]): ScriptDecorator
 
+```
+
+Then add the jar with your implementation to the classpath when running yadladoc:
+
+```console
+$ java -cp my-decorators.jar -jar ydoc.jar check README.md 
 ```
 
 You can then refer to your decorator using the ```id``` method return value as ```ydoc.decorator``` value.

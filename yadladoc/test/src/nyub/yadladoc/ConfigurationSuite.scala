@@ -21,4 +21,6 @@ class ConfigurationSuite extends munit.FunSuite with AssertExtensions:
         override val configDir = Files.createTempDirectory("test")
         override val properties = Properties.ofMap(Map.empty)
 
+        override val constants = ConfigurationConstants.DEFAULTS
+
 end ConfigurationSuite
