@@ -1,5 +1,6 @@
 
 name: CI
+run-name: ${{ github.event.inputs.name }}
 
 on:
   push:
