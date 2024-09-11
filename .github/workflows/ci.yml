@@ -50,7 +50,7 @@ jobs:
           jvm: graalvm-java21:21.0.2
 
       - name: Build Jar
-        run: make usage/ydoc.jar
+        run: make usage\ydoc.jar
   
       - uses: actions/upload-artifact@v4
         with:

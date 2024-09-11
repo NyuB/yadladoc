@@ -8,7 +8,7 @@ else
 	TEST_DEPS=build-runner
 endif
 CRAM=cram --shell /bin/bash
-TESTS=basics decoration
+TESTS=basics decoration misc
 test: $(TEST_DEPS)
 	$(WITH_TEST_RUNNER) $(CRAM) $(TESTS)
 update: $(TEST_DEPS)

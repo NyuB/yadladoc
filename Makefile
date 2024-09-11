@@ -1,6 +1,7 @@
 ifeq ($(OS), Windows_NT)
 # Project paths
 	MILLW=millw
+	YDOC_JAR=usage\ydoc.jar
 # Shell commands
 	CP=copy
 	RM=del
@@ -10,9 +11,8 @@ else
 # Shell commands
 	CP=cp
 	RM=rm
+	YDOC_JAR=usage/ydoc.jar
 endif
-YDOC_JAR=usage/ydoc.jar
-
 
 .PHONY: dev test ydoc.jar doc-check doc-gen fmt fmt-check clean
 
