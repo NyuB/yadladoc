@@ -36,10 +36,12 @@ Along generated files, yadladoc will also "decorate" code snippets annotated wit
   l.get(-1)
   //> java.lang.ArrayIndexOutOfBoundsException
   ```
-Just as other generated files, in check mode yadladoc will compare the actual markdown file
-to the decorated version that would have been generated during a run
+Cleanup
   $ cp README.md.not_decorated README.md
   $ rm README.md.not_decorated
+
+Just as other generated files, in check mode yadladoc will compare the actual markdown file
+to the decorated version that would have been generated during a run
   $ java -jar ydoc.jar check README.md
   Checked README.md generated from README.md
   Error [MismatchingContent]: File 'README.md' has mismatching content with what would have been generated
