@@ -117,7 +117,7 @@ trait Configuration:
 /** Constants meant to be overridable for programatic use (i.e. as a library) of
   * yadladoc
   *
-  * For user-provided constants use [[nyub.yadladocProperties]]
+  * For user-provided constants use [[nyub.yadladoc.Properties]]
   */
 trait ConfigurationConstants:
     def snippetInjectionKey: String
