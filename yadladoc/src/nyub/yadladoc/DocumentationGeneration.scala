@@ -15,15 +15,7 @@ private class DocumentationGeneration(
           exampleSnippets.accumulate(exampleSnippet)
         )
 
-    def addRawSnippet(
-        markdownSnippet: Markdown.Snippet
-    ): DocumentationGeneration =
-        DocumentationGeneration(
-          markdownDecoration.accumulate(markdownSnippet),
-          exampleSnippets
-        )
-
-    def addRawBlock(markdownRaw: Markdown.Raw): DocumentationGeneration =
+    def addRawBlock(markdownRaw: Markdown.Block): DocumentationGeneration =
         DocumentationGeneration(
           markdownDecoration.accumulate(markdownRaw),
           exampleSnippets
