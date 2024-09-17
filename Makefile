@@ -32,7 +32,7 @@ $(YDOC_JAR):
 JAVA=java
 DOC_JAVA_JAR=$(JAVA) -jar $(YDOC_JAR)
 doc-check: $(YDOC_JAR)
-	$(DOC_JAVA_JAR) check README.md
+	$(DOC_JAVA_JAR) --color check README.md
 doc-gen: $(YDOC_JAR)
 	$(DOC_JAVA_JAR) run README.md
 
