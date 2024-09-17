@@ -28,4 +28,16 @@ class PropertiesSuite extends munit.FunSuite with AssertExtensions:
         base.extendedWith(extend)
             .getOrDefault("key")("") `is equal to` "overrideValue"
 
+    test("Extend with disjoint property"):
+        val base = Properties("foo.bar" -> "baz")
+        base.extendedWith("foo.goo" -> "zoo") `is equal to` Properties(
+          "foo.bar" -> "baz",
+          "foo.goo" -> "zoo"
+        )
+
+    test("Extend overrides common property"):
+        val base = Properties("key" -> "baseValue")
+        base.extendedWith("key" -> "overrideValue")
+            .getOrDefault("key")("") `is equal to` "overrideValue"
+
 end PropertiesSuite
