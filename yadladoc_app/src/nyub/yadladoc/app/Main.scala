@@ -5,7 +5,7 @@ private val INVALID_ARGUMENT_RETURN_CODE = 1
 private val DOCUMENTATION_PROBLEM_RETURN_CODE = 2
 
 @main def main(args: String*) =
-    val result = YdocMain.parse(args).run()
+    val result = YdocMain().parse(args).run()
     exitWith(result)
 
 private def exitWith(errorCode: Int): Nothing =
