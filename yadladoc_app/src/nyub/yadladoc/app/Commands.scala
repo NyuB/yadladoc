@@ -95,7 +95,11 @@ private def withYadladoc(options: CommonOptions)(
         INVALID_ARGUMENT_RETURN_CODE
     else
         val yadladoc = Yadladoc(
-          ConfigurationFromFile(configDir, ConfigurationConstants.DEFAULTS)
+          ConfigurationFromFile(
+            configDir,
+            ConfigurationConstants.DEFAULTS,
+            overrideProperties = options.overrideProperties
+          )
         )
         operation(yadladoc)
 

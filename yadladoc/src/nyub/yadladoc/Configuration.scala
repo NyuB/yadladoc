@@ -214,12 +214,15 @@ object ConfigurationConstants:
 case class ConfigurationFromFile(
     override val configDir: Path,
     override val constants: ConfigurationConstants,
-    private val storage: FileSystem = OsFileSystem()
+    private val storage: FileSystem = OsFileSystem(),
+    private val overrideProperties: Properties = Properties.empty
 ) extends Configuration:
     override val properties: Properties =
         val propertyFile = configDir / "ydoc.properties"
-        if !propertyFile.toFile().isFile() then Properties.empty
+        if !propertyFile.toFile().isFile() then overrideProperties
         else
-            storage.useLines(propertyFile): lines =>
-                lines.foldLeft(Properties.empty): (props, line) =>
-                    props.extendedWith(Properties.ofLine(line))
+            storage
+                .useLines(propertyFile): lines =>
+                    lines.foldLeft(Properties.empty): (props, line) =>
+                        props.extendedWith(Properties.ofLine(line))
+                .extendedWith(overrideProperties)
