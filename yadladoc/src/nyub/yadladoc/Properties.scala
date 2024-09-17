@@ -20,14 +20,28 @@ trait Properties:
       * overrides the base one.
       *
       * @param overridingWith
-      *   the property to extend these properties with. Property with the same
-      *   key override the base ones
+      *   the properties to extend these properties with. A property with the
+      *   same key will override the base one
       * @return
-      *   these properties extended and overriden with the argument properties
+      *   these properties extended or overriden with the argument properties
       */
     final def extendedWith(overridingWith: Properties): Properties =
         val extended = toMap ++ overridingWith.toMap
         Properties.ofMap(extended)
+
+    /** Overrides `overridenProperty` key-value pair
+      *
+      * If this property key is already present, the property from the argument
+      * overrides the base one.
+      *
+      * @param overridenProperty
+      *   the property to extend these properties with. A property with the same
+      *   key will override the base one
+      * @return
+      *   these properties extended or overriden with the argument property
+      */
+    final def extendedWith(overridenProperty: (String, String)): Properties =
+        Properties.ofMap(toMap + overridenProperty)
 
 object Properties:
     /** Build properties from the given key-value pairs
