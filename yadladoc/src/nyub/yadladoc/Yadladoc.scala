@@ -120,7 +120,7 @@ class Yadladoc(
                             )
                         case DocumentationKind.Raw =>
                             docResults.map(
-                              _.addRawSnippet(snippet)
+                              _.addRawBlock(snippet)
                             ) // no doc to generate
                 case raw: Markdown.Raw =>
                     docResults.map(_.addRawBlock(raw)) // no doc to generate
@@ -187,7 +187,7 @@ class Yadladoc(
             decorated
                 .map(d =>
                     docResults.map(
-                      _.addRawSnippet(
+                      _.addRawBlock(
                         Markdown.Snippet(
                           snippet.header,
                           d.toSeq
@@ -200,5 +200,5 @@ class Yadladoc(
                       .withError(
                         MissingDecoratorError(decoratorId)
                       )
-                      .map(_.addRawSnippet(snippet))
+                      .map(_.addRawBlock(snippet))
                 )
