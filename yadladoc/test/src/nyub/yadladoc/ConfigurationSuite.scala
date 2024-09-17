@@ -29,6 +29,44 @@ class ConfigurationSuite extends munit.FunSuite with AssertExtensions:
           Snippet(None, Seq.empty, Properties())
         ) `is equal to` DocumentationKind.Raw
 
+    test("Templates are searched in includes dir and suffixed by '.template'"):
+        TestConfig.templateFile(
+          TemplateId("id")
+        ) `is equal to` TestConfig.configDir
+            .resolve("includes")
+            .resolve("id.template")
+
+    test(
+      "Given no language and no template property, default template is used"
+    ):
+        TestConfig.templateId(None, Properties.empty) `is equal to` TemplateId(
+          "default"
+        )
+
+    test(
+      "Given a language and no template property, language name is used as template id"
+    ):
+        TestConfig.templateId(
+          Some(Language.named("scala")),
+          Properties.empty
+        ) `is equal to` TemplateId("scala")
+
+    test(
+      "Given a language and a template property, the property is used as template id"
+    ):
+        TestConfig.templateId(
+          Some(Language.named("scala")),
+          Properties(TestConfig.constants.templateIdPropertyKey -> "prop")
+        ) `is equal to` TemplateId("prop")
+
+    test(
+      "Given no language and a template property, the property is used as template id"
+    ):
+        TestConfig.templateId(
+          None,
+          Properties(TestConfig.constants.templateIdPropertyKey -> "prop")
+        ) `is equal to` TemplateId("prop")
+
     test("Built-in services"):
         TestConfig.decoratorServices
             .get("cram")
