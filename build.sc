@@ -70,4 +70,5 @@ object yadladoc_app extends ScalaModule with SharedConfiguration {
         )
     }
 
+    object test extends Tests
 }

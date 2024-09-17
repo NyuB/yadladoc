@@ -30,7 +30,10 @@ case class YdocMain(printer: AnsiPrinter = AnsiPrinter.NO_COLOR)
 
     override def run(): ExitCode = Help(true, printer = printer).run()
 
-class Help(failureMode: Boolean, printer: AnsiPrinter) extends Command:
+case class Help(
+    failureMode: Boolean,
+    printer: AnsiPrinter = AnsiPrinter.NO_COLOR
+) extends Command:
     override def parse(args: Seq[String]): Command =
         if args.isEmpty then this else Help(true, printer = printer)
 
@@ -44,7 +47,8 @@ class Help(failureMode: Boolean, printer: AnsiPrinter) extends Command:
 Common options:
     --color: use color when printing errors or diffs to the console"""
 
-case class Check(files: Seq[Path], printer: AnsiPrinter) extends Command:
+case class Check(files: Seq[Path], printer: AnsiPrinter = AnsiPrinter.NO_COLOR)
+    extends Command:
     override def parse(args: Seq[String]): Command =
         if files.isEmpty && args.isEmpty then Help(true, printer)
         else this.copy(files = files ++ args.map(Paths.get(_)))

@@ -19,7 +19,7 @@ endif
 dev: fmt test
 
 test:
-	$(MILLW) -j 4 assert_extensions.test + filesystem.test + interpreter.test + yadladoc.test + yadladoc_app.compile
+	$(MILLW) -j 4 assert_extensions.test + filesystem.test + interpreter.test + yadladoc.test + yadladoc_app.test
 
 usage-test: $(YDOC_JAR)
 	$(MAKE) -C usage test
