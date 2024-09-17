@@ -2,6 +2,7 @@ package nyub.yadladoc.app
 
 import nyub.assert.AssertExtensions
 import java.nio.file.Paths
+import nyub.ansi.AnsiPrinter
 
 class CommandsSuite extends munit.FunSuite with AssertExtensions:
     test("help"):
@@ -25,5 +26,23 @@ class CommandsSuite extends munit.FunSuite with AssertExtensions:
 
     test("check expects at least one path argument"):
         YdocMain().parse(Seq("check")) `is equal to` Help(true)
+
+    test("--color option activate ansi color codes"):
+        val defaultOptionsWithColor =
+            CommonOptions.DEFAULTS.copy(printer = AnsiPrinter.WITH_COLOR)
+        YdocMain().parse(
+          Seq("--color", "check", "README.md")
+        ) `is equal to` Check(
+          Seq(Paths.get("README.md")),
+          defaultOptionsWithColor
+        )
+        YdocMain().parse(Seq("--color", "run", "README.md")) `is equal to` Run(
+          Seq(Paths.get("README.md")),
+          defaultOptionsWithColor
+        )
+        YdocMain().parse(Seq("--color", "help")) `is equal to` Help(
+          false,
+          defaultOptionsWithColor
+        )
 
 end CommandsSuite
