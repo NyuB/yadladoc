@@ -52,13 +52,10 @@ private class ExampleSnippetMerger(
     def accumulate(
         exampleSnippet: DocumentationKind.ExampleSnippet
     ): ExampleSnippetMerger =
+        val example = makeExample(exampleSnippet)
         val updatedExamples = examples.updatedWith(exampleSnippet.name):
-            case None =>
-                Some(
-                  makeExample(exampleSnippet)
-                )
-            case Some(previous) =>
-                Some(previous.merge(makeExample(exampleSnippet)))
+            case None           => Some(example)
+            case Some(previous) => Some(previous.merge(example))
         ExampleSnippetMerger(config, updatedExamples)
 
     private def makeExample(
