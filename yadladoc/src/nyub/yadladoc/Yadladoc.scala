@@ -22,6 +22,15 @@ class Yadladoc(
       config.templateInjectionPostfix
     )
 
+    private val exampleAssembler = ExampleAssembler(
+      templating,
+      id => config.templateFile(id).useLines(_.toList),
+      config.constants.snippetInjectionKey,
+      config.constants.exampleNameInjectionKey,
+      config.constants.subExampleNameInjectionKey,
+      config.properties.toMap
+    )
+
     def run(outputDir: Path, markdownFile: Path): Results[Seq[GeneratedFile]] =
         run(outputDir, markdownFile, fileSystem)
 
@@ -53,7 +62,7 @@ class Yadladoc(
             .flatMap: examples =>
                 val generated =
                     for example <- examples yield
-                        val fullExample = buildFullExample(example)
+                        val fullExample = exampleAssembler.assemble(example)
                         val exampleFile =
                             config.exampleFile(example.name, example.language)
 
@@ -84,16 +93,6 @@ class Yadladoc(
 
         generatedExamples.merge(generatedMarkdown): (examples, markdown) =>
             Results.success(examples.toSeq ++ markdown.toList)
-
-    private def buildFullExample(example: Example) =
-        example.build(
-          templating,
-          id => config.templateFile(id).useLines(_.toList),
-          config.constants.snippetInjectionKey,
-          config.constants.exampleNameInjectionKey,
-          config.constants.subExampleNameInjectionKey,
-          config.properties.toMap
-        )
 
     private def dogGenFromMarkdown(
         markdown: Iterable[Markdown.Block]

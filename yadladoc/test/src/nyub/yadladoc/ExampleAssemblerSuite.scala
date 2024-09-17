@@ -3,37 +3,26 @@ package nyub.yadladoc
 import nyub.assert.AssertExtensions
 import nyub.templating.SurroundingTemplateInjection
 
-class ExampleSuite extends munit.FunSuite with AssertExtensions:
+class ExampleAssemblerSuite extends munit.FunSuite with AssertExtensions:
     test("Sanitized example name available in main template"):
-        Example(
+        val example = Example(
           "a/b.txt",
           templateId,
           None,
           Seq(
             bodyOnlyExampleContent("Line #1")
           )
-        ).build(
-          templateInjection,
-          getTemplate,
-          bodyInjectionKey,
-          exampleNameInjectionKey,
-          partNameInjectionKey,
-          Map.empty
-        ) `is equal to`
+        )
+
+        assembler.assemble(example) `is equal to`
             Seq("a_b_txt", "Line #1")
 
     test("Sanitized & indexed example name available in prefix template"):
         val contentWithPrefix =
             ExampleContent(Seq(prefixTemplateId), Seq("Body"), Seq.empty)
         val example = Example("a.txt", templateId, None, Seq(contentWithPrefix))
-        example.build(
-          templateInjection,
-          getTemplate,
-          bodyInjectionKey,
-          exampleNameInjectionKey,
-          partNameInjectionKey,
-          Map.empty
-        ) `is equal to` Seq(
+
+        assembler.assemble(example) `is equal to` Seq(
           "a_txt",
           "a_txt_0\nBody"
         )
@@ -42,17 +31,20 @@ class ExampleSuite extends munit.FunSuite with AssertExtensions:
         val contentWithPrefix =
             ExampleContent(Seq.empty, Seq("Body"), Seq(suffixTemplateId))
         val example = Example("a.txt", templateId, None, Seq(contentWithPrefix))
-        example.build(
-          templateInjection,
-          getTemplate,
-          bodyInjectionKey,
-          exampleNameInjectionKey,
-          partNameInjectionKey,
-          Map.empty
-        ) `is equal to` Seq(
+
+        assembler.assemble(example) `is equal to` Seq(
           "a_txt",
           "Body\na_txt_0"
         )
+
+    def assembler = ExampleAssembler(
+      templateInjection,
+      getTemplate,
+      bodyInjectionKey,
+      exampleNameInjectionKey,
+      partNameInjectionKey,
+      Map.empty
+    )
 
     private val exampleNameInjectionKey = "exampleNameInjectionKey"
     private val partNameInjectionKey = "partNameInjectionKey"
@@ -84,4 +76,4 @@ class ExampleSuite extends munit.FunSuite with AssertExtensions:
         lines: String*
     ): ExampleContent = ExampleContent(Seq.empty, lines, Seq.empty)
 
-end ExampleSuite
+end ExampleAssemblerSuite
