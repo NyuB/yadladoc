@@ -3,6 +3,7 @@ package nyub.yadladoc.app
 import nyub.assert.AssertExtensions
 import java.nio.file.Paths
 import nyub.ansi.AnsiPrinter
+import nyub.yadladoc.Properties
 
 class CommandsSuite extends munit.FunSuite with AssertExtensions:
     test("help"):
@@ -44,5 +45,22 @@ class CommandsSuite extends munit.FunSuite with AssertExtensions:
           false,
           defaultOptionsWithColor
         )
+
+    test("-Dkey=value overrides default properties"):
+        val check = YdocMain().parse(Seq("-Dkey=value", "check", "README.md"))
+        val run = YdocMain().parse(Seq("-Dkey=value", "run", "README.md"))
+        val help = YdocMain().parse(Seq("-Dkey=value", "help"))
+        extension (props: Properties)
+            def `were overriden` = props.get("key") `is equal to some` "value"
+
+        check matches:
+            case Check(_, CommonOptions(_, props)) =>
+                props.`were overriden`
+        run matches:
+            case Run(_, CommonOptions(_, props)) =>
+                props.`were overriden`
+        help matches:
+            case Help(_, CommonOptions(_, props)) =>
+                props.`were overriden`
 
 end CommandsSuite

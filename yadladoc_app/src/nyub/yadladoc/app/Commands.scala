@@ -26,6 +26,8 @@ case class YdocMain(options: CommonOptions = CommonOptions.DEFAULTS)
         case "--color" :: rest =>
             this.copy(options = options.copy(printer = AnsiPrinter.WITH_COLOR))
                 .parse(rest)
+        case s"-D${property}=${value}" :: rest =>
+            this.copy(options.overridingProperty(property -> value)).parse(rest)
         case Nil => this
         case _   => Help(true, options = options)
 
