@@ -15,3 +15,12 @@ object AnsiColors:
       LIGHT_GREEN,
       RESET
     )
+
+    object Helpers:
+        extension (s: String)
+            def red: String = s"$RED$s$RESET"
+            def green: String = s"$GREEN$s$RESET"
+
+        extension (sc: StringContext)
+            def red(args: Any*): String = sc.s(args*).red
+            def green(args: Any*): String = sc.s(args*).green

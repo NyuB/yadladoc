@@ -1,5 +1,6 @@
 package nyub.yadladoc.app
 
+import nyub.ansi.AnsiColors.Helpers.red
 import nyub.ansi.AnsiPrinter
 import nyub.yadladoc.{
     ConfigurationConstants,
@@ -99,7 +100,7 @@ private def printErrorsThenExitCode(
 ): ExitCode =
     documentationErrors.foreach: e =>
         printer.println(
-          s"Error [${e.getClass().getSimpleName()}]: ${e.prettyPrintedMessage}"
+          s"${red"Error"} [${e.getClass().getSimpleName()}]: ${e.prettyPrintedMessage}"
         )
     if !documentationErrors.isEmpty then DOCUMENTATION_PROBLEM_RETURN_CODE
     else OK_RETURN_CODE

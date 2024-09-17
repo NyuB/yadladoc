@@ -46,7 +46,7 @@ Color option
   $ echo "print('Oops')" > one.py
   $ java -jar ydoc.jar --color check One.md
   Checked one.py generated from One.md
-  Error [MismatchingContent]: File 'one.py' has mismatching content with what would have been generated
+  \x1b[31mError\x1b[0m [MismatchingContent]: File 'one.py' has mismatching content with what would have been generated (esc)
   \x1b[91m-print('Oops')\x1b[0m (esc)
   \x1b[92m+def test_one_py:\x1b[0m (esc)
   \x1b[92m+    print("One")\x1b[0m (esc)
