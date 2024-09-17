@@ -29,8 +29,11 @@ jobs:
         apps: cs scala3 scalafmt
         jvm: graalvm-java21:21.0.2
 
-    - name: Enforce formatting
+    - name: Enforce code formatting
       run: make fmt-check
+
+    - name: Enforce code rules
+      run: make fix-check
 
     - name: Test
       run: make test

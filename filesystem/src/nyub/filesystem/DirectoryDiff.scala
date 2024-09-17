@@ -1,6 +1,7 @@
 package nyub.filesystem
 
 import java.nio.file.Path
+
 import FileTree.{Dir, File}
 
 /** Represents the difference between two directories (denoted `A` & `B`)

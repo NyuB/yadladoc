@@ -1,7 +1,8 @@
 package nyub.yadladoc
 
-import java.nio.file.Path
 import munit.diff.Diffs
+
+import java.nio.file.Path
 import scala.collection.mutable.ArrayBuffer
 
 case class Results[A](

@@ -1,7 +1,7 @@
 package nyub.filesystem
 
-import scala.io.Source
 import java.nio.file.Path
+import scala.io.Source
 
 extension (p: Path)
     def /(other: Path) = p.resolve(other)

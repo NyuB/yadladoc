@@ -1,9 +1,8 @@
 package nyub.filesystem
 
-import java.nio.file.{Files, Path}
 import java.nio.charset.{Charset, StandardCharsets}
+import java.nio.file.{Files, Path, Paths}
 import scala.io.Source
-import java.nio.file.Paths
 
 /** Implements [[FileSystem]] with usual access to disk
   */

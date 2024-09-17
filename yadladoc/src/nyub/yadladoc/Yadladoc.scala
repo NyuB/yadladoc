@@ -1,6 +1,5 @@
 package nyub.yadladoc
 
-import nyub.markdown.Markdown
 import nyub.filesystem.{
     /,
     useLines,
@@ -9,6 +8,7 @@ import nyub.filesystem.{
     InMemoryFileSystem,
     OsFileSystem
 }
+import nyub.markdown.Markdown
 import nyub.templating.{SurroundingTemplateInjection, TemplateInjection}
 
 import java.nio.file.Path

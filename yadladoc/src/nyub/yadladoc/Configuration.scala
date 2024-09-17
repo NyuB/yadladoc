@@ -1,14 +1,14 @@
 package nyub.yadladoc
 
-import java.nio.file.Path
-import nyub.filesystem./
-import java.nio.file.Paths
-import nyub.filesystem.FileSystem
-import nyub.filesystem.OsFileSystem
-import nyub.interpreter.ScriptDecoratorService
+import nyub.filesystem.{/, FileSystem, OsFileSystem}
+import nyub.interpreter.{
+    CramDecoratorService,
+    ScriptDecorator,
+    ScriptDecoratorService
+}
+
+import java.nio.file.{Path, Paths}
 import java.util.ServiceLoader
-import nyub.interpreter.ScriptDecorator
-import nyub.interpreter.CramDecoratorService
 
 val DEFAULT_LANGUAGE = Language.named("default")
 trait Configuration:

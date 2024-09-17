@@ -1,14 +1,16 @@
 package nyub.yadladoc.app
 
 import nyub.ansi.AnsiPrinter
-import nyub.yadladoc.ConfigurationFromFile
-import nyub.yadladoc.Results
-import nyub.yadladoc.Yadladoc
-import java.nio.file.Paths
-import nyub.yadladoc.Errors
-import nyub.yadladoc.ConfigurationConstants
-import java.nio.file.Path
-import nyub.yadladoc.GeneratedFile
+import nyub.yadladoc.{
+    ConfigurationConstants,
+    ConfigurationFromFile,
+    Errors,
+    GeneratedFile,
+    Results,
+    Yadladoc
+}
+
+import java.nio.file.{Path, Paths}
 
 private val OK_RETURN_CODE = 0
 private val INVALID_ARGUMENT_RETURN_CODE = 1

@@ -1,6 +1,7 @@
 package nyub.markdown
 
 import nyub.yadladoc.Language
+
 import scala.annotation.targetName
 
 object Markdown:

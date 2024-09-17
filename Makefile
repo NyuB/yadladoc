@@ -37,12 +37,21 @@ doc-gen: $(YDOC_JAR)
 	$(DOC_JAVA_JAR) run README.md
 
 javadoc:
-	millw assert_extensions.docJar + filesystem.docJar + interpreter.docJar + yadladoc.docJar + yadladoc_app.docJar
+	$(MILLW) assert_extensions.docJar + filesystem.docJar + interpreter.docJar + yadladoc.docJar + yadladoc_app.docJar
 
 fmt:
 	scalafmt .
 fmt-check:
 	scalafmt --check .
+
+fix:
+	$(MILLW) assert_extensions.fix + filesystem.fix + interpreter.fix + yadladoc.fix + yadladoc_app.fix
+fix-check:
+	$(MILLW) assert_extensions.fix --check
+	$(MILLW) filesystem.fix --check
+	$(MILLW) interpreter.fix --check
+	$(MILLW) yadladoc.fix --check
+	$(MILLW) yadladoc_app.fix --check
 
 clean:
 	$(MILLW) clean

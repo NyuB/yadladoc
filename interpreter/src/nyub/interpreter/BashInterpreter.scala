@@ -1,12 +1,9 @@
 package nyub.interpreter
 
+import java.io.{BufferedReader, InputStreamReader, PrintWriter}
 import java.lang.ref.Cleaner
-import java.io.PrintWriter
-import java.io.BufferedReader
-import java.io.InputStreamReader
+import java.nio.file.{Files, Path}
 import scala.collection.mutable.ArrayBuffer
-import java.nio.file.Path
-import java.nio.file.Files
 
 class BashInterpreter(val process: Process, val onClose: () => Unit)
     extends Interpreter

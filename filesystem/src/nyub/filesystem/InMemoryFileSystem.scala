@@ -1,9 +1,8 @@
 package nyub.filesystem
 
-import java.nio.file.Path
-import java.nio.file.Paths
-import nyub.filesystem.Tree.Node
-import nyub.filesystem.Tree.Leaf
+import nyub.filesystem.Tree.{Leaf, Node}
+
+import java.nio.file.{Path, Paths}
 
 /** Simulate a file system without actually reading from or writing to disk
   */

@@ -1,3 +1,6 @@
+import $ivy.`com.goyeau::mill-scalafix::0.4.1`
+import com.goyeau.mill.scalafix.ScalafixModule
+
 import mill._, scalalib._
 
 object Versions {
@@ -6,7 +9,7 @@ object Versions {
     val munit_diff = munit
 }
 
-trait SharedConfiguration extends ScalaModule {
+trait SharedConfiguration extends ScalaModule with ScalafixModule {
     override def scalaVersion: T[String] = Versions.scala
     override def scalacOptions: T[Seq[String]] =
         Seq(

@@ -1,8 +1,9 @@
 package nyub.assert
 
-import java.nio.file.{Files, Path}
-import nyub.assert.CaseClauses.caseClauses
 import nyub.assert.BooleanExpression.booleanExpression
+import nyub.assert.CaseClauses.caseClauses
+
+import java.nio.file.{Files, Path}
 
 trait AssertExtensions extends munit.Assertions:
     extension [A](a: A)
