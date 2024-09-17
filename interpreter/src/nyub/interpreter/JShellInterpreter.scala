@@ -31,15 +31,15 @@ class JShellInterpreter extends Interpreter with AutoCloseable:
     private def snippetEventRepresentation(e: SnippetEvent): Seq[String] =
         e.status() match
             case VALID =>
-                val v = e.value()
-                if v == null then
-                    e.exception() match
-                        case null =>
-                            Seq.empty // Valid snippet but no output, e.g. for an import or a partial snippet
-                        case ex: EvalException =>
-                            Seq(ex.getExceptionClassName())
-                        case ex => Seq(ex.getMessage())
-                else v.split("(\n)|(\r\n)").toIndexedSeq
+                Option(e.value())
+                    .map(v => v.split("(\n)|(\r\n)").toIndexedSeq)
+                    .getOrElse:
+                        Option(e.exception()) match
+                            case None =>
+                                Seq.empty // Valid snippet but no output, e.g. for an import or a partial snippet
+                            case Some(ex: EvalException) =>
+                                Seq(ex.getExceptionClassName())
+                            case Some(ex) => Seq(ex.getMessage())
             case REJECTED =>
                 diagnostics(e.snippet())
             case _ => Seq("Unknown error evaluating snippet")

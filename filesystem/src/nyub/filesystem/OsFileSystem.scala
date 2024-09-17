@@ -41,7 +41,5 @@ class OsFileSystem(private val charSet: Charset = StandardCharsets.UTF_8)
 
     extension (p: Path)
         private def writeParents(): Unit =
-            if p.getParent() != null then
-                Files.createDirectories(p.getParent()): @annotation.nowarn(
-                  "msg=discarded non-Unit value"
-                )
+            Option(p.getParent()).foreach: parent =>
+                Files.createDirectories(parent)
