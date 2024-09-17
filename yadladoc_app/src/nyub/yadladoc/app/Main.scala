@@ -22,7 +22,7 @@ private val DOCUMENTATION_PROBLEM_RETURN_CODE = 2
         exitWith(OK_RETURN_CODE)
 
     if args.size < 2 then
-        println(s"Error: wrong number of arguments")
+        println("Error: wrong number of arguments")
         println(help)
         exitWith(INVALID_ARGUMENT_RETURN_CODE)
 
