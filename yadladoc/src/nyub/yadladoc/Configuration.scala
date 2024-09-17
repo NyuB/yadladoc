@@ -44,16 +44,23 @@ trait Configuration:
         )(constants.templateConstants.defaultInjectionSuffix)
 
     def documentationKindForSnippet(snippet: Snippet): DocumentationKind =
-        snippet.properties
-            .get(constants.exampleNamePropertyKey)
-            .filterNot(_.isBlank)
-            .map(DocumentationKind.ExampleSnippet(_, snippet))
-            .getOrElse:
-                snippet.properties
-                    .get(constants.decoratorIdPropertyKey)
-                    .filterNot(_.isBlank)
-                    .map(DocumentationKind.DecoratedSnippet(_))
-                    .getOrElse(DocumentationKind.Raw)
+        exampleKind(snippet)
+            .orElse(decoratedKind(snippet))
+            .getOrElse(DocumentationKind.Raw)
+
+    private def exampleKind(
+        snippet: Snippet
+    ): Option[DocumentationKind.ExampleSnippet] = snippet.properties
+        .get(constants.exampleNamePropertyKey)
+        .filterNot(_.isBlank)
+        .map(DocumentationKind.ExampleSnippet(_, snippet))
+
+    private def decoratedKind(
+        snippet: Snippet
+    ): Option[DocumentationKind.DecoratedSnippet] = snippet.properties
+        .get(constants.decoratorIdPropertyKey)
+        .filterNot(_.isBlank)
+        .map(DocumentationKind.DecoratedSnippet(_))
 
     def exampleFile(
         exampleName: String,
