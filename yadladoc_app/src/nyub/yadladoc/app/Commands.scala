@@ -12,7 +12,6 @@ import nyub.yadladoc.{
 
 import java.nio.file.{Path, Paths}
 
-type ExitCode = Int
 trait Command:
     def parse(args: Seq[String]): Command
     def run(): ExitCode
