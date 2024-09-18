@@ -59,38 +59,42 @@ class YadladocSuite
         (outputDir, configDir, workingDir) =>
             val markdownFile = makeFile(workingDir, "README.md"):
                 l"""
-            + Juste
+                + Just
                 - A simple
                     * Markdown
-            """
-            Yadladoc(testConfig(configDir))
-                .check(outputDir, markdownFile) `is equal to` Results(
+                """
+            val results = Yadladoc(testConfig(configDir))
+                .check(outputDir, markdownFile)
+
+            results `is equal to` Results(
               Seq.empty,
               Seq.empty
             )
 
-    testWithinYDocContext(
-      "Check ok if generated files are already there and matching"
-    ): (outputDir, configDir, workingDir) =>
-        val markdownFile = makeFile(workingDir, "README.md"):
-            l"""
+    testWithinYDocContext("Check ok if generated files are there and match"):
+        (outputDir, configDir, workingDir) =>
+
+            val markdownFile = makeFile(workingDir, "README.md"):
+                l"""
                 ```java ydoc.example=ok.java
                 println("Hello world");
                 ```
                 """
-        makeFile(outputDir, "ok.java"):
-            l"""
+            makeFile(outputDir, "ok.java"):
+                l"""
                 package com.example;
                 println("Hello world");
                 """
 
-        Yadladoc(testConfig(configDir))
-            .check(outputDir, markdownFile) matches:
-            case Results(
-                  Seq(GeneratedFile(Some(_), _, generatedFrom)),
-                  Seq()
-                ) =>
-                generatedFrom `is equal to` markdownFile
+            val results = Yadladoc(testConfig(configDir))
+                .check(outputDir, markdownFile)
+
+            results matches:
+                case Results(
+                      Seq(GeneratedFile(Some(_), _, generatedFrom)),
+                      Seq()
+                    ) =>
+                    generatedFrom `is equal to` markdownFile
 
     testWithinYDocContext(
       "Report errors if a generated file is missing"
@@ -103,12 +107,14 @@ class YadladocSuite
             """
         makeFile(outputDir, "notTheOneYouExpected.java", "Some content")
 
-        Yadladoc(testConfig(configDir))
+        val errors = Yadladoc(testConfig(configDir))
             .check(
               outputDir,
               markdownFile
             )
-            .errors `contains exactly in any order` List(
+            .errors
+
+        errors `is equal to` Seq(
           CheckErrors.MissingFile(p"ko.java")
         )
 
@@ -125,6 +131,7 @@ class YadladocSuite
               "custom.template",
               "class Custom { ${{ydoc.snippet}} }"
             )
+
             Yadladoc(testConfig(configDir))
                 .run(outputDir, markdownFile)
 
@@ -140,8 +147,10 @@ class YadladocSuite
                 java.util.List.of(1,2,3)
                 ```
                 """
+
             Yadladoc(testConfig(configDir))
                 .run(outputDir, markdownFile)
+
             markdownFile `has content` l"""
             ```java ydoc.decorator=jshell
             java.util.List.of(1,2,3)
@@ -157,10 +166,12 @@ class YadladocSuite
                 java.util.List.of(1,2,3)
                 ```
                 """
-            Yadladoc(testConfig(configDir))
+            val errors = Yadladoc(testConfig(configDir))
                 .check(outputDir, markdownFile)
                 .errors
-                .toList matches:
+                .toList
+
+            errors matches:
                 case List(CheckErrors.MismatchingContent(f, _, _)) =>
                     markdownFile `is equal to` f
 
