@@ -4,7 +4,7 @@ import com.goyeau.mill.scalafix.ScalafixModule
 import mill._, scalalib._
 
 object Versions {
-    val scala = "3.4.1"
+    val scala = "3.5.0"
     val munit = "1.0.0"
     val munit_diff = munit
 }
@@ -19,8 +19,7 @@ trait SharedConfiguration extends ScalaModule with ScalafixModule {
           "-Wnonunit-statement",
           "-WunstableInlineAccessors",
           "-Wunused:all",
-          "-Wvalue-discard",
-          "-Xlint:all"
+          "-Wvalue-discard"
         )
 
     trait Tests extends ScalaTests with TestModule.Munit {
