@@ -222,7 +222,7 @@ trait ScriptDecoratorService:
 Then add the jar with your implementation to the classpath when running yadladoc:
 
 ```console
-$ java -cp my-decorators.jar -jar ydoc.jar check README.md
+$ java -cp my-decorators.jar:ydoc.jar nyub.yadladoc.app.main check README.md
 ```
 
 You can then refer to your decorator using the ```id``` method return value as ```ydoc.decorator``` value.
