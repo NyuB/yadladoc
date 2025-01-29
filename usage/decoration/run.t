@@ -15,7 +15,7 @@ Along generated files, yadladoc will also "decorate" code snippets annotated wit
   l.contains("Picsou")
   l.get(-1)
   ```
-  
+
   $ cp README.md README.md.not_decorated
   $ java -jar ydoc.jar run README.md
   Generated README.md from README.md
@@ -36,6 +36,7 @@ Along generated files, yadladoc will also "decorate" code snippets annotated wit
   l.get(-1)
   //> java.lang.ArrayIndexOutOfBoundsException
   ```
+
 Cleanup
   $ cp README.md.not_decorated README.md
   $ rm README.md.not_decorated

@@ -9,4 +9,3 @@ l.get(1)
 l.contains("Picsou")
 l.get(-1)
 ```
-
