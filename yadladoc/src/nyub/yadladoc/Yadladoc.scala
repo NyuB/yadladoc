@@ -2,7 +2,7 @@ package nyub.yadladoc
 
 import nyub.filesystem.{
     /,
-    useLines,
+    lines,
     FileSystem,
     FileTree,
     InMemoryFileSystem,
@@ -24,7 +24,7 @@ class Yadladoc(
 
     private val exampleAssembler = ExampleAssembler(
       templating,
-      id => config.templateFile(id).useLines(_.toList),
+      id => config.templateFile(id).lines,
       config.constants.snippetInjectionKey,
       config.constants.exampleNameInjectionKey,
       config.constants.subExampleNameInjectionKey,
@@ -54,7 +54,7 @@ class Yadladoc(
         markdownFile: Path,
         writeFs: FileSystem
     ): Results[Seq[GeneratedFile]] =
-        val markdownLines = markdownFile.useLines(_.toSeq)
+        val markdownLines = markdownFile.lines
         val docGen = dogGenFromMarkdown(Markdown.parse(markdownLines))
 
         val generatedExamples = docGen
