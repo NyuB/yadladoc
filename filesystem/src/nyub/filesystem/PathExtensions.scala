@@ -1,7 +1,6 @@
 package nyub.filesystem
 
-import java.nio.file.Path
-import java.nio.file.Files
+import java.nio.file.{Files, Path}
 
 extension (p: Path)
     def /(other: Path) = p.resolve(other)
