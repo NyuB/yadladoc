@@ -1,13 +1,13 @@
 ifeq ($(OS), Windows_NT)
 # Project paths
-	MILLW=millw
+	MILL=mill
 	YDOC_JAR=usage\ydoc.jar
 # Shell commands
 	CP=copy
 	RM=del
 else
 # Project paths
-	MILLW=./millw
+	MILL=./mill
 # Shell commands
 	CP=cp
 	RM=rm
@@ -19,7 +19,7 @@ endif
 dev: fmt test
 
 test:
-	$(MILLW) -j 4 assert_extensions.test + filesystem.test + interpreter.test + yadladoc.test + yadladoc_app.test
+	$(MILL) -j 4 assert_extensions.test + filesystem.test + interpreter.test + yadladoc.test + yadladoc_app.test
 
 usage-test: $(YDOC_JAR)
 	$(MAKE) -C usage test
@@ -27,7 +27,7 @@ usage-update: $(YDOC_JAR)
 	$(MAKE) -C usage update
 
 $(YDOC_JAR):
-	$(MILLW) yadladoc_app.ydocJar
+	$(MILL) yadladoc_app.ydocJar
 
 JAVA=java
 DOC_JAVA_JAR=$(JAVA) -jar $(YDOC_JAR)
@@ -37,7 +37,7 @@ doc-gen: $(YDOC_JAR)
 	$(DOC_JAVA_JAR) run README.md
 
 javadoc:
-	$(MILLW) assert_extensions.docJar + filesystem.docJar + interpreter.docJar + yadladoc.docJar + yadladoc_app.docJar
+	$(MILL) assert_extensions.docJar + filesystem.docJar + interpreter.docJar + yadladoc.docJar + yadladoc_app.docJar
 
 fmt:
 	scalafmt .
@@ -45,14 +45,14 @@ fmt-check:
 	scalafmt --check .
 
 fix:
-	$(MILLW) assert_extensions.fix + filesystem.fix + interpreter.fix + yadladoc.fix + yadladoc_app.fix
+	$(MILL) assert_extensions.fix + filesystem.fix + interpreter.fix + yadladoc.fix + yadladoc_app.fix
 fix-check:
-	$(MILLW) assert_extensions.fix --check
-	$(MILLW) filesystem.fix --check
-	$(MILLW) interpreter.fix --check
-	$(MILLW) yadladoc.fix --check
-	$(MILLW) yadladoc_app.fix --check
+	$(MILL) assert_extensions.fix --check
+	$(MILL) filesystem.fix --check
+	$(MILL) interpreter.fix --check
+	$(MILL) yadladoc.fix --check
+	$(MILL) yadladoc_app.fix --check
 
 clean:
-	$(MILLW) clean
+	$(MILL) clean
 	$(RM) $(YDOC_JAR)
