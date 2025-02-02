@@ -33,12 +33,12 @@ trait Configuration:
         )
         TemplateId(id)
 
-    def templateInjectionPrefix =
+    def templateInjectionPrefix: String =
         properties.getOrDefault(
           constants.templateConstants.injectionPrefixPropertyKey
         )(constants.templateConstants.defaultInjectionPrefix)
 
-    def templateInjectionPostfix =
+    def templateInjectionPostfix: String =
         properties.getOrDefault(
           constants.templateConstants.injectionSuffixPropertyKey
         )(constants.templateConstants.defaultInjectionSuffix)

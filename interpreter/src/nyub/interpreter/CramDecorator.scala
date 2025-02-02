@@ -1,9 +1,11 @@
 package nyub.interpreter
 
+import nyub.interpreter.InterpreterScriptDecorator.Config.OverridableDefaults
+
 import java.nio.file.Path
 
 object CramDecorator:
-    val DEFAULT_CONFIG =
+    val DEFAULT_CONFIG: OverridableDefaults =
         InterpreterScriptDecorator.Config.DEFAULT.eraseMatching(s =>
             s.startsWith("  ") && !s.startsWith("  $ ")
         )

@@ -16,4 +16,6 @@ object CramInterpreter:
             CramInterpreter(shellFactory.create())
 
     object Factory:
-        def BASH(bashPath: Path) = Factory(BashInterpreter.Factory(bashPath))
+        def BASH(bashPath: Path): Factory = Factory(
+          BashInterpreter.Factory(bashPath)
+        )

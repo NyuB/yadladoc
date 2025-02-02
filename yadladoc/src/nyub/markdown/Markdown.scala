@@ -34,11 +34,11 @@ object Markdown:
     /** Represents raw lines without additional semantics
       */
     case class Raw(lines: Iterable[String]) extends Block:
-        override def toLines = lines
+        override def toLines: Iterable[String] = lines
 
     object Raw:
         @targetName("of")
-        def apply(lines: String*) = new Raw(lines.toSeq)
+        def apply(lines: String*): Raw = new Raw(lines.toSeq)
 
     /** Represents a markdown-formatted code snippet
       *
@@ -58,18 +58,18 @@ object Markdown:
       */
     case class Snippet(header: Snippet.Header, lines: Iterable[String])
         extends Block:
-        override def toLines =
+        override def toLines: Iterable[String] =
             Seq(header.toLine) ++ lines :+ header.prefix.prefixString
 
     object Snippet:
-        val PREFIX_CHAR = '`'
-        val PREFIX_MIN = "```"
+        val PREFIX_CHAR: Char = '`'
+        val PREFIX_MIN: String = "```"
         case class Header(
             val prefix: Prefix,
             val language: Option[Language],
             val afterLanguage: String
         ):
-            def toLine =
+            def toLine: String =
                 val afterPrefix = language
                     .map(l => s"${l.name}${afterLanguage}")
                     .getOrElse(afterLanguage)
@@ -79,7 +79,7 @@ object Markdown:
             def prefixString: String = String(Array.fill(length)(PREFIX_CHAR))
 
         @targetName("of")
-        def apply(header: Header, lines: String*) =
+        def apply(header: Header, lines: String*): Snippet =
             new Snippet(header, lines.toSeq)
 
         private[Markdown] def headerOfLine(line: String): Header =

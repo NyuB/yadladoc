@@ -40,7 +40,7 @@ class InMemoryFileSystem private (private var root: Node) extends FileSystem:
 object InMemoryFileSystem:
     /** Generate an empty file system simulation
       */
-    def init() = InMemoryFileSystem(Node(Map.empty))
+    def init(): InMemoryFileSystem = InMemoryFileSystem(Node(Map.empty))
 
 sealed private trait Tree:
     def content(path: Path): String
@@ -82,7 +82,7 @@ private object Tree:
                     Node(children.updated(first, child))
 
     case class Leaf(val content: String) extends Tree:
-        override def content(path: Path) = content
+        override def content(path: Path): String = content
         override def get(path: Path): Option[Tree] =
             if !path.isEmpty then None
             else Some(this)

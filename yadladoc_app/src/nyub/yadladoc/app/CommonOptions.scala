@@ -13,4 +13,5 @@ case class CommonOptions(
         )
 
 object CommonOptions:
-    val DEFAULTS = CommonOptions(AnsiPrinter.NO_COLOR, Properties.empty)
+    val DEFAULTS: CommonOptions =
+        CommonOptions(AnsiPrinter.NO_COLOR, Properties.empty)

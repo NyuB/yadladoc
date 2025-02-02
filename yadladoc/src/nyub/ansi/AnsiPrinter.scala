@@ -10,5 +10,5 @@ final class AnsiPrinter(private val printColors: Boolean):
             acc.replace(color, "")
 
 object AnsiPrinter:
-    val NO_COLOR = AnsiPrinter(false)
-    val WITH_COLOR = AnsiPrinter(true)
+    val NO_COLOR: AnsiPrinter = AnsiPrinter(false)
+    val WITH_COLOR: AnsiPrinter = AnsiPrinter(true)

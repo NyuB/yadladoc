@@ -32,10 +32,10 @@ private class MarkdownDecoration(private val blocks: Seq[Markdown.Block]):
     def accumulate(block: Markdown.Block): MarkdownDecoration =
         MarkdownDecoration(blocks :+ block)
 
-    def decoratedLines = Markdown.toLines(blocks)
+    def decoratedLines: Iterable[String] = Markdown.toLines(blocks)
 
 private object MarkdownDecoration:
-    def init = MarkdownDecoration(Seq.empty)
+    def init: MarkdownDecoration = MarkdownDecoration(Seq.empty)
 
 private class ExampleSnippetMerger(
     private val config: Configuration,
@@ -69,5 +69,5 @@ private class ExampleSnippetMerger(
         )
 
 private object ExampleSnippetMerger:
-    def init(config: Configuration) =
+    def init(config: Configuration): ExampleSnippetMerger =
         ExampleSnippetMerger(config, Map.empty)

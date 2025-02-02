@@ -106,7 +106,9 @@ object InterpreterScriptDecorator:
               *   a copy of this configuration with the given `newInlining`
               *   policy
               */
-            def withInlining(newInlining: String => Boolean) =
+            def withInlining(
+                newInlining: String => Boolean
+            ): OverridableDefaults =
                 OverridableDefaults(newInlining, erasing, transforming)
 
             /** Add an inlining criteria to this configuration.
@@ -120,8 +122,8 @@ object InterpreterScriptDecorator:
               *   a copy of this configuration with an **additional** inlining
               *   criteria
               */
-            def inlineShorterThan(n: Int) = withInlining: s =>
-                inlining(s) || s.length() < n
+            def inlineShorterThan(n: Int): OverridableDefaults = withInlining:
+                s => inlining(s) || s.length() < n
 
             /** Set a new erasing policy
               * @param newErasing
@@ -130,7 +132,9 @@ object InterpreterScriptDecorator:
               *   a copy of this configuration with the given `newErasing`
               *   policy
               */
-            def withErasing(newErasing: String => Boolean) =
+            def withErasing(
+                newErasing: String => Boolean
+            ): OverridableDefaults =
                 OverridableDefaults(inlining, newErasing, transforming)
 
             /** Add an erasing criteria to this configuration.
@@ -141,8 +145,9 @@ object InterpreterScriptDecorator:
               *   a copy of this configuration with an **additional** erasing
               *   criteria based on the line prefix
               */
-            def eraseStartingWith(prefix: String) = withErasing: s =>
-                erasing(s) || s.startsWith(prefix)
+            def eraseStartingWith(prefix: String): OverridableDefaults =
+                withErasing: s =>
+                    erasing(s) || s.startsWith(prefix)
 
             /** Add an erasing criteria to this configuration.
               *

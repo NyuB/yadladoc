@@ -17,5 +17,5 @@ class CramDecoratorService extends ScriptDecoratorService:
         CramDecorator(bashPath)
 
 object CramDecoratorService:
-    val BASH_PATH_PARAMETER_KEY = "cram.bash"
-    val BASH_PATH_DEFAULT = "/bin/bash"
+    val BASH_PATH_PARAMETER_KEY: String = "cram.bash"
+    val BASH_PATH_DEFAULT: String = "/bin/bash"

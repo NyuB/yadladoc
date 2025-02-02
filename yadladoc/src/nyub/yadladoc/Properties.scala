@@ -12,7 +12,7 @@ trait Properties:
         getPath(key).getOrElse(default)
 
     def all: List[(String, String)]
-    def toMap = all.toMap
+    def toMap: Map[String, String] = all.toMap
 
     /** Merge these properties with `overridingWith` properties
       *
@@ -49,12 +49,12 @@ object Properties:
       * @param pairs
       *   key-value properties
       */
-    def apply(pairs: (String, String)*) = ofMap(pairs.toMap)
+    def apply(pairs: (String, String)*): Properties = ofMap(pairs.toMap)
 
     /** @return
       *   an empty property set
       */
-    def empty = ofMap(Map.empty)
+    def empty: Properties = ofMap(Map.empty)
 
     /** Build properties from the given key-value pairs
       *
@@ -94,7 +94,7 @@ object Properties:
     private class PropertyMap(private val map: Map[String, String])
         extends Properties:
         override def all: List[(String, String)] = map.toList
-        override def toMap = map
+        override def toMap: Map[String, String] = map
         override def get(key: String): Option[String] = map.get(key)
         override def getOrDefault(key: String)(default: String): String =
             map.getOrElse(key, default)

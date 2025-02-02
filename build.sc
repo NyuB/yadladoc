@@ -1,4 +1,4 @@
-import $ivy.`com.goyeau::mill-scalafix::0.4.1`
+import $ivy.`com.goyeau::mill-scalafix::0.5.0`
 import com.goyeau.mill.scalafix.ScalafixModule
 
 import mill._, scalalib._
@@ -11,6 +11,7 @@ object Versions {
 
 trait SharedConfiguration extends ScalaModule with ScalafixModule {
     override def scalaVersion: T[String] = Versions.scala
+    override def scalafixScalaBinaryVersion: T[String] = Versions.scala
     override def scalacOptions: T[Seq[String]] =
         Seq(
           "-deprecation",

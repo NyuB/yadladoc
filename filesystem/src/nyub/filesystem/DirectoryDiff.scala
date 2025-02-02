@@ -24,7 +24,7 @@ case class DirectoryDiff(
 object DirectoryDiff:
     /** Represents the (absence of) diff between two identical directories
       */
-    val SAME = DirectoryDiff(Set.empty, Set.empty, Set.empty)
+    val SAME: DirectoryDiff = DirectoryDiff(Set.empty, Set.empty, Set.empty)
 
 /** A diffing method that will compare two paths A & B reading from two
   * respective [[FileSystem]]s
