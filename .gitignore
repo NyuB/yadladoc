@@ -3,6 +3,10 @@
 .metals
 .vscode
 
+# intellij config files
+.idea
+.bsp
+
 # mill output files
 out
 
