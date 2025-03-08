@@ -1,6 +1,7 @@
 package nyub.yadladoc
 
 import java.nio.file.{Path, Paths}
+import scala.util.matching.Regex
 
 /** Key-value pairs properties
   */
@@ -67,13 +68,16 @@ object Properties:
       *
       * The property must be space separated key-value pairs
       *
-      * The key value pairs must be '=' separated strings without white space
+      * The key value pairs must be '=' separated strings
+      *
+      * To use spaces or arbitrary characters as value, use quoted string
       *
       * @example
       *   ```
       *   // Nominal
       *   ofLine("a=b").get("a") // Some("b")
       *   ofLine("a=b    c.d=e.f").toMap // Map("a" -> "b", "c.d" -> "e.f")
+      *   ofLine("key=\"spaces in value\"").get("key") // Some("spaces in value")
       *   // Format caveats
       *   ofLine("a=b c").get("c") // None
       *   ofLine("a=b=c").get("a") // Some("b=c")
@@ -83,11 +87,15 @@ object Properties:
       *   space separated '=' separated key value pairs
       */
     def ofLine(line: String): Properties =
-        val map = line
-            .split("\\s")
-            .map(_.split("="))
-            .filter(_.length == 2)
-            .map(pair => pair(0) -> pair(1))
+        val supportedChars = "[a-z0-9A-Z._/\\\\:-]"
+        val re = Regex(
+          s"(${supportedChars}+)=((${supportedChars}+)|(\"[^\"]*\"))",
+          "key",
+          "value"
+        )
+        val map = re
+            .findAllMatchIn(line)
+            .map(m => m.group("key") -> m.group("value").replace("\"", ""))
             .toMap
         ofMap(map)
 
