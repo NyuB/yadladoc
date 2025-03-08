@@ -40,4 +40,9 @@ class PropertiesSuite extends munit.FunSuite with AssertExtensions:
         base.extendedWith("key" -> "overrideValue")
             .getOrDefault("key")("") `is equal to` "overrideValue"
 
+    test("Quoted property value"):
+        Properties
+            .ofLine("key=\"Spaced value\"")
+            .getOrDefault("key")("") `is equal to` "Spaced value"
+
 end PropertiesSuite
