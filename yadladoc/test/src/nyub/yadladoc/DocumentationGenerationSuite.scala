@@ -100,6 +100,35 @@ class DocumentationGenerationSuite extends munit.FunSuite with AssertExtensions:
           "```"
         )
 
+    test("Value of ydoc.indent is not applied to the generated lines"):
+        val docGen = DocumentationGeneration
+            .init(testConfig)
+            .addExampleSnippet(
+              Markdown.Snippet(
+                Header(Prefix(3), someLanguage, " ydoc.indent=4"),
+                Seq("Content")
+              ),
+              DocumentationKind.ExampleSnippet(
+                "test",
+                Snippet(
+                  someLanguage,
+                  Seq("Content"),
+                  Properties.ofLine("ydoc.indent=4")
+                )
+              )
+            )
+        docGen.markdownDecoration.decoratedLines `is equal to` Seq(
+          s"```${someLanguage.get.name} ydoc.indent=4",
+          "Content",
+          "```"
+        )
+        docGen.exampleSnippets
+            .examples("test")
+            .content
+            .iterator
+            .next()
+            .body `is equal to` Seq("    Content")
+
     private def bodyOnlyExampleContent(
         lines: Iterable[String]
     ): ExampleContent = ExampleContent(Seq.empty, lines, Seq.empty)

@@ -98,6 +98,12 @@ trait Configuration:
               )
             )
 
+    def indentation(properties: Properties): Int =
+        properties
+            .get(constants.indentPropertyKey)
+            .flatMap(_.toIntOption)
+            .getOrElse(0)
+
     final def decoratorServices: Map[String, ScriptDecoratorService] =
         val mutableMap =
             scala.collection.mutable.Map.from(builtinDecoratorServices)
@@ -140,6 +146,8 @@ trait ConfigurationConstants:
     def templateIdPropertyKey: String
 
     def includeDirPropertyKey: String
+
+    def indentPropertyKey: String
 
     def templateConstants: TemplateConstants
 
@@ -197,6 +205,8 @@ object ConfigurationConstants:
         override val templateIdPropertyKey: String = "ydoc.template"
 
         override val includeDirPropertyKey: String = "ydoc.includeDir"
+
+        override val indentPropertyKey: String = "ydoc.indent"
 
         override val templateConstants: TemplateConstants = new:
             override val prefixTemplatePropertyKey: String = "ydoc.prefix"

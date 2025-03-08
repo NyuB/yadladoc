@@ -54,6 +54,7 @@ private class ExampleSnippetMerger(
         exampleSnippet: DocumentationKind.ExampleSnippet
     ): Example =
         val snippet = exampleSnippet.snippet
+        val indent = " ".repeat(config.indentation(snippet.properties))
         Example(
           exampleSnippet.name,
           config
@@ -62,7 +63,7 @@ private class ExampleSnippetMerger(
           List(
             ExampleContent(
               config.prefixTemplateIds(snippet),
-              snippet.lines,
+              snippet.lines.map(indent + _),
               config.suffixTemplateIds(snippet)
             )
           )
