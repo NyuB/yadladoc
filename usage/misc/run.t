@@ -25,6 +25,23 @@ Run/check on multiple markdown files at once
 Cleanup
   $ rm one.py two.py
 
+Indent snippets via ydoc.indent per-snippet property
+  $ cat Indentation.md
+  This snippet will be indented by 4 spaces:
+  ```python ydoc.example=indented.py ydoc.indent=4
+  print("Indent this")
+  ```
+  $ cat .ydoc/includes/python.template
+  def test_${{ydoc.exampleName}}:
+  ${{ydoc.snippet}}
+  $ java -jar ydoc.jar run Indentation.md
+  Generated indented.py from Indentation.md
+  $ cat indented.py
+  def test_indented_py:
+      print("Indent this")
+Cleanup
+  $ rm indented.py
+
 Fail and print help message if no files are passed to run/check
   $ java -jar ydoc.jar run
   Usage: yadladoc {run|check|help} [markdown_files, ...]

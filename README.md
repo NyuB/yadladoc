@@ -125,9 +125,9 @@ end ${{ydoc.exampleName}}
 
 Once applied to a code snippet
 ````markdown
-```scala ydoc.example=test.scala
-    test("Documented test"):
-        42 isEqualTo 42
+```scala ydoc.example=test.scala ydoc.indent=4
+test("Documented test"):
+    42 isEqualTo 42
 ```
 ````
 
