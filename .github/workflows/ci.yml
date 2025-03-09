@@ -122,7 +122,7 @@ jobs:
           path: usage/
 
       - name: Check usage tests
-        run: make usage-test IN_DOCKER=NO
+        run: make usage-check IN_DOCKER=NO
 
       - name: Enforce README consistency
         run: make doc-check

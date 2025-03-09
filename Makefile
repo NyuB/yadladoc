@@ -21,20 +21,20 @@ dev: fmt test
 test:
 	$(MILL) -j 4 _.test
 
-usage-test: $(YDOC_JAR)
-	$(MAKE) -C usage test
-usage-update: $(YDOC_JAR)
+usage: $(YDOC_JAR)
 	$(MAKE) -C usage update
+usage-check: $(YDOC_JAR)
+	$(MAKE) -C usage test
 
 $(YDOC_JAR):
 	$(MILL) yadladoc_app.ydocJar
 
 JAVA=java
 DOC_JAVA_JAR=$(JAVA) -jar $(YDOC_JAR)
+doc: $(YDOC_JAR)
+	$(DOC_JAVA_JAR) run README.md
 doc-check: $(YDOC_JAR)
 	$(DOC_JAVA_JAR) --color check README.md
-doc-gen: $(YDOC_JAR)
-	$(DOC_JAVA_JAR) run README.md
 
 javadoc:
 	$(MILL) _.docJar
