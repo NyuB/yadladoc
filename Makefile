@@ -19,7 +19,7 @@ endif
 dev: fmt test
 
 test:
-	$(MILL) -j 4 assert_extensions.test + filesystem.test + interpreter.test + yadladoc.test + yadladoc_app.test
+	$(MILL) -j 4 _.test
 
 usage-test: $(YDOC_JAR)
 	$(MAKE) -C usage test
@@ -37,7 +37,7 @@ doc-gen: $(YDOC_JAR)
 	$(DOC_JAVA_JAR) run README.md
 
 javadoc:
-	$(MILL) assert_extensions.docJar + filesystem.docJar + interpreter.docJar + yadladoc.docJar + yadladoc_app.docJar
+	$(MILL) _.docJar
 
 fmt:
 	scalafmt .
@@ -45,13 +45,9 @@ fmt-check:
 	scalafmt --check .
 
 fix:
-	$(MILL) assert_extensions.fix + filesystem.fix + interpreter.fix + yadladoc.fix + yadladoc_app.fix
+	$(MILL) _.fix
 fix-check:
-	$(MILL) assert_extensions.fix --check
-	$(MILL) filesystem.fix --check
-	$(MILL) interpreter.fix --check
-	$(MILL) yadladoc.fix --check
-	$(MILL) yadladoc_app.fix --check
+	$(MILL) _.fix --check
 
 clean:
 	$(MILL) clean
